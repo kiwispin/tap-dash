@@ -1,46 +1,52 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tournament Dash: School Edition</title>
     <!-- Import Futuristic Font -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    
+
     <style>
         /* --- NEON THEME VARIABLES --- */
         :root {
             --bg-color: #050510;
             --text-main: #fff;
-            
+
             /* NEON PALETTE */
             --cyan: #00f3ff;
             --cyan-dim: rgba(0, 243, 255, 0.3);
             --cyan-glow: 0 0 10px #00f3ff, 0 0 20px #00f3ff;
-            
+
             /* NEW SCHOOL COLORS */
-            --pink: #ff00cc; 
-            --yellow: #fff01f; 
-            --orange: #ffaa00; 
-            --green: #39ff14; 
-            --blue: #00f3ff; 
+            --pink: #ff00cc;
+            --yellow: #fff01f;
+            --orange: #ffaa00;
+            --green: #39ff14;
+            --blue: #00f3ff;
+            --white: #ffffff;
+            --purple: #9d00ff;
         }
 
         /* --- GLOBAL & ANIMATION --- */
-        body { 
-            font-family: 'Orbitron', sans-serif; 
-            margin: 0; 
-            overflow: hidden; 
+        body {
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            overflow: hidden;
             background-color: var(--bg-color);
-            color: var(--text-main); 
-            touch-action: manipulation; 
+            color: var(--text-main);
+            touch-action: manipulation;
         }
 
         /* Moving Grid Background */
         .grid-bg {
             position: absolute;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background-image: 
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image:
                 linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
             background-size: 50px 50px;
@@ -48,318 +54,1020 @@
             perspective: 500px;
             transform-style: preserve-3d;
         }
+
         .grid-bg::after {
             content: '';
             position: absolute;
-            top: 20%; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, rgba(5,5,16,1) 0%, rgba(5,5,16,0) 20%);
+            top: 20%;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(5, 5, 16, 1) 0%, rgba(5, 5, 16, 0) 20%);
         }
 
-        .hidden { display: none !important; }
-        .screen { height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        
-        /* --- BUTTON STYLES --- */
-        button { cursor: pointer; transition: all 0.2s ease-out; font-family: 'Orbitron', sans-serif; }
-        
-        /* Team Selection Buttons */
-        .btn-grid button { 
+        .hidden {
+            display: none !important;
+        }
+
+        .screen {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             position: relative;
-            flex: 1 1 200px; max-width: 320px; height: 100px;
+        }
+
+        /* --- BUTTON STYLES --- */
+        button {
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Team Selection Buttons */
+        .btn-grid button {
+            position: relative;
+            flex: 1 1 200px;
+            max-width: 320px;
+            height: 100px;
             background: rgba(20, 20, 30, 0.9);
-            border: 2px solid rgba(255,255,255,0.3);
-            font-size: 1.4rem; font-weight: 900; letter-spacing: 2px;
-            text-transform: uppercase; color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
             clip-path: polygon(0 0, 100% 0, 100% 80%, 92% 100%, 0 100%);
             backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: center;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
         }
-        .btn-grid button:hover { transform: translateY(-5px) scale(1.02); z-index: 10; }
+
+        .btn-grid button:hover {
+            transform: translateY(-5px) scale(1.02);
+            z-index: 10;
+        }
+
         .btn-grid button.disabled-team {
-            opacity: 0.2; pointer-events: none; filter: grayscale(1);
-            border-color: #444; background: rgba(0,0,0,0.5);
+            opacity: 0.2;
+            pointer-events: none;
+            filter: grayscale(1);
+            border-color: #444;
+            background: rgba(0, 0, 0, 0.5);
         }
 
-        .btn-aranui { border-color: var(--pink); background: rgba(255, 0, 204, 0.2) !important; box-shadow: 0 0 15px rgba(255, 0, 204, 0.2), inset 0 0 20px rgba(255, 0, 204, 0.1); }
-        .btn-aranui:hover { background: var(--pink) !important; color: #fff; box-shadow: 0 0 40px var(--pink); }
+        .btn-aranui {
+            border-color: var(--pink);
+            background: rgba(255, 0, 204, 0.2) !important;
+            box-shadow: 0 0 15px rgba(255, 0, 204, 0.2), inset 0 0 20px rgba(255, 0, 204, 0.1);
+        }
 
-        .btn-tainui { border-color: var(--yellow); background: rgba(255, 240, 31, 0.2) !important; box-shadow: 0 0 15px rgba(255, 240, 31, 0.2), inset 0 0 20px rgba(255, 240, 31, 0.1); color: #fff; }
-        .btn-tainui:hover { background: var(--yellow) !important; color: #000; box-shadow: 0 0 40px var(--yellow); }
+        .btn-aranui:hover {
+            background: var(--pink) !important;
+            color: #fff;
+            box-shadow: 0 0 40px var(--pink);
+        }
 
-        .btn-mahitahi { border-color: var(--orange); background: rgba(255, 170, 0, 0.2) !important; box-shadow: 0 0 15px rgba(255, 170, 0, 0.2), inset 0 0 20px rgba(255, 170, 0, 0.1); }
-        .btn-mahitahi:hover { background: var(--orange) !important; color: #fff; box-shadow: 0 0 40px var(--orange); }
+        .btn-tainui {
+            border-color: var(--yellow);
+            background: rgba(255, 240, 31, 0.2) !important;
+            box-shadow: 0 0 15px rgba(255, 240, 31, 0.2), inset 0 0 20px rgba(255, 240, 31, 0.1);
+            color: #fff;
+        }
 
-        .btn-kiakaha { border-color: var(--green); background: rgba(57, 255, 20, 0.2) !important; box-shadow: 0 0 15px rgba(57, 255, 20, 0.2), inset 0 0 20px rgba(57, 255, 20, 0.1); }
-        .btn-kiakaha:hover { background: var(--green) !important; color: #000; box-shadow: 0 0 40px var(--green); }
+        .btn-tainui:hover {
+            background: var(--yellow) !important;
+            color: #000;
+            box-shadow: 0 0 40px var(--yellow);
+        }
 
-        .btn-tearoha { border-color: var(--blue); background: rgba(0, 243, 255, 0.2) !important; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0, 243, 255, 0.1); }
-        .btn-tearoha:hover { background: var(--blue) !important; color: #000; box-shadow: 0 0 40px var(--blue); }
+        .btn-mahitahi {
+            border-color: var(--orange);
+            background: rgba(255, 170, 0, 0.2) !important;
+            box-shadow: 0 0 15px rgba(255, 170, 0, 0.2), inset 0 0 20px rgba(255, 170, 0, 0.1);
+        }
+
+        .btn-mahitahi:hover {
+            background: var(--orange) !important;
+            color: #fff;
+            box-shadow: 0 0 40px var(--orange);
+        }
+
+        .btn-kiakaha {
+            border-color: var(--green);
+            background: rgba(57, 255, 20, 0.2) !important;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.2), inset 0 0 20px rgba(57, 255, 20, 0.1);
+        }
+
+        .btn-kiakaha:hover {
+            background: var(--green) !important;
+            color: #000;
+            box-shadow: 0 0 40px var(--green);
+        }
+
+        .btn-tearoha {
+            border-color: var(--blue);
+            background: rgba(0, 243, 255, 0.2) !important;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+
+        .btn-tearoha:hover {
+            background: var(--blue) !important;
+            color: #000;
+            box-shadow: 0 0 40px var(--blue);
+        }
+
+        .btn-year9 {
+            border-color: var(--white);
+            background: rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn-year9:hover {
+            background: var(--white) !important;
+            color: #000;
+            box-shadow: 0 0 40px var(--white);
+        }
+
+        .btn-staff {
+            border-color: var(--purple);
+            background: rgba(157, 0, 255, 0.2) !important;
+            box-shadow: 0 0 15px rgba(157, 0, 255, 0.2), inset 0 0 20px rgba(157, 0, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn-staff:hover {
+            background: var(--purple) !important;
+            color: #fff;
+            box-shadow: 0 0 40px var(--purple);
+        }
 
         /* --- SETUP SCREEN --- */
-        #setup h1 { 
-            font-size: 3rem; text-transform: uppercase; letter-spacing: 8px; 
-            text-shadow: 0 0 30px var(--blue); margin-bottom: 30px;
-            text-align: center; font-weight: 900;
+        #setup h1 {
+            font-size: 3rem;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            text-shadow: 0 0 30px var(--blue);
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 900;
         }
-        .btn-grid { 
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; 
-            width: 95%; max-width: 1000px; padding: 0 20px;
+
+        .btn-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            width: 95%;
+            max-width: 1000px;
+            padding: 0 20px;
         }
-        .btn-host { 
-            flex-basis: 100%; max-width: 500px; margin-top: 30px; height: 70px;
-            background: #fff; color: #000; border: none; border-left: none;
-            clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px);
-            font-weight: 900; letter-spacing: 4px; font-size: 1.1rem;
-            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+
+        .btn-host {
+            width: 100%;
+            max-width: 300px;
+            margin-top: 100px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #888;
+            border: 1px solid #444;
+            border-left: 1px solid #444;
+            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            box-shadow: none;
+            transition: all 0.3s;
         }
-        .btn-host:hover { 
-            background: #fff; box-shadow: 0 0 50px rgba(255,255,255,0.6); 
-            transform: scale(1.05); text-shadow: none;
+
+        .btn-host:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+            text-shadow: none;
+            border-color: #fff;
         }
-        
+
         /* HUD Style Bracket Button */
         .btn-bracket-corner {
-            position: absolute; top: 30px; right: 30px;
-            width: auto; height: auto; flex: none;
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: auto;
+            height: auto;
+            flex: none;
             padding: 10px 25px;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             border: 1px solid var(--blue);
             color: var(--blue);
-            font-family: 'Orbitron'; font-weight: 700; letter-spacing: 2px; font-size: 0.8rem;
+            font-family: 'Orbitron';
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
             clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
             box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
             backdrop-filter: blur(4px);
             z-index: 100;
         }
-        .btn-bracket-corner:hover { 
-            background: var(--blue); color: #000; 
-            box-shadow: 0 0 30px var(--blue); 
+
+        .btn-bracket-corner:hover {
+            background: var(--blue);
+            color: #000;
+            box-shadow: 0 0 30px var(--blue);
             transform: translateY(0) scale(1.05);
         }
 
-        /* --- BRACKET SCREEN (REMASTERED) --- */
+        /* --- BRACKET REMASTER --- */
         #bracket-screen {
             background: radial-gradient(circle at center, #0a0a15 0%, #000 100%);
-            display: flex; flex-direction: column; padding: 20px;
-            overflow: hidden; /* Prevent scrolling for cleaner look */
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
         }
-        
-        .bracket-container {
-            display: flex; justify-content: center; align-items: stretch;
-            width: 100%; height: 80vh; max-width: 1400px; margin: 0 auto;
-            padding: 20px; box-sizing: border-box;
+
+        .bracket-wrapper {
+            display: flex;
+            justify-content: space-around;
+            align-items: stretch;
+            width: 100%;
+            max-width: 1400px;
+            height: 65vh;
+            margin-top: 20px;
         }
-        
-        .column {
-            display: flex; flex-direction: column; justify-content: space-around;
-            flex: 1; position: relative;
+
+        .round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            flex: 1;
+            padding: 0 20px;
         }
-        
-        .match-pair {
-            display: flex; flex-direction: column; gap: 20px;
-            position: relative;
+
+        .round-final {
             justify-content: center;
-            height: 50%; /* Takes up half the column height */
-        }
-        
-        /* The Bracket Connector Lines */
-        .match-pair::after {
-            content: ''; position: absolute;
-            top: 25%; bottom: 25%; right: -20px;
-            width: 20px; 
-            border-right: 2px solid var(--cyan);
-            border-top: 2px solid var(--cyan);
-            border-bottom: 2px solid var(--cyan);
-            box-shadow: 2px 0 10px var(--cyan); /* Neon Glow */
-            pointer-events: none;
-        }
-        
-        /* Connector from Semi to Final */
-        .column-semi .match-pair { height: 100%; } /* One pair takes full height */
-        .column-semi .match-pair::after { top: 25%; bottom: 25%; }
-
-        .column-final { justify-content: center; align-items: center; }
-        /* Line entering Final */
-        .column-final::before {
-            content: ''; position: absolute; left: -20px; top: 50%;
-            width: 20px; height: 2px; background: var(--cyan);
-            box-shadow: 0 0 10px var(--cyan);
         }
 
-        .match-box {
-            background: rgba(0, 10, 20, 0.9); 
-            border: 1px solid var(--cyan-dim);
-            padding: 5px; margin: 5px 0;
-            display: flex; flex-direction: column; gap: 2px;
+        .match-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             position: relative;
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.05);
-            z-index: 2;
+            margin: 10px 0;
+            padding: 10px 0;
         }
-        
+
+        .match {
+            background: rgba(0, 10, 20, 0.8);
+            border: 1px solid #333;
+            border-left: 2px solid var(--cyan);
+            padding: 15px;
+            position: relative;
+            transition: all 0.3s;
+            clip-path: polygon(15px 0, 100% 0, 100% 100%, 0 100%, 0 15px);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .match:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+            background: rgba(0, 20, 40, 0.8);
+        }
+
         .bracket-input {
-            background: transparent; border: 1px solid transparent; 
-            color: #fff; text-transform: uppercase;
-            font-family: 'Orbitron'; font-size: 1rem; font-weight: bold;
-            padding: 8px; width: 100%; box-sizing: border-box;
-            text-align: center; 
-            transition: all 0.2s;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #444;
+            color: #fff;
+            font-family: 'Orbitron';
+            font-size: 0.9rem;
+            text-align: center;
+            width: 100%;
+            padding: 5px 0;
+            outline: none;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .bracket-input:hover { background: rgba(0, 243, 255, 0.1); border-color: var(--cyan-dim); }
-        .bracket-input:focus { 
-            background: rgba(0, 243, 255, 0.2); 
-            outline: none; 
-            border-color: var(--cyan); 
-            box-shadow: 0 0 15px var(--cyan);
+
+        .bracket-input:focus {
+            border-bottom-color: var(--cyan);
+            text-shadow: 0 0 5px var(--cyan);
         }
-        .bracket-input::placeholder { color: #444; font-weight: normal; }
-        
-        .bracket-header { 
-            text-align: center; color: var(--cyan); 
-            font-size: 1.2rem; margin-bottom: 10px; letter-spacing: 4px;
-            text-shadow: 0 0 10px var(--cyan);
-            font-weight: 900;
+
+        .bracket-input::placeholder {
+            color: #555;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
         }
-        
-        .champion-box {
-            border: 2px solid var(--yellow);
-            box-shadow: 0 0 30px var(--yellow), inset 0 0 20px rgba(255,240,31,0.2);
-            transform: scale(1.2);
+
+        /* CONNECTORS */
+        .connector-right {
+            position: absolute;
+            right: -21px;
+            top: 50%;
+            width: 21px;
+            height: 2px;
+            background: var(--cyan);
+            box-shadow: 0 0 5px var(--cyan);
+            z-index: 10;
         }
-        .champion-input { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); font-size: 1.2rem; }
+
+        .connector-left {
+            position: absolute;
+            left: -21px;
+            top: 50%;
+            width: 21px;
+            height: 2px;
+            background: var(--cyan);
+            box-shadow: 0 0 5px var(--cyan);
+            z-index: 10;
+        }
+
+        .two-into-one {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* The "Fork" Logic for Semi-Finals */
+        /* We need vertical lines connecting the QTR outputs to the SEMI inputs */
+        /* Since we can't easily draw lines between parents in flexbox without SVG, 
+           we will fake it by adding 'arms' to the semi-final match groups */
+
+        .round-semi .match-group::before {
+            content: '';
+            position: absolute;
+            left: -21px;
+            top: 25%;
+            bottom: 25%;
+            width: 2px;
+            background: var(--cyan);
+            box-shadow: 0 0 5px var(--cyan);
+        }
+
+        /* Specialized connector for Boss Mode (Single input from top) */
+        /* Specialized connector for Boss Mode (Single input from top) */
+        .match-group.single-arm-top::before {
+            content: '';
+            position: absolute;
+            left: -21px;
+            top: 15%;
+            /* Higher start point to catch Q3 */
+            bottom: 50%;
+            /* Cuts off the bottom arm */
+            width: 2px;
+            background: var(--cyan);
+            box-shadow: 0 0 5px var(--cyan);
+            border-bottom-left-radius: 4px;
+        }
+
+        .match-group.single-arm-top .connector-left {
+            top: 15%;
+            /* Move the horizontal connector up to match Q3's likely position */
+        }
+
+
+
+        /* Adjust vertical line height for Semi round 1 and 2 roughly */
+        /* This is a visual approximation. For pixel perfect, Grid would be better but CSS Grid drawing lines is also manual. */
+
+        .match.final-match {
+            border: 2px solid var(--gold);
+            padding: 25px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+            transform: scale(1.1);
+        }
+
+        .final-label {
+            color: var(--gold);
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            text-align: center;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .bracket-input.champion {
+            font-size: 1.5rem;
+            color: var(--gold);
+            text-shadow: 0 0 10px var(--gold);
+            border-bottom: none;
+        }
 
         .bracket-controls {
-            display: flex; gap: 20px; justify-content: center; width: 100%; margin-top: 10px;
+            margin-top: auto;
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .bracket-header {
+            font-size: 3rem;
+            letter-spacing: 10px;
+            margin-bottom: 20px;
+            color: var(--cyan);
+            text-shadow: 0 0 20px var(--cyan);
+            text-align: center;
+            width: 100%;
+            margin-top: 20px;
         }
 
         /* --- HOST SCREEN --- */
-        #host { 
-            background: radial-gradient(circle at center, #1a1a2e 0%, #000 100%); 
-            padding: 20px; box-sizing: border-box; 
-            justify-content: flex-start; 
-            overflow-y: auto; 
+        #host {
+            background: radial-gradient(circle at center, #1a1a2e 0%, #000 100%);
+            padding: 20px;
+            box-sizing: border-box;
+            justify-content: flex-start;
+            overflow-y: auto;
         }
 
         /* Match Setup Panel */
         #match-setup {
-            width: 90%; max-width: 900px;
-            background: rgba(0,0,0,0.6); border: 1px solid #444;
-            padding: 8px 15px; border-radius: 8px; 
-            display: flex; gap: 15px; font-size: 0.8rem;
-            justify-content: center; flex-wrap: wrap;
-            margin-bottom: 20px; 
+            width: 90%;
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #444;
+            padding: 8px 15px;
+            border-radius: 8px;
+            display: flex;
+            gap: 15px;
+            font-size: 0.8rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
         }
-        .setup-checkbox { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #aaa; font-weight: bold; }
-        .setup-checkbox:hover { color: #fff; }
-        .setup-checkbox input { accent-color: var(--blue); width: 1.2em; height: 1.2em; }
-        
+
+        .setup-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            color: #aaa;
+            font-weight: bold;
+        }
+
+        .setup-checkbox:hover {
+            color: #fff;
+        }
+
+        .setup-checkbox input {
+            accent-color: var(--blue);
+            width: 1.2em;
+            height: 1.2em;
+        }
+
         /* HUD Elements - RACE LIGHTS F1 STYLE */
         #race-lights {
-            display: flex; gap: 20px; margin-bottom: 10px;
-            background: rgba(0,0,0,0.8); padding: 10px 30px;
-            border: 1px solid #333; border-radius: 50px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 30px;
+            border: 1px solid #333;
+            border-radius: 50px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
+
         .light {
-            width: 30px; height: 30px; border-radius: 50%;
-            background: #151515; border: 2px solid #333;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #151515;
+            border: 2px solid #333;
             transition: all 0.05s;
         }
-        .light.active { background: #ff0000; box-shadow: 0 0 30px #ff0000; border-color: #fff; }
-        #race-lights.go-signal .light { background: #00ff00 !important; box-shadow: 0 0 50px #00ff00 !important; border-color: #fff; transform: scale(1.1); }
 
-        .host-header { 
-            display: flex; justify-content: space-between; width: 100%; align-items: center; 
-            border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px;
+        .light.active {
+            background: #ff0000;
+            box-shadow: 0 0 30px #ff0000;
+            border-color: #fff;
         }
-        h1.host-title { margin: 0; font-size: 1.2rem; letter-spacing: 2px; color: #888; }
-        #timer-display { 
-            font-size: 5rem; font-weight: 900; line-height: 1; 
-            text-shadow: 0 0 20px currentColor; font-variant-numeric: tabular-nums;
+
+        #race-lights.go-signal .light {
+            background: #00ff00 !important;
+            box-shadow: 0 0 50px #00ff00 !important;
+            border-color: #fff;
+            transform: scale(1.1);
+        }
+
+        .host-header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        h1.host-title {
+            margin: 0;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            color: #888;
+        }
+
+        #timer-display {
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 1;
+            text-shadow: 0 0 20px currentColor;
+            font-variant-numeric: tabular-nums;
         }
 
         /* TRACKS */
-        #scoreboard { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-evenly; }
-        .lane { display: flex; align-items: center; gap: 20px; height: 18%; position: relative; transition: opacity 0.3s; }
-        .lane.inactive { display: none; } 
-        
-        .lane-info { width: 140px; text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
-        .lane-label { font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .win-dots { display: flex; gap: 5px; margin-top: 5px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; background: #333; border: 1px solid #555; }
-        .dot.active { background: #fff; box-shadow: 0 0 10px #fff; }
-        
-        .track { 
-            flex-grow: 1; background: rgba(255,255,255,0.05); height: 16px; 
-            border-radius: 2px; position: relative; overflow: visible; 
-            border: 1px solid rgba(255,255,255,0.1);
+        #scoreboard {
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
         }
-        .bar { 
-            height: 100%; width: 0%; 
+
+        .lane {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            height: 18%;
+            position: relative;
+            transition: opacity 0.3s;
+        }
+
+        .lane.inactive {
+            display: none;
+        }
+
+        .lane-info {
+            width: 140px;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .lane-label {
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .win-dots {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #333;
+            border: 1px solid #555;
+        }
+
+        .dot.active {
+            background: #fff;
+            box-shadow: 0 0 10px #fff;
+        }
+
+        .track {
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.05);
+            height: 16px;
+            border-radius: 2px;
+            position: relative;
+            overflow: visible;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bar {
+            height: 100%;
+            width: 0%;
             transition: width 0.3s cubic-bezier(0.1, 0.7, 1.0, 0.1);
-            position: relative; box-shadow: 0 0 15px currentColor; 
+            position: relative;
+            box-shadow: 0 0 15px currentColor;
         }
-        .bar::after { 
-            content: ''; position: absolute; top: -6px; right: -10px; 
-            width: 24px; height: 28px; background: #fff; 
-            border-radius: 2px; box-shadow: 0 0 10px #fff, 0 0 40px currentColor;
+
+        .bar::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            width: 24px;
+            height: 28px;
+            background: #fff;
+            border-radius: 2px;
+            box-shadow: 0 0 10px #fff, 0 0 40px currentColor;
             transform: skewX(-20deg);
         }
-        .score-text { position: absolute; right: -80px; top: -5px; font-size: 1.5rem; width: 60px; color: #fff; opacity: 0.8; }
+
+        .score-text {
+            position: absolute;
+            right: -80px;
+            top: -5px;
+            font-size: 1.5rem;
+            width: 60px;
+            color: #fff;
+            opacity: 0.8;
+        }
 
         /* CONTROLS */
-        #controls { 
-            height: 80px; display: flex; gap: 20px; align-items: center; justify-content: center;
-            width: 100%; background: rgba(0,0,0,0.8); padding: 0 20px; border-top: 1px solid #333; box-sizing: border-box;
+        #controls {
+            height: 80px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 0 20px;
+            border-top: 1px solid #333;
+            box-sizing: border-box;
         }
-        .status-badge, .control-btn {
-            height: 50px; display: flex; align-items: center; justify-content: center;
-            font-size: 1rem; font-weight: bold; letter-spacing: 1px;
-            text-transform: uppercase; border-radius: 4px; box-sizing: border-box;
+
+        .status-badge,
+        .control-btn {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
-        .status-badge { background: #111; color: #555; border: 1px solid #333; min-width: 180px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); padding: 0 20px; }
-        .status-badge.active { background: rgba(0, 255, 0, 0.1); color: var(--green); border-color: var(--green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.2); text-shadow: 0 0 5px var(--green); }
-        .control-btn { background: transparent; color: #888; border: 1px solid #444; padding: 0 30px; cursor: pointer; transition: all 0.2s; min-width: 200px; font-family: 'Orbitron'; }
-        .control-btn:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
-        .control-btn.primary { border-color: var(--blue); color: var(--blue); box-shadow: inset 0 0 10px rgba(0,243,255,0.1); }
-        .control-btn.primary:hover { background: var(--blue); color: #000; box-shadow: 0 0 20px var(--blue); }
-        .control-btn.danger { border-color: var(--pink); color: var(--pink); opacity: 0.7; }
-        .control-btn.danger:hover { opacity: 1; background: var(--pink); color: white; box-shadow: 0 0 20px var(--pink); }
+
+        .status-badge {
+            background: #111;
+            color: #555;
+            border: 1px solid #333;
+            min-width: 180px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+            padding: 0 20px;
+        }
+
+        .status-badge.active {
+            background: rgba(0, 255, 0, 0.1);
+            color: var(--green);
+            border-color: var(--green);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+            text-shadow: 0 0 5px var(--green);
+        }
+
+        .control-btn {
+            background: transparent;
+            color: #888;
+            border: 1px solid #444;
+            padding: 0 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 200px;
+            font-family: 'Orbitron';
+        }
+
+        .control-btn:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .control-btn.primary {
+            border-color: var(--blue);
+            color: var(--blue);
+            box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.1);
+        }
+
+        .control-btn.primary:hover {
+            background: var(--blue);
+            color: #000;
+            box-shadow: 0 0 20px var(--blue);
+        }
+
+        .control-btn.danger {
+            border-color: var(--pink);
+            color: var(--pink);
+            opacity: 0.7;
+        }
+
+        .control-btn.danger:hover {
+            opacity: 1;
+            background: var(--pink);
+            color: white;
+            box-shadow: 0 0 20px var(--pink);
+        }
+
+        .control-btn.exit {
+            border-color: var(--orange);
+            color: var(--orange);
+            margin-left: auto;
+            box-shadow: inset 0 0 5px rgba(255, 170, 0, 0.2);
+        }
+
+        .control-btn.exit:hover {
+            background: var(--orange);
+            color: #000;
+            box-shadow: 0 0 20px var(--orange);
+        }
+
 
         /* --- WINNER OVERLAY --- */
         #winner-overlay {
-            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.9); z-index: 1000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            backdrop-filter: blur(5px); animation: fadeIn 0.5s ease-out;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.5s ease-out;
         }
-        .trophy-container { width: 200px; height: 200px; margin-bottom: 30px; filter: drop-shadow(0 0 20px currentColor); animation: float 2s infinite ease-in-out; }
-        .winner-title { font-size: 3rem; color: #fff; text-shadow: 0 0 10px #fff; margin: 0; letter-spacing: 5px; }
-        .winner-name { font-size: 5rem; font-weight: 900; text-transform: uppercase; text-shadow: 0 0 30px currentColor, 0 0 60px currentColor; margin: 10px 0 40px 0; letter-spacing: 3px; }
-        .winner-close-btn { background: transparent; color: #fff; border: 2px solid #fff; padding: 15px 40px; font-family: 'Orbitron'; font-size: 1.2rem; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 2px; }
-        .winner-close-btn:hover { background: #fff; color: #000; box-shadow: 0 0 30px #fff; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .trophy-container {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 20px currentColor);
+            animation: float 2s infinite ease-in-out;
+        }
+
+        .winner-title {
+            font-size: 3rem;
+            color: #fff;
+            text-shadow: 0 0 10px #fff;
+            margin: 0;
+            letter-spacing: 5px;
+        }
+
+        .winner-name {
+            font-size: 5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
+            margin: 10px 0 40px 0;
+            letter-spacing: 3px;
+        }
+
+        .winner-close-btn {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 15px 40px;
+            font-family: 'Orbitron';
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .winner-close-btn:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 30px #fff;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
 
         /* --- CLIENT SCREEN --- */
-        #client { text-align: center; position: relative; background: radial-gradient(circle, #222 0%, #000 100%); }
-        #tap-btn { 
-            width: 70vw; height: 70vw; max-width: 350px; max-height: 350px; 
-            border-radius: 50%; border: 4px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.5); color: white; 
-            font-size: 3rem; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.8);
-            user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; position: relative; z-index: 2;
+        #client {
+            text-align: center;
+            position: relative;
+            background: radial-gradient(circle, #222 0%, #000 100%);
         }
-        #tap-btn::after { content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 4px solid currentColor; opacity: 0.5; box-shadow: 0 0 20px currentColor; animation: pulse 2s infinite; }
-        #tap-btn:active { transform: scale(0.96); }
-        #tap-btn:active::after { opacity: 1; box-shadow: 0 0 50px currentColor; }
-        #client.locked { background: #000 !important; }
-        #client.locked #tap-btn { opacity: 0.1; pointer-events: none; filter: grayscale(1); }
-        #msg { font-size: 3rem; margin-bottom: 40px; font-weight: 900; text-transform: uppercase; letter-spacing: 5px; text-shadow: 0 0 20px currentColor; z-index: 2; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.02); opacity: 0.8; } 100% { transform: scale(1); opacity: 0.5; } }
+
+        #tap-btn {
+            width: 70vw;
+            height: 70vw;
+            max-width: 350px;
+            max-height: 350px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0, 0, 0, 0.8);
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            z-index: 2;
+        }
+
+        #tap-btn::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            border: 4px solid currentColor;
+            opacity: 0.5;
+            box-shadow: 0 0 20px currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        #tap-btn:active {
+            transform: scale(0.96);
+        }
+
+        #tap-btn:active::after {
+            opacity: 1;
+            box-shadow: 0 0 50px currentColor;
+        }
+
+        #client.locked {
+            background: #000 !important;
+        }
+
+        #client.locked #tap-btn {
+            opacity: 0.1;
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+
+        #msg {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 0 0 20px currentColor;
+            z-index: 2;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.02);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+        }
+
+        /* --- PIN MODAL --- */
+        #pin-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        .pin-box {
+            background: #050510;
+            border: 2px solid var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2), inset 0 0 30px rgba(0, 243, 255, 0.1);
+            padding: 40px;
+            width: 300px;
+            text-align: center;
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+            position: relative;
+        }
+
+        .pin-box::before {
+            content: 'SECURITY CHECK';
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            color: var(--cyan);
+            opacity: 0.7;
+        }
+
+        .pin-display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            color: #fff;
+            font-family: 'Orbitron';
+            font-size: 2rem;
+            letter-spacing: 8px;
+            margin: 30px 0;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            outline: none;
+        }
+
+        .pin-display:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px var(--cyan-dim);
+        }
+
+        .pin-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-pin {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: 1px solid #555;
+            color: #888;
+            font-family: 'Orbitron';
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-pin:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-pin.confirm {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .btn-pin.confirm:hover {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 20px var(--cyan);
+        }
+
+        .pin-error {
+            color: var(--pink);
+            margin-top: 10px;
+            min-height: 1.2em;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .tps-counter {
+            font-family: 'Orbitron';
+            color: #666;
+            font-size: 1.2rem;
+            margin: 20px 0;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
+
 <body>
 
     <div class="grid-bg"></div>
@@ -367,7 +1075,7 @@
     <!-- SETUP SCREEN -->
     <div id="setup" class="screen">
         <button class="btn-bracket-corner" onclick="showBracket()">TOURNAMENT BRACKET</button>
-        
+
         <h1>Select Team</h1>
         <div class="btn-grid">
             <button id="btn-select-aranui" class="btn-aranui" onclick="joinGame('aranui')">Aranui</button>
@@ -375,60 +1083,122 @@
             <button id="btn-select-mahitahi" class="btn-mahitahi" onclick="joinGame('mahitahi')">Mahi Tahi</button>
             <button id="btn-select-kiakaha" class="btn-kiakaha" onclick="joinGame('kiakaha')">Kia Kaha</button>
             <button id="btn-select-tearoha" class="btn-tearoha" onclick="joinGame('tearoha')">Te Aroha</button>
-            <button class="btn-host" onclick="initHost()">INITIATE HOST SYSTEM</button>
+            <button id="btn-select-year9" class="btn-year9" onclick="joinGame('year9')">YEAR 9</button>
+            <button id="btn-select-staff" class="btn-staff" onclick="joinGame('staff')">STAFF</button>
+        </div>
+        <button class="btn-host" onclick="showPinModal()">INITIATE HOST SYSTEM</button>
+    </div>
+
+    <!-- PIN MODAL -->
+    <div id="pin-modal" class="hidden">
+        <div class="pin-box">
+            <input type="password" id="pin-input" class="pin-display" maxlength="6" placeholder="PIN"
+                onkeydown="checkPinEnter(event)">
+            <div class="pin-controls">
+                <button class="btn-pin" onclick="closePin()">CANCEL</button>
+                <button class="btn-pin confirm" onclick="checkPin()">ACCESS</button>
+            </div>
+            <div id="pin-error" class="pin-error"></div>
+        </div>
+    </div>
+
+    <!-- CONFIRM EXIT MODAL -->
+    <div id="confirm-modal" class="hidden">
+        <div class="pin-box" style="border-color: var(--pink); box-shadow: 0 0 20px var(--pink);">
+            <div
+                style="color: var(--pink); font-family: 'Orbitron'; font-size: 1.5rem; margin-bottom: 20px; text-shadow: 0 0 10px var(--pink);">
+                TERMINATE SYSTEM?
+            </div>
+            <div class="pin-controls">
+                <button class="btn-pin" onclick="closeConfirm()">CANCEL</button>
+                <button class="btn-pin confirm" style="border-color: var(--pink); color: var(--pink);"
+                    onclick="confirmExit()" onmouseover="this.style.background='var(--pink)'; this.style.color='#000'"
+                    onmouseout="this.style.background='transparent'; this.style.color='var(--pink)'">
+                    SHUT DOWN
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- BRACKET SCREEN (REMASTERED) -->
     <div id="bracket-screen" class="screen hidden">
-        <h1 class="bracket-header" style="font-size: 2.5rem; color: #fff; text-shadow: 0 0 20px var(--cyan);">TOURNAMENT TREE</h1>
-        
-        <div class="bracket-container">
-            <!-- Round 1 (Quarter Finals) -->
-            <div class="column">
-                <div class="bracket-header">QTR</div>
-                
-                <div class="match-pair">
-                    <div class="match-box">
-                        <input class="bracket-input" id="b-q1-a" onchange="saveBracket(this.id, this.value)" placeholder="TEAM 1">
-                        <input class="bracket-input" id="b-q1-b" onchange="saveBracket(this.id, this.value)" placeholder="TEAM 2">
-                    </div>
-                    <div class="match-box">
-                        <input class="bracket-input" id="b-q2-a" onchange="saveBracket(this.id, this.value)" placeholder="TEAM 3">
-                        <input class="bracket-input" id="b-q2-b" onchange="saveBracket(this.id, this.value)" placeholder="TEAM 4">
+        <h1 class="bracket-header">TOURNAMENT BRACKET</h1>
+
+        <div class="bracket-wrapper">
+            <!-- Round 1: Quarter Finals -->
+            <div class="round round-qtr">
+                <div class="match-group">
+                    <div class="match">
+                        <input class="bracket-input" id="b-q1-a" onchange="saveBracket(this.id, this.value)"
+                            placeholder="TEAM 1">
+                        <input class="bracket-input" id="b-q1-b" onchange="saveBracket(this.id, this.value)"
+                            placeholder="TEAM 2">
+                        <div class="connector-right"></div>
                     </div>
                 </div>
-
-                <div class="match-pair">
-                    <div class="match-box">
-                        <input class="bracket-input" id="b-q3-a" onchange="saveBracket(this.id, this.value)" placeholder="TEAM 5">
-                        <input class="bracket-input" id="b-q3-b" onchange="saveBracket(this.id, this.value)" placeholder="BYE">
+                <div class="match-group">
+                    <div class="match">
+                        <input class="bracket-input" id="b-q2-a" onchange="saveBracket(this.id, this.value)"
+                            placeholder="TEAM 3">
+                        <input class="bracket-input" id="b-q2-b" onchange="saveBracket(this.id, this.value)"
+                            placeholder="TEAM 4">
+                        <div class="connector-right"></div>
                     </div>
-                    <div class="match-box">
-                        <input class="bracket-input" id="b-q4-a" onchange="saveBracket(this.id, this.value)" placeholder="BYE">
-                        <input class="bracket-input" id="b-q4-b" onchange="saveBracket(this.id, this.value)" placeholder="BYE">
+                </div>
+                <div class="match-group">
+                    <div class="match">
+                        <input class="bracket-input" id="b-q3-a" onchange="saveBracket(this.id, this.value)"
+                            placeholder="TEAM 5">
+                        <input class="bracket-input" id="b-q3-b" onchange="saveBracket(this.id, this.value)"
+                            placeholder="BYE">
+                        <div class="connector-right"></div>
+                    </div>
+                </div>
+                <div class="match-group">
+                    <div class="match">
+                        <input class="bracket-input" id="b-q4-a" onchange="saveBracket(this.id, this.value)"
+                            placeholder="BYE">
+                        <input class="bracket-input" id="b-q4-b" onchange="saveBracket(this.id, this.value)"
+                            placeholder="BYE">
+                        <div class="connector-right"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Round 2 (Semi Finals) -->
-            <div class="column column-semi">
-                <div class="bracket-header">SEMI</div>
-                
-                <div class="match-pair">
-                    <div class="match-box">
-                        <input class="bracket-input" id="b-s1-a" onchange="saveBracket(this.id, this.value)" placeholder="WINNER Q1/Q2">
-                        <input class="bracket-input" id="b-s1-b" onchange="saveBracket(this.id, this.value)" placeholder="WINNER Q3/Q4">
+            <!-- Round 2: Semi Finals -->
+            <div class="round round-semi">
+                <div class="match-group two-into-one">
+                    <div class="connector-left"></div>
+                    <div class="match single">
+                        <input class="bracket-input" id="b-s1-a" onchange="saveBracket(this.id, this.value)"
+                            placeholder="WINNER Q1/Q2">
+                        <input class="bracket-input" id="b-s1-b" onchange="saveBracket(this.id, this.value)"
+                            placeholder="WINNER Q3/Q4">
+                        <div class="connector-right"></div>
+                    </div>
+                </div>
+                <!-- Semi 2: Direct Feed from Q3 in 6-team mode -->
+                <div class="match-group two-into-one">
+                    <div class="connector-left"></div>
+                    <div class="match single">
+                        <input class="bracket-input" id="b-s2-a" onchange="saveBracket(this.id, this.value)"
+                            placeholder="WINNER Q5/Q6">
+                        <input class="bracket-input" id="b-s2-b" onchange="saveBracket(this.id, this.value)"
+                            placeholder="WINNER Q7/Q8">
+                        <div class="connector-right"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Round 3 (Final) -->
-            <div class="column column-final">
-                <div class="bracket-header">FINAL</div>
-                
-                <div class="match-box champion-box">
-                    <input class="bracket-input champion-input" id="b-winner" onchange="saveBracket(this.id, this.value)" placeholder="CHAMPION">
+            <!-- Round 3: Final -->
+            <div class="round round-final">
+                <div class="match-group two-into-one">
+                    <div class="connector-left"></div>
+                    <div class="match final-match">
+                        <div class="final-label">CHAMPION</div>
+                        <input class="bracket-input champion" id="b-winner" onchange="saveBracket(this.id, this.value)"
+                            placeholder="AWAITING DATA">
+                    </div>
                 </div>
             </div>
         </div>
@@ -445,7 +1215,8 @@
         <!-- WINNER OVERLAY -->
         <div id="winner-overlay" class="hidden">
             <div id="winner-trophy" class="trophy-container">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="width:100%; height:100%;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                    stroke-linejoin="round" style="width:100%; height:100%;">
                     <path d="M6 9C6 9 6.5 17 12 17C17.5 17 18 9 18 9"></path>
                     <path d="M6 9H18"></path>
                     <path d="M6 9C3 9 2 6 2 4C2 2 4 2 6 2H18C20 2 22 2 22 4C22 6 21 9 18 9"></path>
@@ -462,11 +1233,20 @@
         <!-- Match Setup Panel -->
         <div id="match-setup">
             <span>ACTIVE TEAMS:</span>
-            <label class="setup-checkbox"><input type="checkbox" id="chk-aranui" checked onchange="updateActiveTeams()" /> Aranui</label>
-            <label class="setup-checkbox"><input type="checkbox" id="chk-tainui" checked onchange="updateActiveTeams()" /> Tainui</label>
-            <label class="setup-checkbox"><input type="checkbox" id="chk-mahitahi" checked onchange="updateActiveTeams()" /> Mahi Tahi</label>
-            <label class="setup-checkbox"><input type="checkbox" id="chk-kiakaha" checked onchange="updateActiveTeams()" /> Kia Kaha</label>
-            <label class="setup-checkbox"><input type="checkbox" id="chk-tearoha" checked onchange="updateActiveTeams()" /> Te Aroha</label>
+            <label class="setup-checkbox"><input type="checkbox" id="chk-aranui" onchange="updateActiveTeams()" />
+                Aranui</label>
+            <label class="setup-checkbox"><input type="checkbox" id="chk-tainui" onchange="updateActiveTeams()" />
+                Tainui</label>
+            <label class="setup-checkbox"><input type="checkbox" id="chk-mahitahi" onchange="updateActiveTeams()" />
+                Mahi Tahi</label>
+            <label class="setup-checkbox"><input type="checkbox" id="chk-kiakaha" onchange="updateActiveTeams()" /> Kia
+                Kaha</label>
+            <label class="setup-checkbox"><input type="checkbox" id="chk-tearoha" onchange="updateActiveTeams()" /> Te
+                Aroha</label>
+            <label class="setup-checkbox"><input type="checkbox" id="chk-year9" onchange="updateActiveTeams()" /> YEAR
+                9</label>
+            <label class="setup-checkbox"><input type="checkbox" id="chk-staff" onchange="updateActiveTeams()" />
+                STAFF</label>
         </div>
 
         <div id="race-lights">
@@ -481,20 +1261,23 @@
             <h1 class="host-title">TOURNAMENT BRACKET</h1>
             <div id="timer-display" style="color: #fff">15</div>
         </div>
-        
+
         <div id="scoreboard"></div>
-        
+
         <div id="controls">
             <div id="host-status" class="status-badge">SYSTEM IDLE</div>
             <button onclick="startSequence()" class="control-btn primary">ENGAGE (Space)</button>
             <button onclick="resetScores()" class="control-btn">RESET SCORES (R)</button>
             <button onclick="resetMatch()" class="control-btn danger">NEW MATCH</button>
+            <button onclick="exitHost()" class="control-btn exit">EXIT SYSTEM</button>
         </div>
     </div>
 
     <!-- CLIENT SCREEN -->
+    <!-- CLIENT SCREEN -->
     <div id="client" class="screen hidden">
         <div id="msg">WAITING</div>
+        <div id="tps-display" class="tps-counter">0 TPS</div>
         <div id="tap-btn">TAP</div>
     </div>
 
@@ -505,13 +1288,13 @@
     <script>
         // --- 1. CONFIGURATION ---
         const firebaseConfig = {
-            apiKey: "PASTE_API_KEY_HERE",
-            authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://PASTE_PROJECT_ID-default-rtdb.firebaseio.com",
-            projectId: "PASTE_PROJECT_ID",
-            storageBucket: "PASTE_PROJECT_ID.appspot.com",
-            messagingSenderId: "...",
-            appId: "..."
+            apiKey: "AIzaSyBc-YmY5nbcS_5vasnZpRJKk-LZCgpuelc",
+            authDomain: "tap-dash-de913.firebaseapp.com",
+            databaseURL: "https://tap-dash-de913-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "tap-dash-de913",
+            storageBucket: "tap-dash-de913.firebasestorage.app",
+            messagingSenderId: "460696612922",
+            appId: "1:460696612922:web:0ea287df21750d0ff50503"
         };
 
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
@@ -520,21 +1303,23 @@
         // --- GLOBAL DATA ---
         let myTeam = null;
         let isHost = false;
-        
+
         const teams = [
             { id: 'aranui', name: 'Aranui', color: 'pink' },
             { id: 'tainui', name: 'Tainui', color: 'yellow' },
             { id: 'mahitahi', name: 'Mahi Tahi', color: 'orange' },
-            { id: 'kiakaha', name: 'Kia Kaha', color: 'green' },
-            { id: 'tearoha', name: 'Te Aroha', color: 'blue' }
+            { id: 'kiakaha', name: 'Kia Kaha', color: 'blue' },
+            { id: 'tearoha', name: 'Te Aroha', color: 'blue' },
+            { id: 'year9', name: 'YEAR 9', color: 'white' },
+            { id: 'staff', name: 'STAFF', color: 'purple' }
         ];
 
-        const currentScores = { aranui: 0, tainui: 0, mahitahi: 0, kiakaha: 0, tearoha: 0 };
-        const teamWins = { aranui: 0, tainui: 0, mahitahi: 0, kiakaha: 0, tearoha: 0 };
-        const winningScore = 300; 
-        
+        const currentScores = { aranui: 0, tainui: 0, mahitahi: 0, kiakaha: 0, tearoha: 0, year9: 0, staff: 0 };
+        const teamWins = { aranui: 0, tainui: 0, mahitahi: 0, kiakaha: 0, tearoha: 0, year9: 0, staff: 0 };
+        const winningScore = 300;
+
         let gameInterval, countdownInterval;
-        let isSequenceRunning = false; 
+        let isSequenceRunning = false;
         const ROUND_DURATION = 15;
         let audioCtx;
         let pendingTaps = 0;
@@ -542,7 +1327,7 @@
         // --- LISTENERS FOR SETUP SCREEN ---
         db.ref('game/activeTeams').on('value', snap => {
             const activeTeams = snap.val();
-            if (!activeTeams) return; 
+            if (!activeTeams) return;
             teams.forEach(t => {
                 const btn = document.getElementById(`btn-select-${t.id}`);
                 if (btn) {
@@ -557,14 +1342,14 @@
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('host').classList.add('hidden');
             document.getElementById('bracket-screen').classList.remove('hidden');
-            
+
             // Listen for changes
             db.ref('bracket').on('value', snap => {
                 const data = snap.val() || {};
-                for (const [key, val] of Object.entries(data)) {
-                    const input = document.getElementById(key);
-                    if (input) input.value = val;
-                }
+                const inputs = document.querySelectorAll('.bracket-input');
+                inputs.forEach(input => {
+                    input.value = data[input.id] || "";
+                });
             });
         }
 
@@ -578,24 +1363,24 @@
         }
 
         function populateBracket() {
-            if(!confirm("Populate with default teams? Overwrites current bracket.")) return;
-            
-            // Instant Visual Update (Optimistic UI)
+            // Shuffle a copy of the teams array to "mix things up"
+            const shuffled = [...teams].sort(() => Math.random() - 0.5);
+
+            // Assign shuffled teams to slots (7 Teams)
             const defaults = {
-                'b-q1-a': "Aranui", 'b-q1-b': "Tainui",
-                'b-q2-a': "Mahi Tahi", 'b-q2-b': "Kia Kaha",
-                'b-q3-a': "Te Aroha", 'b-q3-b': "BYE",
-                'b-q4-a': "BYE", 'b-q4-b': "BYE",
+                'b-q1-a': shuffled[0].name, 'b-q1-b': shuffled[1].name,
+                'b-q2-a': shuffled[2].name, 'b-q2-b': shuffled[3].name,
+                'b-q3-a': shuffled[4].name, 'b-q3-b': shuffled[5].name,
+                'b-q4-a': shuffled[6].name, 'b-q4-b': "BYE",
                 'b-s1-a': "", 'b-s1-b': "",
-                'b-s2-a': "Te Aroha", 'b-s2-b': "", // Te Aroha advances on bye
-                'b-f1-a': "", 'b-f1-b': "",
+                'b-s2-a': "", 'b-s2-b': "",
                 'b-winner': ""
             };
 
             // Update DOM inputs immediately
             for (const [key, val] of Object.entries(defaults)) {
                 const input = document.getElementById(key);
-                if(input) input.value = val;
+                if (input) input.value = val;
             }
 
             // Sync to Firebase
@@ -607,11 +1392,20 @@
         }
 
         function clearBracket() {
-            if(!confirm("Clear entire bracket?")) return;
+            // Removed confirm() to prevent popup blockers
+            // 1. Clear Data
             db.ref('bracket').set(null);
+            // 2. Force Clear UI (Instant Feedback)
             const inputs = document.querySelectorAll('.bracket-input');
             inputs.forEach(i => i.value = "");
         }
+
+        // Expose to window for HTML buttons
+        window.clearBracket = clearBracket;
+        window.populateBracket = populateBracket;
+        window.saveBracket = saveBracket;
+        window.showBracket = showBracket;
+        window.goToSetup = goToSetup;
 
         // --- AUDIO ENGINE ---
         function initAudio() {
@@ -631,7 +1425,7 @@
 
             if (type === 'count') {
                 osc.type = 'sawtooth';
-                const num = val || 5; 
+                const num = val || 5;
                 const step = 5 - num;
                 const freq = 220 + (step * 55);
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
@@ -656,11 +1450,11 @@
                     gainW.connect(audioCtx.destination);
                     oscW.type = 'triangle';
                     oscW.frequency.value = freq;
-                    gainW.gain.setValueAtTime(0, now + (i*0.1));
-                    gainW.gain.linearRampToValueAtTime(0.3, now + (i*0.1) + 0.05);
-                    gainW.gain.exponentialRampToValueAtTime(0.001, now + (i*0.1) + 0.4);
-                    oscW.start(now + (i*0.1));
-                    oscW.stop(now + (i*0.1) + 0.5);
+                    gainW.gain.setValueAtTime(0, now + (i * 0.1));
+                    gainW.gain.linearRampToValueAtTime(0.3, now + (i * 0.1) + 0.05);
+                    gainW.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.1) + 0.4);
+                    oscW.start(now + (i * 0.1));
+                    oscW.stop(now + (i * 0.1) + 0.5);
                 });
             }
         }
@@ -670,14 +1464,17 @@
             const btn = document.getElementById(`btn-select-${teamId}`);
             if (btn && btn.classList.contains('disabled-team')) return;
 
+            // Auto-activate team for the host
+            db.ref(`game/activeTeams/${teamId}`).set(true);
+
             myTeam = teamId;
             document.getElementById('setup').classList.add('hidden');
             const clientScreen = document.getElementById('client');
             clientScreen.classList.remove('hidden');
-            
+
             const teamObj = teams.find(t => t.id === teamId);
             const colorVar = `var(--${teamObj.color})`;
-            
+
             const btnTap = document.getElementById('tap-btn');
             const msg = document.getElementById('msg');
             btnTap.style.color = colorVar;
@@ -688,64 +1485,88 @@
                 if (status === 'playing') {
                     clientScreen.classList.remove('locked');
                     msg.innerText = "ENGAGED";
+                    document.getElementById('tps-display').classList.add('hidden'); // Hide TPS
+                    tapTimestamps = []; // Reset TPS on start
                     if (navigator.vibrate) navigator.vibrate(50);
                 } else {
                     clientScreen.classList.add('locked');
-                    msg.innerText = "STANDBY"; 
+                    msg.innerText = "STANDBY";
+                    document.getElementById('tps-display').classList.remove('hidden'); // Show TPS
                 }
             });
 
             const eventType = 'ontouchstart' in window ? 'touchstart' : 'click';
             btnTap.addEventListener(eventType, (e) => {
-                e.preventDefault(); 
+                e.preventDefault();
                 handleTap();
             });
-            
-            setInterval(flushPendingTaps, 300); 
+
+            setInterval(flushPendingTaps, 300);
+
+            // TPS Decay Interval (runs on client)
+            setInterval(() => {
+                if (document.getElementById('client').classList.contains('hidden')) return;
+                const now = Date.now();
+                // Filter taps older than 1s
+                tapTimestamps = tapTimestamps.filter(t => now - t <= 1000);
+                // Update display if visible
+                const tpsDisplay = document.getElementById('tps-display');
+                if (!tpsDisplay.classList.contains('hidden')) {
+                    tpsDisplay.innerText = tapTimestamps.length + " TPS";
+                }
+            }, 100);
         }
+
+        let tapTimestamps = [];
 
         function handleTap() {
             if (document.getElementById('client').classList.contains('locked')) return;
+
+            // TPS LOGIC
+            tapTimestamps.push(Date.now());
+
+            // GAMEPLAY LOGIC
             pendingTaps++;
             const btn = document.getElementById('tap-btn');
             btn.style.transform = "scale(0.9)";
             setTimeout(() => btn.style.transform = "scale(1)", 50);
         }
-        
+
         function flushPendingTaps() {
             if (pendingTaps > 0) {
                 const countToSend = pendingTaps;
-                pendingTaps = 0; 
-                const teamRef = db.ref(`scores/${myTeam}`);
-                teamRef.transaction(currentScore => { return (currentScore || 0) + countToSend; });
+                pendingTaps = 0;
+                if (myTeam) {
+                    db.ref(`scores/${myTeam}`).transaction(current => (current || 0) + countToSend);
+                }
             }
         }
 
-        // --- HOST FUNCTIONS ---
         function initHost() {
             isHost = true;
-            initAudio();
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('host').classList.remove('hidden');
+            initAudio();
 
             const board = document.getElementById('scoreboard');
+            board.innerHTML = '';
             teams.forEach(t => {
                 board.innerHTML += `
-                    <div class="lane" id="lane-${t.id}">
-                        <div class="lane-info">
-                            <div class="lane-label text-${t.id}">${t.name}</div>
-                            <div class="win-dots" id="dots-${t.id}">
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                            </div>
-                        </div>
-                        <div class="track">
-                            <div id="bar-${t.id}" class="bar bg-${t.id}"></div>
-                            <div id="score-${t.id}" class="score-text">0</div>
-                        </div>
-                    </div>
-                `;
+<div class="lane" id="lane-${t.id}">
+    <div class="lane-info">
+        <div class="lane-label text-${t.id}">${t.name}</div>
+        <div class="win-dots" id="dots-${t.id}">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+    <div class="track">
+        <div id="bar-${t.id}" class="bar bg-${t.id}"></div>
+        <div id="score-${t.id}" class="score-text">0</div>
+    </div>
+</div>
+`;
             });
 
             updateActiveTeams();
@@ -753,10 +1574,19 @@
             teams.forEach(t => {
                 db.ref(`scores/${t.id}`).on('value', snap => {
                     const score = snap.val() || 0;
-                    currentScores[t.id] = score; 
+                    currentScores[t.id] = score;
                     const percent = Math.min((score / winningScore) * 100, 100);
                     document.getElementById(`bar-${t.id}`).style.width = `${percent}%`;
                     document.getElementById(`score-${t.id}`).innerText = score;
+                });
+            });
+
+            // --- NEW: LISTEN FOR WINS ---
+            db.ref('wins').on('value', snap => {
+                const winsData = snap.val() || {};
+                teams.forEach(t => {
+                    teamWins[t.id] = winsData[t.id] || 0;
+                    updateDots(t.id);
                 });
             });
 
@@ -773,7 +1603,7 @@
             });
 
             document.addEventListener('keydown', (e) => {
-                if (e.repeat) return; 
+                if (e.repeat) return;
                 if (e.code === 'Space') startSequence();
                 if (e.code === 'KeyR') resetScores();
             });
@@ -793,7 +1623,7 @@
             });
             db.ref().update(updates);
         }
-        
+
         function determineWinner() {
             let maxScore = -1;
             let winningTeamId = null;
@@ -806,9 +1636,11 @@
             });
 
             if (winningTeamId && maxScore > 0) {
-                teamWins[winningTeamId]++;
-                updateDots(winningTeamId);
-                const isMatchWin = teamWins[winningTeamId] >= 2;
+                // UPDATE FIREBASE INSTEAD OF LOCAL ONLY
+                const newWins = (teamWins[winningTeamId] || 0) + 1;
+                db.ref(`wins/${winningTeamId}`).set(newWins);
+
+                const isMatchWin = newWins >= 2;
                 showWinnerOverlay(winningTeamId, isMatchWin);
             }
         }
@@ -819,13 +1651,12 @@
             const dots = dotsContainer.querySelectorAll('.dot');
             const wins = teamWins[teamId];
             for (let i = 0; i < dots.length; i++) {
-                if (i < wins) dots[i].classList.add('active');
-                else dots[i].classList.remove('active');
+                if (i < wins) dots[i].classList.add('active'); else
+                    dots[i].classList.remove('active');
             }
-        }
-
-        function showWinnerOverlay(teamId, isMatchWin) {
-            const team = teams.find(t => t.id === teamId);
+        } function showWinnerOverlay(teamId, isMatchWin) {
+            const team = teams.find(t =>
+                t.id === teamId);
             if (!team) return;
             const overlay = document.getElementById('winner-overlay');
             const titleText = document.getElementById('winner-title-text');
@@ -834,14 +1665,14 @@
 
             if (isMatchWin) {
                 titleText.innerText = "MATCH WINNER";
-                titleText.style.color = "#fff"; 
+                titleText.style.color = "#fff";
             } else {
                 titleText.innerText = "ROUND WINNER";
-                titleText.style.color = "#888"; 
+                titleText.style.color = "#888";
             }
             nameText.innerText = team.name;
             nameText.style.color = `var(--${team.color})`;
-            trophy.style.color = `var(--${team.color})`; 
+            trophy.style.color = `var(--${team.color})`;
             playBeep('win');
             overlay.classList.remove('hidden');
         }
@@ -858,7 +1689,7 @@
         }
 
         function startSequence() {
-            if (!isHost || isSequenceRunning) return; 
+            if (!isHost || isSequenceRunning) return;
             closeWinner();
             isSequenceRunning = true;
             setLights(0);
@@ -877,7 +1708,7 @@
             const timerDisplay = document.getElementById('timer-display');
             timerDisplay.innerText = num;
             playBeep('count', num);
-            const lightIndex = 5 - num + 1; 
+            const lightIndex = 5 - num + 1;
             const light = document.getElementById(`light-${lightIndex}`);
             if (light) light.classList.add('active');
         }
@@ -887,48 +1718,37 @@
             const timerDisplay = document.getElementById('timer-display');
             timerDisplay.style.color = 'var(--green)';
             timerDisplay.innerText = "GO";
-            setLights(-1); 
+            setLights(-1);
             playBeep('go');
             db.ref('game/status').set('playing');
             setTimeout(() => {
                 timerDisplay.style.color = '#fff';
                 timerDisplay.innerText = timeLeft;
-                setLights(0); 
+                setLights(0);
                 gameInterval = setInterval(() => {
                     timeLeft--;
                     timerDisplay.innerText = timeLeft;
                     if (timeLeft <= 0) { clearInterval(gameInterval); endRound(); }
                 }, 1000);
             }, 1000);
-        }
-
-        function endRound() {
-            db.ref('game/status').set('paused');
-            isSequenceRunning = false; 
-            document.getElementById('timer-display').style.color = '#555'; 
-            document.getElementById('timer-display').innerText = "0";
-            determineWinner();
-        }
-
-        function resetScores() {
-            if(!isHost) return;
-            if(!confirm("Reset current scores? (Dots/Wins will remain)")) return;
-            closeWinner();
-            clearInterval(gameInterval);
-            clearInterval(countdownInterval);
-            isSequenceRunning = false;
+        } function endRound() {
+            db.ref('game/status').set('paused'); isSequenceRunning = false;
+            document.getElementById('timer-display').style.color = '#555';
+            document.getElementById('timer-display').innerText = "0"; determineWinner();
+        } function resetScores() {
+            if
+                (!isHost) return; if (!confirm("Reset current scores? (Dots/Wins will remain)")) return; closeWinner();
+            clearInterval(gameInterval); clearInterval(countdownInterval); isSequenceRunning = false;
             document.getElementById('timer-display').innerText = ROUND_DURATION;
-            document.getElementById('timer-display').style.color = '#fff';
-            setLights(0);
-            const updates = {};
-            teams.forEach(t => updates[`scores/${t.id}`] = 0);
+            document.getElementById('timer-display').style.color = '#fff'; setLights(0); const updates = {}; teams.forEach(t =>
+                updates[`scores/${t.id}`] = 0);
             updates['game/status'] = 'paused';
             db.ref().update(updates);
         }
 
         function resetMatch() {
-            if(!isHost) return;
-            if(!confirm("NEW MATCH? This will clear ALL scores and Win Dots.")) return;
+            if (!isHost) return;
+            if (!confirm("NEW MATCH? This will clear ALL scores and Win Dots.")) return;
             closeWinner();
             clearInterval(gameInterval);
             clearInterval(countdownInterval);
@@ -939,12 +1759,86 @@
             const updates = {};
             teams.forEach(t => {
                 updates[`scores/${t.id}`] = 0;
-                teamWins[t.id] = 0;
-                updateDots(t.id);
+                updates[`wins/${t.id}`] = 0; // Clear wins in Firebase
             });
             updates['game/status'] = 'paused';
             db.ref().update(updates);
         }
+
+        function exitHost() {
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        function closeConfirm() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+        }
+
+        function confirmExit() {
+            closeConfirm();
+            isHost = false;
+            document.getElementById('setup').classList.remove('hidden');
+            document.getElementById('host').classList.add('hidden');
+            // Stop game loop/audio
+            clearInterval(gameInterval);
+            clearInterval(countdownInterval);
+        }
+
+        // --- PIN SYSTEM ---
+        function showPinModal() {
+            document.getElementById('pin-modal').classList.remove('hidden');
+            const input = document.getElementById('pin-input');
+            input.value = "";
+            input.focus();
+            document.getElementById('pin-error').innerText = "";
+        }
+
+        function closePin() {
+            document.getElementById('pin-modal').classList.add('hidden');
+        }
+
+        function checkPin() {
+            const pin = document.getElementById('pin-input').value;
+            if (pin === "120126") {
+                closePin();
+                initHost();
+            } else {
+                const errorLine = document.getElementById('pin-error');
+                errorLine.innerText = "ACCESS DENIED";
+                const modalBox = document.querySelector('#pin-modal .pin-box');
+                modalBox.classList.add('shake');
+                setTimeout(() => modalBox.classList.remove('shake'), 500);
+            }
+        }
+
+        function checkPinEnter(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                checkPin();
+            }
+        }
     </script>
+    <style>
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+    </style>
 </body>
+
 </html>
