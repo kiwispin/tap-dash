@@ -413,6 +413,18 @@
             width: 2px;
             background: var(--cyan);
             box-shadow: 0 0 5px var(--cyan);
+            box-shadow: 0 0 5px var(--cyan);
+        }
+
+        .round-finals .match-group::before {
+            content: '';
+            position: absolute;
+            left: -21px;
+            top: 25%;
+            bottom: 25%;
+            width: 2px;
+            background: var(--cyan);
+            box-shadow: 0 0 5px var(--cyan);
         }
 
         /* Specialized connector for Boss Mode (Single input from top) */
@@ -1190,8 +1202,22 @@
                 </div>
             </div>
 
-            <!-- Round 3: Final -->
-            <div class="round round-final">
+            <!-- Round 3: Finals -->
+            <div class="round round-finals">
+                <div class="match-group two-into-one">
+                    <div class="connector-left"></div>
+                    <div class="match single">
+                        <input class="bracket-input" id="b-f1-a" onchange="saveBracket(this.id, this.value)"
+                            placeholder="FINALIST A">
+                        <input class="bracket-input" id="b-f1-b" onchange="saveBracket(this.id, this.value)"
+                            placeholder="FINALIST B">
+                        <div class="connector-right"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Round 4: Champion -->
+            <div class="round round-champion">
                 <div class="match-group two-into-one">
                     <div class="connector-left"></div>
                     <div class="match final-match">
@@ -1381,6 +1407,7 @@
                 'b-q4-a': shuffled[6].name, 'b-q4-b': "BYE",
                 'b-s1-a': "", 'b-s1-b': "",
                 'b-s2-a': "", 'b-s2-b': "",
+                'b-f1-a': "", 'b-f1-b': "",
                 'b-winner': ""
             };
 
