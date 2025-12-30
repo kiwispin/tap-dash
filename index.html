@@ -603,14 +603,17 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-evenly;
+            flex-direction: column;
+            justify-content: center;
+            gap: 50px;
         }
 
         .lane {
             display: flex;
             align-items: center;
             gap: 20px;
-            height: 18%;
+            height: 120px;
+            flex-shrink: 0;
             position: relative;
             transition: opacity 0.3s;
         }
@@ -620,7 +623,7 @@
         }
 
         .lane-info {
-            width: 140px;
+            width: 250px;
             text-align: right;
             display: flex;
             flex-direction: column;
@@ -628,24 +631,26 @@
         }
 
         .lane-label {
-            font-weight: 700;
-            font-size: 1.1rem;
+            font-weight: 800;
+            font-size: 2.2rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .win-dots {
             display: flex;
             gap: 5px;
             margin-top: 5px;
+            margin-right: 20px;
         }
 
         .dot {
-            width: 10px;
-            height: 10px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #333;
-            border: 1px solid #555;
+            border: 2px solid #555;
         }
 
         .dot.active {
@@ -654,13 +659,14 @@
         }
 
         .track {
-            flex-grow: 1;
+            flex-grow: 0;
+            width: 70%;
             background: rgba(255, 255, 255, 0.05);
-            height: 16px;
-            border-radius: 2px;
+            height: 40px;
+            border-radius: 4px;
             position: relative;
             overflow: visible;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .bar {
@@ -676,22 +682,24 @@
             position: absolute;
             top: -6px;
             right: -10px;
-            width: 24px;
-            height: 28px;
+            width: 30px;
+            height: 52px;
             background: #fff;
-            border-radius: 2px;
+            border-radius: 4px;
             box-shadow: 0 0 10px #fff, 0 0 40px currentColor;
             transform: skewX(-20deg);
         }
 
         .score-text {
             position: absolute;
-            right: -80px;
-            top: -5px;
-            font-size: 1.5rem;
-            width: 60px;
+            right: -100px;
+            top: -2px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            width: 80px;
             color: #fff;
-            opacity: 0.8;
+            opacity: 1;
+            text-shadow: 0 0 10px currentColor;
         }
 
         /* CONTROLS */
@@ -1347,7 +1355,7 @@
             { id: 'aranui', name: 'Aranui', color: 'pink' },
             { id: 'tainui', name: 'Tainui', color: 'yellow' },
             { id: 'mahitahi', name: 'Mahi Tahi', color: 'orange' },
-            { id: 'kiakaha', name: 'Kia Kaha', color: 'blue' },
+            { id: 'kiakaha', name: 'Kia Kaha', color: 'green' },
             { id: 'tearoha', name: 'Te Aroha', color: 'blue' },
             { id: 'year9', name: 'YEAR 9', color: 'white' },
             { id: 'staff', name: 'STAFF', color: 'purple' }
@@ -1594,7 +1602,7 @@
                 board.innerHTML += `
 <div class="lane" id="lane-${t.id}">
     <div class="lane-info">
-        <div class="lane-label text-${t.id}">${t.name}</div>
+        <div class="lane-label" style="color:var(--${t.color})">${t.name}</div>
         <div class="win-dots" id="dots-${t.id}">
             <div class="dot"></div>
             <div class="dot"></div>
@@ -1845,30 +1853,31 @@
                 return;
             }
 
-            // Find first incomplete match
             let foundMatch = null;
+
+            // Find first incomplete match
             for (const match of bracketMatches) {
                 const valA = document.getElementById(match.inputs[0]).value;
                 const valB = document.getElementById(match.inputs[1]).value;
                 const valTarget = document.getElementById(match.target).value;
 
-                // If match is ready to play (has both teams) AND has no winner yet
-                if (valA && valB && valA !== "BYE" && valB !== "BYE" && !valTarget) {
-                    foundMatch = match;
-                    break;
-                }
-
-                // Handle BYE auto-advance
+                // Priority: Handle BYE auto-advance immediately
                 if (valA && valB && !valTarget) {
                     if (valA === "BYE" && valB !== "BYE") {
                         saveBracket(match.target, valB);
                         setTimeout(evaluateBracketState, 500);
-                        return;
+                        return; // Stop and re-evaluate
                     } else if (valB === "BYE" && valA !== "BYE") {
                         saveBracket(match.target, valA);
                         setTimeout(evaluateBracketState, 500);
-                        return;
+                        return; // Stop and re-evaluate
                     }
+                }
+
+                // Identify playable match
+                if (!foundMatch && valA && valB && valA !== "BYE" && valB !== "BYE" && !valTarget) {
+                    foundMatch = match;
+                    // We DO NOT break here, because a later match might need BYE processing
                 }
             }
 
