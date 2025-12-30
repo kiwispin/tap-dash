@@ -517,6 +517,8 @@
             justify-content: center;
             flex-wrap: wrap;
             margin-bottom: 20px;
+            margin-top: 260px;
+            /* Clear Timer AND Race Lights */
         }
 
         .setup-checkbox {
@@ -542,12 +544,18 @@
         #race-lights {
             display: flex;
             gap: 20px;
+            /* Absolute positioning to sit below the huge timer */
+            position: absolute;
+            top: 180px;
+            left: 50%;
+            transform: translateX(-50%);
             margin-bottom: 10px;
             background: rgba(0, 0, 0, 0.8);
             padding: 10px 30px;
             border: 1px solid #333;
             border-radius: 50px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            z-index: 5;
         }
 
         .light {
@@ -573,28 +581,48 @@
         }
 
         .host-header {
-            display: flex;
-            justify-content: space-between;
+            position: absolute;
+            top: 20px;
+            left: 0;
             width: 100%;
-            align-items: center;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
+            height: 0;
+            /* Don't push content down */
+            display: flex;
+            justify-content: center;
+            /* Timer Center */
+            z-index: 10;
         }
 
         h1.host-title {
-            margin: 0;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            color: #888;
+            position: absolute;
+            left: 30px;
+            top: 10px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #fff;
+            background: #e60000;
+            /* LIVE RED */
+            padding: 5px 15px;
+            border-radius: 4px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 15px #ff0000;
+            transform: skewX(-10deg);
         }
 
         #timer-display {
-            font-size: 5rem;
+            font-size: 8rem;
             font-weight: 900;
             line-height: 1;
-            text-shadow: 0 0 20px currentColor;
+            color: #fff;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
             font-variant-numeric: tabular-nums;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0 30px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top: none;
+            backdrop-filter: blur(5px);
         }
 
         /* TRACKS */
@@ -603,19 +631,54 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            flex-direction: column;
             justify-content: center;
             gap: 50px;
+            position: relative;
+            overflow: hidden;
+            /* Ensure big VS doesn't scroll */
+        }
+
+        .vs-watermark {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30vw;
+            /* Reduced from 50vw */
+            line-height: 0.8;
+            font-weight: 900;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.03);
+            /* More subtle */
+            pointer-events: none;
+            z-index: 0;
+            user-select: none;
+        }
+
+        /* IMMERSIVE MODE */
+        body.immersive #match-setup,
+        body.immersive #controls,
+        body.immersive .immersive-hint {
+            display: none !important;
+        }
+
+        body.immersive {
+            cursor: none;
+            /* Hide cursor for full immersion */
         }
 
         .lane {
             display: flex;
             align-items: center;
-            gap: 20px;
+            justify-content: center;
+            /* Center horizontally */
+            gap: 30px;
             height: 120px;
             flex-shrink: 0;
             position: relative;
             transition: opacity 0.3s;
+            width: 100%;
+            /* Ensure full width availability */
         }
 
         .lane.inactive {
@@ -1272,6 +1335,10 @@
                     AUTO-RUN TOURNAMENT (DIRECTOR MODE)
                 </label>
             </div>
+            <div class="immersive-hint"
+                style="width:100%; text-align:center; color:#555; font-size:0.7rem; margin-top:5px;">
+                PRESS 'H' TO TOGGLE HUD (HIDE ADMIN CONTROLS)
+            </div>
             <span>ACTIVE TEAMS:</span>
             <label class="setup-checkbox"><input type="checkbox" id="chk-aranui" onchange="updateActiveTeams()"
                     checked />
@@ -1305,7 +1372,7 @@
         </div>
 
         <div class="host-header">
-            <h1 class="host-title">TOURNAMENT BRACKET</h1>
+            <h1 class="host-title">LIVE BATTLE</h1>
             <div id="timer-display" style="color: #fff">15</div>
         </div>
 
@@ -1590,6 +1657,24 @@
             }
         }
 
+        // Function to show the setup screen (visual hint for match-setup)
+        function showSetup() {
+            document.getElementById('setup').classList.remove('hidden');
+            document.getElementById('host').classList.add('hidden');
+            document.getElementById('client').classList.add('hidden');
+            document.getElementById('bracket-screen').classList.add('hidden');
+        }
+
+        window.onload = function () {
+            showSetup();
+            // HUD Toggle Listener
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'h' || e.key === 'H') {
+                    document.body.classList.toggle('immersive');
+                }
+            });
+        };
+
         function initHost() {
             isHost = true;
             document.getElementById('setup').classList.add('hidden');
@@ -1597,10 +1682,10 @@
             initAudio();
 
             const board = document.getElementById('scoreboard');
-            board.innerHTML = '';
+            board.innerHTML = '<div class="vs-watermark">VS</div>';
             teams.forEach(t => {
                 board.innerHTML += `
-<div class="lane" id="lane-${t.id}">
+<div class="lane" id="lane-${t.id}" style="z-index:1;">
     <div class="lane-info">
         <div class="lane-label" style="color:var(--${t.color})">${t.name}</div>
         <div class="win-dots" id="dots-${t.id}">
