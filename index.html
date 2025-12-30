@@ -1258,6 +1258,12 @@
 
         <!-- Match Setup Panel -->
         <div id="match-setup">
+            <div style="width:100%; display:flex; justify-content:center; margin-bottom:10px;">
+                <label class="setup-checkbox" style="color:var(--cyan); font-size:1.1rem;">
+                    <input type="checkbox" id="chk-auto-director" onchange="evaluateBracketState()">
+                    AUTO-RUN TOURNAMENT (DIRECTOR MODE)
+                </label>
+            </div>
             <span>ACTIVE TEAMS:</span>
             <label class="setup-checkbox"><input type="checkbox" id="chk-aranui" onchange="updateActiveTeams()"
                     checked />
@@ -1674,7 +1680,15 @@
                 const newWins = (teamWins[winningTeamId] || 0) + 1;
                 db.ref(`wins/${winningTeamId}`).set(newWins);
 
-                const isMatchWin = newWins >= 2;
+                const isDirector = document.getElementById('chk-auto-director') ? document.getElementById('chk-auto-director').checked : false;
+                const winThreshold = isDirector ? targetWins : 2;
+
+                const isMatchWin = newWins >= winThreshold;
+
+                if (isMatchWin && isDirector) {
+                    directorHandleWin(winningTeamId);
+                }
+
                 showWinnerOverlay(winningTeamId, isMatchWin);
             }
         }
@@ -1724,6 +1738,7 @@
 
         function startSequence() {
             if (!isHost || isSequenceRunning) return;
+            resetScores(true);
             closeWinner();
             isSequenceRunning = true;
             setLights(0);
@@ -1769,20 +1784,28 @@
             db.ref('game/status').set('paused'); isSequenceRunning = false;
             document.getElementById('timer-display').style.color = '#555';
             document.getElementById('timer-display').innerText = "0"; determineWinner();
-        } function resetScores() {
-            if
-                (!isHost) return; if (!confirm("Reset current scores? (Dots/Wins will remain)")) return; closeWinner();
-            clearInterval(gameInterval); clearInterval(countdownInterval); isSequenceRunning = false;
+        }
+
+        function resetScores(force) {
+            if (!isHost) return;
+            if (!force && !confirm("Reset current scores? (Dots/Wins will remain)")) return;
+
+            closeWinner();
+            clearInterval(gameInterval);
+            clearInterval(countdownInterval);
+            isSequenceRunning = false;
             document.getElementById('timer-display').innerText = ROUND_DURATION;
-            document.getElementById('timer-display').style.color = '#fff'; setLights(0); const updates = {}; teams.forEach(t =>
-                updates[`scores/${t.id}`] = 0);
+            document.getElementById('timer-display').style.color = '#fff';
+            setLights(0);
+            const updates = {};
+            teams.forEach(t => updates[`scores/${t.id}`] = 0);
             updates['game/status'] = 'paused';
             db.ref().update(updates);
         }
 
-        function resetMatch() {
+        function resetMatch(force) {
             if (!isHost) return;
-            if (!confirm("NEW MATCH? This will clear ALL scores and Win Dots.")) return;
+            if (!force && !confirm("NEW MATCH? This will clear ALL scores and Win Dots.")) return;
             closeWinner();
             clearInterval(gameInterval);
             clearInterval(countdownInterval);
@@ -1797,6 +1820,119 @@
             });
             updates['game/status'] = 'paused';
             db.ref().update(updates);
+        }
+
+        // --- TOURNAMENT DIRECTOR ---
+        const bracketMatches = [
+            { id: 'q1', inputs: ['b-q1-a', 'b-q1-b'], target: 'b-s1-a', bestOf: 3 },
+            { id: 'q2', inputs: ['b-q2-a', 'b-q2-b'], target: 'b-s1-b', bestOf: 3 },
+            { id: 'q3', inputs: ['b-q3-a', 'b-q3-b'], target: 'b-s2-a', bestOf: 3 },
+            { id: 'q4', inputs: ['b-q4-a', 'b-q4-b'], target: 'b-s2-b', bestOf: 3 },
+            { id: 's1', inputs: ['b-s1-a', 'b-s1-b'], target: 'b-f1-a', bestOf: 3 },
+            { id: 's2', inputs: ['b-s2-a', 'b-s2-b'], target: 'b-f1-b', bestOf: 3 },
+            { id: 'f1', inputs: ['b-f1-a', 'b-f1-b'], target: 'b-winner', bestOf: 5 }
+        ];
+
+        let currentDirectorMatch = null;
+        let targetWins = 2;
+
+        function evaluateBracketState() {
+            const el = document.getElementById('chk-auto-director');
+            const isAuto = el ? el.checked : false;
+
+            if (!isAuto) {
+                targetWins = 2;
+                return;
+            }
+
+            // Find first incomplete match
+            let foundMatch = null;
+            for (const match of bracketMatches) {
+                const valA = document.getElementById(match.inputs[0]).value;
+                const valB = document.getElementById(match.inputs[1]).value;
+                const valTarget = document.getElementById(match.target).value;
+
+                // If match is ready to play (has both teams) AND has no winner yet
+                if (valA && valB && valA !== "BYE" && valB !== "BYE" && !valTarget) {
+                    foundMatch = match;
+                    break;
+                }
+
+                // Handle BYE auto-advance
+                if (valA && valB && !valTarget) {
+                    if (valA === "BYE" && valB !== "BYE") {
+                        saveBracket(match.target, valB);
+                        setTimeout(evaluateBracketState, 500);
+                        return;
+                    } else if (valB === "BYE" && valA !== "BYE") {
+                        saveBracket(match.target, valA);
+                        setTimeout(evaluateBracketState, 500);
+                        return;
+                    }
+                }
+            }
+
+            if (foundMatch) {
+                activateMatch(foundMatch);
+            }
+        }
+
+        function activateMatch(match) {
+            currentDirectorMatch = match;
+            targetWins = Math.ceil(match.bestOf / 2);
+
+            const teamNameA = document.getElementById(match.inputs[0]).value;
+            const teamNameB = document.getElementById(match.inputs[1]).value;
+
+            // Identify Team IDs
+            let idA = null, idB = null;
+            teams.forEach(t => {
+                if (t.name === teamNameA) idA = t.id;
+                if (t.name === teamNameB) idB = t.id;
+            });
+
+            if (idA && idB) {
+                // Ensure correct boxes are checked
+                let needsUpdate = false;
+
+                // Uncheck others
+                calculateActive:
+                teams.forEach(t => {
+                    const chk = document.getElementById(`chk-${t.id}`);
+                    const shouldBeChecked = (t.id === idA || t.id === idB);
+                    if (chk.checked !== shouldBeChecked) {
+                        chk.checked = shouldBeChecked;
+                        needsUpdate = true;
+                    }
+                });
+
+                if (needsUpdate) {
+                    console.log(`Director: Activating ${match.id} (${teamNameA} vs ${teamNameB})`);
+                    updateActiveTeams();
+                    // Optional: Reset match if we just switched to it? 
+                    // Let's rely on manual "New Match" for now, or users hits Reset Scores.
+                    // Actually, if we switch matches, we MUST reset dots/scores or they persist from prev match.
+                    // Let's force a match reset.
+                    // Let's force a match reset.
+                    resetMatch(true);
+                }
+            }
+        }
+
+
+
+        function directorHandleWin(winningTeamId) {
+            if (!currentDirectorMatch) return;
+            const winningTeam = teams.find(t => t.id === winningTeamId);
+            if (!winningTeam) return;
+
+            // Advance Bracket
+            saveBracket(currentDirectorMatch.target, winningTeam.name);
+
+            // Re-evaluate to find next match
+            setTimeout(() => {
+                evaluateBracketState();
+            }, 2000);
         }
 
         function exitHost() {
@@ -1816,6 +1952,8 @@
             clearInterval(gameInterval);
             clearInterval(countdownInterval);
         }
+
+
 
         // --- PIN SYSTEM ---
         function showPinModal() {
