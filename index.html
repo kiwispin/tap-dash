@@ -1018,6 +1018,36 @@
             display: none;
         }
 
+        /* --- CLIENT EXIT BUTTON --- */
+        .btn-client-exit {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            padding: 10px 25px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--orange);
+            color: var(--orange);
+            font-family: 'Orbitron';
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+            box-shadow: 0 0 10px rgba(255, 170, 0, 0.1);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+        }
+
+        .btn-client-exit:hover {
+            background: var(--orange);
+            color: #000;
+            box-shadow: 0 0 30px var(--orange);
+            transform: translateY(0) scale(1.05);
+        }
+
+        #client:not(.locked) .btn-client-exit {
+            display: none;
+        }
+
         #msg {
             font-size: 3rem;
             margin-bottom: 40px;
@@ -1396,6 +1426,7 @@
     <!-- CLIENT SCREEN -->
     <!-- CLIENT SCREEN -->
     <div id="client" class="screen hidden">
+        <button class="btn-client-exit" onclick="exitClient()">EXIT</button>
         <div id="msg">WAITING</div>
         <div id="tps-display" class="tps-counter">0 TPS</div>
         <div id="practice-btn">PRACTICE</div>
@@ -1685,6 +1716,12 @@
             document.getElementById('host').classList.add('hidden');
             document.getElementById('client').classList.add('hidden');
             document.getElementById('bracket-screen').classList.add('hidden');
+        }
+
+        function exitClient() {
+            // Nullify the team and return to setup screen
+            myTeam = null;
+            showSetup();
         }
 
         window.onload = function () {
