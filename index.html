@@ -958,7 +958,8 @@
             background: radial-gradient(circle, #222 0%, #000 100%);
         }
 
-        #tap-btn {
+        #tap-btn,
+        #practice-btn {
             width: 70vw;
             height: 70vw;
             max-width: 350px;
@@ -979,7 +980,8 @@
             z-index: 2;
         }
 
-        #tap-btn::after {
+        #tap-btn::after,
+        #practice-btn::after {
             content: '';
             position: absolute;
             top: -10px;
@@ -993,11 +995,13 @@
             animation: pulse 2s infinite;
         }
 
-        #tap-btn:active {
+        #tap-btn:active,
+        #practice-btn:active {
             transform: scale(0.96);
         }
 
-        #tap-btn:active::after {
+        #tap-btn:active::after,
+        #practice-btn:active::after {
             opacity: 1;
             box-shadow: 0 0 50px currentColor;
         }
@@ -1007,9 +1011,11 @@
         }
 
         #client.locked #tap-btn {
-            opacity: 0.1;
-            pointer-events: none;
-            filter: grayscale(1);
+            display: none;
+        }
+
+        #client:not(.locked) #practice-btn {
+            display: none;
         }
 
         #msg {
@@ -1392,6 +1398,7 @@
     <div id="client" class="screen hidden">
         <div id="msg">WAITING</div>
         <div id="tps-display" class="tps-counter">0 TPS</div>
+        <div id="practice-btn">PRACTICE</div>
         <div id="tap-btn">TAP</div>
     </div>
 
@@ -1591,8 +1598,10 @@
             const colorVar = `var(--${teamObj.color})`;
 
             const btnTap = document.getElementById('tap-btn');
+            const btnPractice = document.getElementById('practice-btn');
             const msg = document.getElementById('msg');
             btnTap.style.color = colorVar;
+            btnPractice.style.color = colorVar;
             msg.style.color = colorVar;
 
             db.ref('game/status').on('value', snap => {
@@ -1614,6 +1623,10 @@
             btnTap.addEventListener(eventType, (e) => {
                 e.preventDefault();
                 handleTap();
+            });
+            btnPractice.addEventListener(eventType, (e) => {
+                e.preventDefault();
+                handlePracticeTap();
             });
 
             setInterval(flushPendingTaps, 300);
@@ -1643,6 +1656,15 @@
             // GAMEPLAY LOGIC
             pendingTaps++;
             const btn = document.getElementById('tap-btn');
+            btn.style.transform = "scale(0.9)";
+            setTimeout(() => btn.style.transform = "scale(1)", 50);
+        }
+
+        function handlePracticeTap() {
+            // TPS LOGIC ONLY
+            tapTimestamps.push(Date.now());
+
+            const btn = document.getElementById('practice-btn');
             btn.style.transform = "scale(0.9)";
             setTimeout(() => btn.style.transform = "scale(1)", 50);
         }
