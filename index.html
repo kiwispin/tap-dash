@@ -1612,7 +1612,8 @@
             }
         }
 
-        // --- CLIENT FUNCTIONS ---
+        let isClientInitialized = false;
+
         function joinGame(teamId) {
             const btn = document.getElementById(`btn-select-${teamId}`);
             if (btn && btn.classList.contains('disabled-team')) return;
@@ -1635,45 +1636,49 @@
             btnPractice.style.color = colorVar;
             msg.style.color = colorVar;
 
-            db.ref('game/status').on('value', snap => {
-                const status = snap.val();
-                if (status === 'playing') {
-                    clientScreen.classList.remove('locked');
-                    msg.innerText = "ENGAGED";
-                    document.getElementById('tps-display').classList.add('hidden'); // Hide TPS
-                    tapTimestamps = []; // Reset TPS on start
-                    if (navigator.vibrate) navigator.vibrate(50);
-                } else {
-                    clientScreen.classList.add('locked');
-                    msg.innerText = "STANDBY";
-                    document.getElementById('tps-display').classList.remove('hidden'); // Show TPS
-                }
-            });
+            if (!isClientInitialized) {
+                isClientInitialized = true;
 
-            const eventType = 'ontouchstart' in window ? 'touchstart' : 'click';
-            btnTap.addEventListener(eventType, (e) => {
-                e.preventDefault();
-                handleTap();
-            });
-            btnPractice.addEventListener(eventType, (e) => {
-                e.preventDefault();
-                handlePracticeTap();
-            });
+                db.ref('game/status').on('value', snap => {
+                    const status = snap.val();
+                    if (status === 'playing') {
+                        clientScreen.classList.remove('locked');
+                        msg.innerText = "ENGAGED";
+                        document.getElementById('tps-display').classList.add('hidden'); // Hide TPS
+                        tapTimestamps = []; // Reset TPS on start
+                        if (navigator.vibrate) navigator.vibrate(50);
+                    } else {
+                        clientScreen.classList.add('locked');
+                        msg.innerText = "STANDBY";
+                        document.getElementById('tps-display').classList.remove('hidden'); // Show TPS
+                    }
+                });
 
-            setInterval(flushPendingTaps, 300);
+                const eventType = 'ontouchstart' in window ? 'touchstart' : 'click';
+                btnTap.addEventListener(eventType, (e) => {
+                    e.preventDefault();
+                    handleTap();
+                });
+                btnPractice.addEventListener(eventType, (e) => {
+                    e.preventDefault();
+                    handlePracticeTap();
+                });
 
-            // TPS Decay Interval (runs on client)
-            setInterval(() => {
-                if (document.getElementById('client').classList.contains('hidden')) return;
-                const now = Date.now();
-                // Filter taps older than 1s
-                tapTimestamps = tapTimestamps.filter(t => now - t <= 1000);
-                // Update display if visible
-                const tpsDisplay = document.getElementById('tps-display');
-                if (!tpsDisplay.classList.contains('hidden')) {
-                    tpsDisplay.innerText = tapTimestamps.length + " TPS";
-                }
-            }, 100);
+                setInterval(flushPendingTaps, 300);
+
+                // TPS Decay Interval (runs on client)
+                setInterval(() => {
+                    if (document.getElementById('client').classList.contains('hidden')) return;
+                    const now = Date.now();
+                    // Filter taps older than 1s
+                    tapTimestamps = tapTimestamps.filter(t => now - t <= 1000);
+                    // Update display if visible
+                    const tpsDisplay = document.getElementById('tps-display');
+                    if (!tpsDisplay.classList.contains('hidden')) {
+                        tpsDisplay.innerText = tapTimestamps.length + " TPS";
+                    }
+                }, 100);
+            }
         }
 
         let tapTimestamps = [];
