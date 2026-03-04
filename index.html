@@ -1691,8 +1691,8 @@
 
         <div class="bracket-controls">
             <button class="control-btn" onclick="goToSetup()">BACK</button>
-            <button class="control-btn primary" onclick="populateBracket()">POPULATE TEAMS</button>
-            <button class="control-btn danger" onclick="clearBracket()">CLEAR</button>
+            <button class="control-btn primary" id="btn-populate" onclick="populateBracket()">POPULATE TEAMS</button>
+            <button class="control-btn danger" id="btn-clear-bracket" onclick="clearBracket()">CLEAR</button>
         </div>
     </div>
 
@@ -1901,6 +1901,26 @@
             document.getElementById('host').classList.add('hidden');
             document.getElementById('bracket-screen').classList.remove('hidden');
 
+            // Lock bracket for non-admin users
+            const inputs = document.querySelectorAll('.bracket-input');
+            inputs.forEach(input => {
+                if (!isHost) {
+                    input.readOnly = true;
+                    input.style.pointerEvents = 'none';
+                    input.style.opacity = '0.8';
+                } else {
+                    input.readOnly = false;
+                    input.style.pointerEvents = '';
+                    input.style.opacity = '';
+                }
+            });
+
+            // Hide admin buttons for non-admin
+            const populateBtn = document.getElementById('btn-populate');
+            const clearBtn = document.getElementById('btn-clear-bracket');
+            if (populateBtn) populateBtn.style.display = isHost ? '' : 'none';
+            if (clearBtn) clearBtn.style.display = isHost ? '' : 'none';
+
             // Listen for changes
             db.ref('bracket').on('value', snap => {
                 const data = snap.val() || {};
@@ -1917,10 +1937,12 @@
         }
 
         function saveBracket(id, val) {
+            if (!isHost) return;
             db.ref(`bracket/${id}`).set(val);
         }
 
         function populateBracket() {
+            if (!isHost) return;
             // Shuffle a copy of the teams array to "mix things up"
             const shuffled = [...teams].sort(() => Math.random() - 0.5);
 
@@ -1951,6 +1973,7 @@
         }
 
         function clearBracket() {
+            if (!isHost) return;
             // Removed confirm() to prevent popup blockers
             // 1. Clear Data
             db.ref('bracket').set(null);
