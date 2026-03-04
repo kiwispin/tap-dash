@@ -1184,6 +1184,358 @@
             letter-spacing: 2px;
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
         }
+
+        /* --- 1v1 DUEL MODE --- */
+        .btn-duel {
+            width: 100%;
+            max-width: 300px;
+            margin-top: 15px;
+            height: 50px;
+            background: linear-gradient(135deg, rgba(157, 0, 255, 0.2), rgba(255, 0, 204, 0.2));
+            color: var(--purple);
+            border: 1px solid var(--purple);
+            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            box-shadow: 0 0 15px rgba(157, 0, 255, 0.2);
+            transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .btn-duel:hover {
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            color: #fff;
+            box-shadow: 0 0 30px var(--purple);
+            transform: translateY(-2px);
+            border-color: #fff;
+        }
+
+        #duel-screen {
+            background: radial-gradient(circle at center, #0a0a1a 0%, #000 100%);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .duel-lobby {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .duel-lobby h2 {
+            font-size: 1.8rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            margin: 0;
+            text-align: center;
+        }
+
+        .duel-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #333;
+            color: #fff;
+            font-family: 'Orbitron';
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-align: center;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .duel-input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 15px rgba(157, 0, 255, 0.3);
+        }
+
+        .duel-input::placeholder {
+            color: #444;
+            letter-spacing: 3px;
+        }
+
+        .duel-btn-row {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .duel-action-btn {
+            flex: 1;
+            padding: 14px 10px;
+            background: transparent;
+            border: 2px solid var(--purple);
+            color: var(--purple);
+            font-family: 'Orbitron';
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .duel-action-btn:hover {
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 25px rgba(157, 0, 255, 0.4);
+        }
+
+        .duel-action-btn.pink {
+            border-color: var(--pink);
+            color: var(--pink);
+        }
+
+        .duel-action-btn.pink:hover {
+            background: var(--pink);
+            color: #fff;
+            box-shadow: 0 0 25px rgba(255, 0, 204, 0.4);
+        }
+
+        .duel-room-display {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--purple);
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(157, 0, 255, 0.15);
+        }
+
+        .duel-room-code {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 12px;
+            color: var(--purple);
+            text-shadow: 0 0 20px var(--purple);
+            margin: 10px 0;
+        }
+
+        .duel-room-label {
+            font-size: 0.7rem;
+            color: #555;
+            letter-spacing: 4px;
+        }
+
+        .duel-waiting {
+            color: #555;
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            animation: duelPulse 1.5s infinite;
+        }
+
+        .duel-players {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .duel-player-tag {
+            padding: 8px 15px;
+            background: rgba(157, 0, 255, 0.1);
+            border: 1px solid rgba(157, 0, 255, 0.3);
+            color: var(--purple);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .duel-player-tag.opponent {
+            background: rgba(255, 0, 204, 0.1);
+            border-color: rgba(255, 0, 204, 0.3);
+            color: var(--pink);
+        }
+
+        @keyframes duelPulse {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* Duel Arena */
+        .duel-arena {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .duel-timer {
+            font-size: 6rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
+        .duel-timer.countdown {
+            color: var(--yellow);
+            text-shadow: 0 0 30px var(--yellow);
+        }
+
+        .duel-timer.go {
+            color: var(--green);
+            text-shadow: 0 0 40px var(--green);
+        }
+
+        .duel-lanes {
+            width: 90%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .duel-lane {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .duel-lane-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .duel-lane-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .duel-lane-score {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .duel-track {
+            width: 100%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .duel-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.2s ease-out;
+            border-radius: 2px;
+        }
+
+        .duel-bar.p1 {
+            background: linear-gradient(90deg, rgba(157, 0, 255, 0.6), var(--purple));
+            box-shadow: 0 0 15px var(--purple);
+        }
+
+        .duel-bar.p2 {
+            background: linear-gradient(90deg, rgba(255, 0, 204, 0.6), var(--pink));
+            box-shadow: 0 0 15px var(--pink);
+        }
+
+        .duel-tap-zone {
+            width: 60vw;
+            height: 60vw;
+            max-width: 280px;
+            max-height: 280px;
+            border-radius: 50%;
+            border: 4px solid rgba(157, 0, 255, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--purple);
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 0 40px rgba(157, 0, 255, 0.2), inset 0 0 40px rgba(0, 0, 0, 0.6);
+            cursor: pointer;
+            transition: transform 0.05s;
+            position: relative;
+        }
+
+        .duel-tap-zone:active {
+            transform: scale(0.94);
+        }
+
+        .duel-tap-zone::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border-radius: 50%;
+            border: 3px solid var(--purple);
+            opacity: 0.4;
+            box-shadow: 0 0 20px var(--purple);
+            animation: pulse 2s infinite;
+        }
+
+        .duel-result {
+            text-align: center;
+        }
+
+        .duel-result-title {
+            font-size: 1.2rem;
+            color: #888;
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+        }
+
+        .duel-result-name {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        .duel-back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 8px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #444;
+            color: #666;
+            font-family: 'Orbitron';
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .duel-back-btn:hover {
+            border-color: #fff;
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -1205,6 +1557,7 @@
             <button id="btn-select-year9" class="btn-year9" onclick="joinGame('year9')">YEAR 9</button>
             <button id="btn-select-staff" class="btn-staff" onclick="joinGame('staff')">STAFF</button>
         </div>
+        <button class="btn-duel" onclick="showDuelLobby()">⚡ 1v1 PRACTICE DUEL</button>
         <button class="btn-host" onclick="showPinModal()">INITIATE HOST SYSTEM</button>
     </div>
 
@@ -1431,6 +1784,59 @@
         <div id="tps-display" class="tps-counter">0 TPS</div>
         <div id="practice-btn">PRACTICE</div>
         <div id="tap-btn">TAP</div>
+    </div>
+
+    <!-- DUEL SCREEN -->
+    <div id="duel-screen" class="screen hidden">
+        <button class="duel-back-btn" id="duel-exit-btn" onclick="exitDuel()">← EXIT</button>
+
+        <!-- LOBBY -->
+        <div id="duel-lobby" class="duel-lobby">
+            <h2>1v1 DUEL</h2>
+            <input class="duel-input" id="duel-name-input" type="text" placeholder="YOUR NAME" maxlength="12">
+            <div class="duel-btn-row">
+                <button class="duel-action-btn" onclick="createDuelRoom()">CREATE</button>
+                <button class="duel-action-btn pink" onclick="showJoinInput()">JOIN</button>
+            </div>
+            <div id="duel-join-row" class="hidden" style="width:100%; display:flex; gap:10px;">
+                <input class="duel-input" id="duel-code-input" type="text" placeholder="ROOM CODE" maxlength="4"
+                    style="flex:1; text-transform:uppercase;">
+                <button class="duel-action-btn pink" style="flex:0 0 auto; padding:12px 20px;"
+                    onclick="joinDuelRoom()">GO</button>
+            </div>
+            <div id="duel-error" style="color:var(--pink); font-size:0.8rem; letter-spacing:1px; min-height:1.2em;">
+            </div>
+        </div>
+
+        <!-- WAITING ROOM -->
+        <div id="duel-waiting" class="duel-lobby hidden">
+            <h2>ROOM READY</h2>
+            <div class="duel-room-display">
+                <div class="duel-room-label">SHARE THIS CODE</div>
+                <div class="duel-room-code" id="duel-my-code">----</div>
+            </div>
+            <div class="duel-players" id="duel-players-list"></div>
+            <div class="duel-waiting" id="duel-status-text">WAITING FOR OPPONENT...</div>
+            <button class="duel-action-btn" id="duel-start-btn" class="hidden" onclick="startDuel()"
+                style="display:none;">START DUEL</button>
+        </div>
+
+        <!-- ARENA -->
+        <div id="duel-arena" class="duel-arena hidden">
+            <div class="duel-timer" id="duel-timer">10</div>
+            <div class="duel-lanes" id="duel-lanes"></div>
+            <div id="duel-tap-container">
+                <div class="duel-tap-zone" id="duel-tap-btn">TAP</div>
+            </div>
+            <div id="duel-result" class="duel-result hidden">
+                <div class="duel-result-title">WINNER</div>
+                <div class="duel-result-name" id="duel-winner-name">---</div>
+                <div class="duel-btn-row" style="margin-top:20px; max-width:350px;">
+                    <button class="duel-action-btn" onclick="rematchDuel()">REMATCH</button>
+                    <button class="duel-action-btn pink" onclick="exitDuel()">EXIT</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- FIREBASE -->
@@ -2145,6 +2551,389 @@
                 checkPin();
             }
         }
+
+        // ============================================
+        // === 1v1 PRACTICE DUEL MODE ===
+        // ============================================
+        const DUEL_DURATION = 10;
+        const DUEL_WINNING_SCORE = 200; // for bar width calculation
+        let duelRoomCode = null;
+        let duelMyName = null;
+        let duelListeners = [];
+        let duelPendingTaps = 0;
+        let duelFlushInterval = null;
+        let duelGameInterval = null;
+        let duelState = 'idle'; // idle, waiting, countdown, playing, finished
+
+        function showDuelLobby() {
+            document.getElementById('setup').classList.add('hidden');
+            document.getElementById('duel-screen').classList.remove('hidden');
+            document.getElementById('duel-lobby').classList.remove('hidden');
+            document.getElementById('duel-waiting').classList.add('hidden');
+            document.getElementById('duel-arena').classList.add('hidden');
+            document.getElementById('duel-error').innerText = '';
+            document.getElementById('duel-join-row').classList.add('hidden');
+            duelState = 'idle';
+        }
+
+        function showJoinInput() {
+            const row = document.getElementById('duel-join-row');
+            row.classList.remove('hidden');
+            row.style.display = 'flex';
+            document.getElementById('duel-code-input').focus();
+        }
+
+        function generateRoomCode() {
+            const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+            return code;
+        }
+
+        function createDuelRoom() {
+            const name = document.getElementById('duel-name-input').value.trim().toUpperCase();
+            if (!name) {
+                document.getElementById('duel-error').innerText = 'ENTER YOUR NAME';
+                return;
+            }
+            duelMyName = name;
+            duelRoomCode = generateRoomCode();
+
+            db.ref(`duels/${duelRoomCode}`).set({
+                players: { [name]: true },
+                scores: { [name]: 0 },
+                status: 'waiting',
+                created: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                showDuelWaiting();
+                listenToDuelRoom();
+            });
+        }
+
+        function joinDuelRoom() {
+            const name = document.getElementById('duel-name-input').value.trim().toUpperCase();
+            if (!name) {
+                document.getElementById('duel-error').innerText = 'ENTER YOUR NAME';
+                return;
+            }
+            const code = document.getElementById('duel-code-input').value.trim().toUpperCase();
+            if (!code || code.length !== 4) {
+                document.getElementById('duel-error').innerText = 'ENTER 4-CHAR CODE';
+                return;
+            }
+
+            duelMyName = name;
+            duelRoomCode = code;
+
+            db.ref(`duels/${code}`).once('value').then(snap => {
+                const data = snap.val();
+                if (!data) {
+                    document.getElementById('duel-error').innerText = 'ROOM NOT FOUND';
+                    duelRoomCode = null;
+                    return;
+                }
+                const players = data.players || {};
+                const playerCount = Object.keys(players).length;
+                if (playerCount >= 2) {
+                    document.getElementById('duel-error').innerText = 'ROOM IS FULL';
+                    duelRoomCode = null;
+                    return;
+                }
+                if (players[name]) {
+                    document.getElementById('duel-error').innerText = 'NAME TAKEN';
+                    duelRoomCode = null;
+                    return;
+                }
+
+                db.ref(`duels/${code}/players/${name}`).set(true);
+                db.ref(`duels/${code}/scores/${name}`).set(0);
+                showDuelWaiting();
+                listenToDuelRoom();
+            });
+        }
+
+        function showDuelWaiting() {
+            document.getElementById('duel-lobby').classList.add('hidden');
+            document.getElementById('duel-waiting').classList.remove('hidden');
+            document.getElementById('duel-my-code').innerText = duelRoomCode;
+            duelState = 'waiting';
+        }
+
+        function listenToDuelRoom() {
+            // Listen for players
+            const playersRef = db.ref(`duels/${duelRoomCode}/players`);
+            const playersListener = playersRef.on('value', snap => {
+                const players = snap.val() || {};
+                const names = Object.keys(players);
+                const listEl = document.getElementById('duel-players-list');
+                listEl.innerHTML = '';
+                names.forEach((n, i) => {
+                    const tag = document.createElement('div');
+                    tag.className = 'duel-player-tag' + (n !== duelMyName ? ' opponent' : '');
+                    tag.innerText = n + (n === duelMyName ? ' (YOU)' : '');
+                    listEl.appendChild(tag);
+                });
+
+                const statusText = document.getElementById('duel-status-text');
+                const startBtn = document.getElementById('duel-start-btn');
+                if (names.length >= 2) {
+                    statusText.innerText = 'READY TO DUEL!';
+                    statusText.style.color = 'var(--green)';
+                    startBtn.style.display = 'block';
+                } else {
+                    statusText.innerText = 'WAITING FOR OPPONENT...';
+                    statusText.style.color = '#555';
+                    startBtn.style.display = 'none';
+                }
+            });
+            duelListeners.push({ ref: playersRef, event: 'value', fn: playersListener });
+
+            // Listen for status changes
+            const statusRef = db.ref(`duels/${duelRoomCode}/status`);
+            const statusListener = statusRef.on('value', snap => {
+                const status = snap.val();
+                if (status === 'countdown' && duelState !== 'countdown' && duelState !== 'playing') {
+                    enterDuelArena();
+                }
+            });
+            duelListeners.push({ ref: statusRef, event: 'value', fn: statusListener });
+        }
+
+        function startDuel() {
+            if (!duelRoomCode) return;
+            // Reset scores
+            db.ref(`duels/${duelRoomCode}/players`).once('value').then(snap => {
+                const players = snap.val() || {};
+                const scoreUpdates = {};
+                Object.keys(players).forEach(n => scoreUpdates[n] = 0);
+                db.ref(`duels/${duelRoomCode}/scores`).set(scoreUpdates);
+                db.ref(`duels/${duelRoomCode}/winner`).remove();
+                db.ref(`duels/${duelRoomCode}/status`).set('countdown');
+            });
+        }
+
+        function enterDuelArena() {
+            duelState = 'countdown';
+            document.getElementById('duel-waiting').classList.add('hidden');
+            document.getElementById('duel-arena').classList.remove('hidden');
+            document.getElementById('duel-result').classList.add('hidden');
+            document.getElementById('duel-tap-container').style.display = 'flex';
+            document.getElementById('duel-tap-container').style.justifyContent = 'center';
+
+            initAudio();
+
+            // Build lanes
+            db.ref(`duels/${duelRoomCode}/players`).once('value').then(snap => {
+                const players = Object.keys(snap.val() || {});
+                const lanesEl = document.getElementById('duel-lanes');
+                lanesEl.innerHTML = '';
+                players.forEach((name, i) => {
+                    const isMe = name === duelMyName;
+                    const colorClass = i === 0 ? 'p1' : 'p2';
+                    const color = i === 0 ? 'var(--purple)' : 'var(--pink)';
+                    lanesEl.innerHTML += `
+                        <div class="duel-lane">
+                            <div class="duel-lane-header">
+                                <span class="duel-lane-name" style="color:${color}">${name}${isMe ? ' ★' : ''}</span>
+                                <span class="duel-lane-score" id="duel-score-${name}" style="color:${color}">0</span>
+                            </div>
+                            <div class="duel-track">
+                                <div class="duel-bar ${colorClass}" id="duel-bar-${name}"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Listen for score changes
+                const scoresRef = db.ref(`duels/${duelRoomCode}/scores`);
+                const scoresListener = scoresRef.on('value', snap => {
+                    const scores = snap.val() || {};
+                    Object.entries(scores).forEach(([name, score]) => {
+                        const scoreEl = document.getElementById(`duel-score-${name}`);
+                        const barEl = document.getElementById(`duel-bar-${name}`);
+                        if (scoreEl) scoreEl.innerText = score;
+                        if (barEl) barEl.style.width = Math.min((score / DUEL_WINNING_SCORE) * 100, 100) + '%';
+                    });
+                });
+                duelListeners.push({ ref: scoresRef, event: 'value', fn: scoresListener });
+
+                // Start countdown
+                runDuelCountdown();
+            });
+
+            // Setup tap handler
+            const tapBtn = document.getElementById('duel-tap-btn');
+            const eventType = 'ontouchstart' in window ? 'touchstart' : 'click';
+            // Remove old listener first
+            tapBtn.replaceWith(tapBtn.cloneNode(true));
+            const newTapBtn = document.getElementById('duel-tap-btn');
+            newTapBtn.addEventListener(eventType, (e) => {
+                e.preventDefault();
+                handleDuelTap();
+            });
+        }
+
+        function runDuelCountdown() {
+            const timerEl = document.getElementById('duel-timer');
+            timerEl.className = 'duel-timer countdown';
+            let count = 3;
+            timerEl.innerText = count;
+            playBeep('count', count);
+
+            const cdInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    timerEl.innerText = count;
+                    playBeep('count', count);
+                } else {
+                    clearInterval(cdInterval);
+                    startDuelGameplay();
+                }
+            }, 1000);
+        }
+
+        function startDuelGameplay() {
+            duelState = 'playing';
+            const timerEl = document.getElementById('duel-timer');
+            timerEl.className = 'duel-timer go';
+            timerEl.innerText = 'GO!';
+            playBeep('go');
+
+            duelPendingTaps = 0;
+            duelFlushInterval = setInterval(flushDuelTaps, 300);
+
+            let timeLeft = DUEL_DURATION;
+            setTimeout(() => {
+                timerEl.className = 'duel-timer';
+                timerEl.innerText = timeLeft;
+
+                duelGameInterval = setInterval(() => {
+                    timeLeft--;
+                    timerEl.innerText = timeLeft;
+                    if (timeLeft <= 3) timerEl.className = 'duel-timer countdown';
+                    if (timeLeft <= 0) {
+                        clearInterval(duelGameInterval);
+                        endDuel();
+                    }
+                }, 1000);
+            }, 800);
+        }
+
+        function handleDuelTap() {
+            if (duelState !== 'playing') return;
+            duelPendingTaps++;
+            const btn = document.getElementById('duel-tap-btn');
+            btn.style.transform = 'scale(0.9)';
+            setTimeout(() => btn.style.transform = 'scale(1)', 50);
+        }
+
+        function flushDuelTaps() {
+            if (duelPendingTaps > 0 && duelRoomCode && duelMyName) {
+                const count = duelPendingTaps;
+                duelPendingTaps = 0;
+                db.ref(`duels/${duelRoomCode}/scores/${duelMyName}`).transaction(c => (c || 0) + count);
+            }
+        }
+
+        function endDuel() {
+            duelState = 'finished';
+            clearInterval(duelFlushInterval);
+            clearInterval(duelGameInterval);
+
+            // Final flush
+            flushDuelTaps();
+
+            const timerEl = document.getElementById('duel-timer');
+            timerEl.className = 'duel-timer';
+            timerEl.innerText = '0';
+            timerEl.style.color = '#555';
+
+            document.getElementById('duel-tap-container').style.display = 'none';
+
+            // Determine winner from current displayed scores
+            setTimeout(() => {
+                db.ref(`duels/${duelRoomCode}/scores`).once('value').then(snap => {
+                    const scores = snap.val() || {};
+                    let maxScore = -1;
+                    let winner = 'TIE';
+                    Object.entries(scores).forEach(([name, score]) => {
+                        if (score > maxScore) {
+                            maxScore = score;
+                            winner = name;
+                        }
+                    });
+
+                    // Check for tie
+                    const scoreValues = Object.values(scores);
+                    if (scoreValues.length === 2 && scoreValues[0] === scoreValues[1]) {
+                        winner = 'TIE!';
+                    }
+
+                    const resultEl = document.getElementById('duel-result');
+                    const winnerNameEl = document.getElementById('duel-winner-name');
+                    resultEl.classList.remove('hidden');
+                    winnerNameEl.innerText = winner;
+
+                    if (winner === 'TIE!') {
+                        winnerNameEl.style.color = 'var(--yellow)';
+                        document.querySelector('.duel-result-title').innerText = 'DRAW';
+                    } else {
+                        // Find index of winner for color
+                        const playerNames = Object.keys(scores);
+                        const winnerIdx = playerNames.indexOf(winner);
+                        winnerNameEl.style.color = winnerIdx === 0 ? 'var(--purple)' : 'var(--pink)';
+                        document.querySelector('.duel-result-title').innerText = 'WINNER';
+                    }
+
+                    playBeep('win');
+                    db.ref(`duels/${duelRoomCode}/status`).set('finished');
+                });
+            }, 500);
+        }
+
+        function rematchDuel() {
+            if (!duelRoomCode) return;
+            document.getElementById('duel-result').classList.add('hidden');
+            document.getElementById('duel-timer').style.color = '';
+            startDuel();
+        }
+
+        function exitDuel() {
+            // Clean up listeners
+            duelListeners.forEach(l => l.ref.off(l.event, l.fn));
+            duelListeners = [];
+            clearInterval(duelFlushInterval);
+            clearInterval(duelGameInterval);
+
+            // Remove self from room
+            if (duelRoomCode && duelMyName) {
+                db.ref(`duels/${duelRoomCode}/players/${duelMyName}`).remove();
+                db.ref(`duels/${duelRoomCode}/scores/${duelMyName}`).remove();
+                // Check if room is now empty and delete
+                db.ref(`duels/${duelRoomCode}/players`).once('value').then(snap => {
+                    if (!snap.val() || Object.keys(snap.val()).length === 0) {
+                        db.ref(`duels/${duelRoomCode}`).remove();
+                    }
+                });
+            }
+
+            duelRoomCode = null;
+            duelMyName = null;
+            duelState = 'idle';
+            duelPendingTaps = 0;
+
+            document.getElementById('duel-screen').classList.add('hidden');
+            document.getElementById('setup').classList.remove('hidden');
+        }
+
+        // Expose duel functions
+        window.showDuelLobby = showDuelLobby;
+        window.createDuelRoom = createDuelRoom;
+        window.joinDuelRoom = joinDuelRoom;
+        window.showJoinInput = showJoinInput;
+        window.startDuel = startDuel;
+        window.rematchDuel = rematchDuel;
+        window.exitDuel = exitDuel;
     </script>
     <style>
         @keyframes shake {
