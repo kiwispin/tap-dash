@@ -1558,7 +1558,7 @@
             <button id="btn-select-staff" class="btn-staff" onclick="joinGame('staff')">STAFF</button>
         </div>
         <button class="btn-duel" onclick="showDuelLobby()">⚡ 1v1 PRACTICE DUEL</button>
-        <button class="btn-host" onclick="showPinModal()">INITIATE HOST SYSTEM</button>
+        <button class="btn-host" onclick="showPinModal()">HOST CONTROLS</button>
     </div>
 
     <!-- PIN MODAL -->
@@ -1770,8 +1770,8 @@
         <div id="controls">
             <div id="host-status" class="status-badge">SYSTEM IDLE</div>
             <button onclick="startSequence()" class="control-btn primary">ENGAGE (Space)</button>
-            <button onclick="resetScores()" class="control-btn">RESET SCORES (R)</button>
-            <button onclick="resetMatch()" class="control-btn danger">NEW MATCH</button>
+            <button onclick="resetScores()" class="control-btn">RESET ROUND (R)</button>
+            <button onclick="resetMatch()" class="control-btn danger">NEW MATCH (WIPE ALL)</button>
             <button onclick="exitHost()" class="control-btn exit">EXIT SYSTEM</button>
         </div>
     </div>
@@ -1782,7 +1782,7 @@
         <button class="btn-client-exit" onclick="exitClient()">EXIT</button>
         <div id="msg">WAITING</div>
         <div id="tps-display" class="tps-counter">0 TPS</div>
-        <div id="practice-btn">PRACTICE</div>
+        <div id="practice-btn">TAP</div>
         <div id="tap-btn">TAP</div>
     </div>
 
@@ -2158,6 +2158,7 @@
 <div class="lane" id="lane-${t.id}" style="z-index:1;">
     <div class="lane-info">
         <div class="lane-label" style="color:var(--${t.color})">${t.name}</div>
+        <div style="font-size:0.5rem; color:#555; letter-spacing:2px; margin-bottom:2px;">BEST OF 3</div>
         <div class="win-dots" id="dots-${t.id}">
             <div class="dot"></div>
             <div class="dot"></div>
