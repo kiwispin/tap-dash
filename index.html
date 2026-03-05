@@ -1536,6 +1536,32 @@
             border-color: #fff;
             color: #fff;
         }
+
+        .duel-action-btn.watch {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .duel-action-btn.watch:hover {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.4);
+        }
+
+        .duel-spectator-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 6px 16px;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            color: var(--cyan);
+            font-family: 'Orbitron';
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            animation: duelPulse 2s infinite;
+            z-index: 100;
+        }
     </style>
 </head>
 
@@ -1790,12 +1816,19 @@
             <div class="duel-btn-row">
                 <button class="duel-action-btn" onclick="createDuelRoom()">CREATE</button>
                 <button class="duel-action-btn pink" onclick="showJoinInput()">JOIN</button>
+                <button class="duel-action-btn watch" onclick="showWatchInput()">👁 WATCH</button>
             </div>
             <div id="duel-join-row" class="hidden" style="width:100%; display:flex; gap:10px;">
                 <input class="duel-input" id="duel-code-input" type="text" placeholder="ROOM CODE" maxlength="4"
                     style="flex:1; text-transform:uppercase;">
                 <button class="duel-action-btn pink" style="flex:0 0 auto; padding:12px 20px;"
                     onclick="joinDuelRoom()">GO</button>
+            </div>
+            <div id="duel-watch-row" class="hidden" style="width:100%; display:flex; gap:10px;">
+                <input class="duel-input" id="duel-watch-code-input" type="text" placeholder="ROOM CODE" maxlength="4"
+                    style="flex:1; text-transform:uppercase;">
+                <button class="duel-action-btn watch" style="flex:0 0 auto; padding:12px 20px;"
+                    onclick="watchDuelRoom()">GO</button>
             </div>
             <div id="duel-error" style="color:var(--pink); font-size:0.8rem; letter-spacing:1px; min-height:1.2em;">
             </div>
@@ -1816,6 +1849,7 @@
 
         <!-- ARENA -->
         <div id="duel-arena" class="duel-arena hidden">
+            <div id="duel-spectator-badge" class="duel-spectator-badge hidden">SPECTATING</div>
             <div class="duel-timer" id="duel-timer">10</div>
             <div class="duel-lanes" id="duel-lanes"></div>
             <div id="duel-tap-container">
@@ -2576,6 +2610,7 @@
         const DUEL_WINNING_SCORE = 200; // for bar width calculation
         let duelRoomCode = null;
         let duelMyName = null;
+        let duelIsSpectator = false;
         let duelListeners = [];
         let duelPendingTaps = 0;
         let duelFlushInterval = null;
@@ -2590,14 +2625,47 @@
             document.getElementById('duel-arena').classList.add('hidden');
             document.getElementById('duel-error').innerText = '';
             document.getElementById('duel-join-row').classList.add('hidden');
+            document.getElementById('duel-watch-row').classList.add('hidden');
+            duelIsSpectator = false;
             duelState = 'idle';
         }
 
         function showJoinInput() {
+            document.getElementById('duel-watch-row').classList.add('hidden');
             const row = document.getElementById('duel-join-row');
             row.classList.remove('hidden');
             row.style.display = 'flex';
             document.getElementById('duel-code-input').focus();
+        }
+
+        function showWatchInput() {
+            document.getElementById('duel-join-row').classList.add('hidden');
+            const row = document.getElementById('duel-watch-row');
+            row.classList.remove('hidden');
+            row.style.display = 'flex';
+            document.getElementById('duel-watch-code-input').focus();
+        }
+
+        function watchDuelRoom() {
+            const code = document.getElementById('duel-watch-code-input').value.trim().toUpperCase();
+            if (!code || code.length !== 4) {
+                document.getElementById('duel-error').innerText = 'ENTER 4-CHAR CODE';
+                return;
+            }
+
+            db.ref(`duels/${code}`).once('value').then(snap => {
+                const data = snap.val();
+                if (!data) {
+                    document.getElementById('duel-error').innerText = 'ROOM NOT FOUND';
+                    return;
+                }
+
+                duelRoomCode = code;
+                duelMyName = null; // spectators have no player name
+                duelIsSpectator = true;
+                showDuelWaiting();
+                listenToDuelRoom();
+            });
         }
 
         function generateRoomCode() {
@@ -2694,9 +2762,9 @@
                 const statusText = document.getElementById('duel-status-text');
                 const startBtn = document.getElementById('duel-start-btn');
                 if (names.length >= 2) {
-                    statusText.innerText = 'READY TO DUEL!';
-                    statusText.style.color = 'var(--green)';
-                    startBtn.style.display = 'block';
+                    statusText.innerText = duelIsSpectator ? 'WAITING FOR PLAYERS TO START...' : 'READY TO DUEL!';
+                    statusText.style.color = duelIsSpectator ? 'var(--cyan)' : 'var(--green)';
+                    startBtn.style.display = duelIsSpectator ? 'none' : 'block';
                 } else {
                     statusText.innerText = 'WAITING FOR OPPONENT...';
                     statusText.style.color = '#555';
@@ -2734,8 +2802,16 @@
             document.getElementById('duel-waiting').classList.add('hidden');
             document.getElementById('duel-arena').classList.remove('hidden');
             document.getElementById('duel-result').classList.add('hidden');
-            document.getElementById('duel-tap-container').style.display = 'flex';
-            document.getElementById('duel-tap-container').style.justifyContent = 'center';
+
+            // Spectators see badge, no tap button
+            if (duelIsSpectator) {
+                document.getElementById('duel-tap-container').style.display = 'none';
+                document.getElementById('duel-spectator-badge').classList.remove('hidden');
+            } else {
+                document.getElementById('duel-tap-container').style.display = 'flex';
+                document.getElementById('duel-tap-container').style.justifyContent = 'center';
+                document.getElementById('duel-spectator-badge').classList.add('hidden');
+            }
 
             initAudio();
 
@@ -2922,8 +2998,8 @@
             clearInterval(duelFlushInterval);
             clearInterval(duelGameInterval);
 
-            // Remove self from room
-            if (duelRoomCode && duelMyName) {
+            // Remove self from room (spectators never wrote to Firebase, skip)
+            if (!duelIsSpectator && duelRoomCode && duelMyName) {
                 db.ref(`duels/${duelRoomCode}/players/${duelMyName}`).remove();
                 db.ref(`duels/${duelRoomCode}/scores/${duelMyName}`).remove();
                 // Check if room is now empty and delete
@@ -2936,6 +3012,7 @@
 
             duelRoomCode = null;
             duelMyName = null;
+            duelIsSpectator = false;
             duelState = 'idle';
             duelPendingTaps = 0;
 
@@ -2948,6 +3025,8 @@
         window.createDuelRoom = createDuelRoom;
         window.joinDuelRoom = joinDuelRoom;
         window.showJoinInput = showJoinInput;
+        window.showWatchInput = showWatchInput;
+        window.watchDuelRoom = watchDuelRoom;
         window.startDuel = startDuel;
         window.rematchDuel = rematchDuel;
         window.exitDuel = exitDuel;
