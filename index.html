@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1264,6 +1264,36 @@
             letter-spacing: 3px;
         }
 
+        .duel-select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #333;
+            color: #fff;
+            font-family: 'Orbitron';
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-align: center;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .duel-select:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 15px rgba(157, 0, 255, 0.3);
+        }
+
+        .duel-select option {
+            background: #000;
+            color: #fff;
+            font-family: 'Orbitron';
+            padding: 10px;
+        }
+
         .duel-btn-row {
             display: flex;
             gap: 15px;
@@ -1496,6 +1526,95 @@
             opacity: 0.4;
             box-shadow: 0 0 20px var(--purple);
             animation: pulse 2s infinite;
+        }
+
+        /* Round indicator */
+        .duel-round-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .duel-round-label {
+            font-size: 0.75rem;
+            color: #555;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .duel-round-stars {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-top: 8px;
+        }
+
+        .duel-star-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .duel-star-name {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .duel-stars {
+            display: flex;
+            gap: 4px;
+        }
+
+        .duel-star {
+            font-size: 1.1rem;
+            opacity: 0.2;
+            transition: opacity 0.4s, transform 0.4s;
+        }
+
+        .duel-star.won {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        /* Round flash overlay */
+        .duel-round-flash {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            animation: duelFlashIn 0.3s ease-out;
+        }
+
+        .duel-round-flash-title {
+            font-size: 1rem;
+            color: #666;
+            letter-spacing: 5px;
+            margin-bottom: 8px;
+        }
+
+        .duel-round-flash-name {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-shadow: 0 0 25px currentColor;
+        }
+
+        .duel-round-flash-sub {
+            font-size: 0.75rem;
+            color: #444;
+            letter-spacing: 3px;
+            margin-top: 15px;
+            animation: duelPulse 1.5s infinite;
+        }
+
+        @keyframes duelFlashIn {
+            from { opacity: 0; transform: scale(1.1); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .duel-result {
@@ -1813,6 +1932,10 @@
         <div id="duel-lobby" class="duel-lobby">
             <h2>1v1 DUEL</h2>
             <input class="duel-input" id="duel-name-input" type="text" placeholder="YOUR NAME" maxlength="12">
+            <select class="duel-select" id="duel-format-select">
+                <option value="best_of_3">Best of 3 (Series)</option>
+                <option value="1_round">1 Round (Quick)</option>
+            </select>
             <div class="duel-btn-row">
                 <button class="duel-action-btn" onclick="createDuelRoom()">CREATE</button>
                 <button class="duel-action-btn pink" onclick="showJoinInput()">JOIN</button>
@@ -1850,13 +1973,18 @@
         <!-- ARENA -->
         <div id="duel-arena" class="duel-arena hidden">
             <div id="duel-spectator-badge" class="duel-spectator-badge hidden">SPECTATING</div>
+            <div id="duel-round-header" class="duel-round-header">
+                <div class="duel-round-label" id="duel-round-label">ROUND 1 OF 3</div>
+                <div class="duel-round-stars" id="duel-round-stars"></div>
+            </div>
             <div class="duel-timer" id="duel-timer">10</div>
             <div class="duel-lanes" id="duel-lanes"></div>
             <div id="duel-tap-container">
                 <div class="duel-tap-zone" id="duel-tap-btn">TAP</div>
             </div>
+            <div id="duel-round-flash" class="duel-round-flash hidden"></div>
             <div id="duel-result" class="duel-result hidden">
-                <div class="duel-result-title">WINNER</div>
+                <div class="duel-result-title">MATCH WINNER</div>
                 <div class="duel-result-name" id="duel-winner-name">---</div>
                 <div class="duel-btn-row" style="margin-top:20px; max-width:350px;">
                     <button class="duel-action-btn" onclick="rematchDuel()">REMATCH</button>
@@ -2608,6 +2736,8 @@
         // ============================================
         const DUEL_DURATION = 10;
         const DUEL_WINNING_SCORE = 200; // for bar width calculation
+        let duelRoundsToWin = 2;
+        let duelMaxRounds = 3;
         let duelRoomCode = null;
         let duelMyName = null;
         let duelIsSpectator = false;
@@ -2616,6 +2746,9 @@
         let duelFlushInterval = null;
         let duelGameInterval = null;
         let duelState = 'idle'; // idle, waiting, countdown, playing, finished
+        let duelRoundWins = {};
+        let duelCurrentRound = 1;
+        let duelPlayerNames = [];
 
         function showDuelLobby() {
             document.getElementById('setup').classList.add('hidden');
@@ -2681,6 +2814,9 @@
                 document.getElementById('duel-error').innerText = 'ENTER YOUR NAME';
                 return;
             }
+            const formatSelect = document.getElementById('duel-format-select');
+            const format = formatSelect ? formatSelect.value : 'best_of_3';
+
             duelMyName = name;
             duelRoomCode = generateRoomCode();
 
@@ -2688,6 +2824,7 @@
                 players: { [name]: true },
                 scores: { [name]: 0 },
                 status: 'waiting',
+                format: format,
                 created: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
                 showDuelWaiting();
@@ -2786,22 +2923,55 @@
 
         function startDuel() {
             if (!duelRoomCode) return;
-            // Reset scores
+            // Reset scores and round tracking
+            db.ref(`duels/${duelRoomCode}/players`).once('value').then(snap => {
+                const players = snap.val() || {};
+                const scoreUpdates = {};
+                const roundWinUpdates = {};
+                Object.keys(players).forEach(n => {
+                    scoreUpdates[n] = 0;
+                    roundWinUpdates[n] = 0;
+                });
+                duelRoundWins = roundWinUpdates;
+                duelCurrentRound = 1;
+                duelPlayerNames = Object.keys(players);
+                db.ref(`duels/${duelRoomCode}/scores`).set(scoreUpdates);
+                db.ref(`duels/${duelRoomCode}/roundWins`).set(roundWinUpdates);
+                db.ref(`duels/${duelRoomCode}/currentRound`).set(1);
+                db.ref(`duels/${duelRoomCode}/winner`).remove();
+                db.ref(`duels/${duelRoomCode}/status`).set('countdown');
+            });
+        }
+
+        function startNextRound() {
+            if (!duelRoomCode) return;
+            // Reset scores for new round, keep roundWins
             db.ref(`duels/${duelRoomCode}/players`).once('value').then(snap => {
                 const players = snap.val() || {};
                 const scoreUpdates = {};
                 Object.keys(players).forEach(n => scoreUpdates[n] = 0);
                 db.ref(`duels/${duelRoomCode}/scores`).set(scoreUpdates);
-                db.ref(`duels/${duelRoomCode}/winner`).remove();
+                db.ref(`duels/${duelRoomCode}/currentRound`).set(duelCurrentRound);
                 db.ref(`duels/${duelRoomCode}/status`).set('countdown');
             });
         }
 
         function enterDuelArena() {
             duelState = 'countdown';
+
+            // Clean up arena-specific listeners from previous round (prevent stacking)
+            duelListeners = duelListeners.filter(l => {
+                if (l.arena) {
+                    l.ref.off(l.event, l.fn);
+                    return false;
+                }
+                return true;
+            });
+
             document.getElementById('duel-waiting').classList.add('hidden');
             document.getElementById('duel-arena').classList.remove('hidden');
             document.getElementById('duel-result').classList.add('hidden');
+            document.getElementById('duel-round-flash').classList.add('hidden');
 
             // Spectators see badge, no tap button
             if (duelIsSpectator) {
@@ -2815,9 +2985,31 @@
 
             initAudio();
 
-            // Build lanes
-            db.ref(`duels/${duelRoomCode}/players`).once('value').then(snap => {
+            // Read format and round state from Firebase
+            db.ref(`duels/${duelRoomCode}/format`).once('value').then(fSnap => {
+                const format = fSnap.val() || 'best_of_3';
+                if (format === '1_round') {
+                    duelRoundsToWin = 1;
+                    duelMaxRounds = 1;
+                } else {
+                    duelRoundsToWin = 2;
+                    duelMaxRounds = 3;
+                }
+                return db.ref(`duels/${duelRoomCode}/currentRound`).once('value');
+            }).then(rSnap => {
+                duelCurrentRound = rSnap.val() || 1;
+                return db.ref(`duels/${duelRoomCode}/roundWins`).once('value');
+            }).then(rwSnap => {
+                duelRoundWins = rwSnap.val() || {};
+                return db.ref(`duels/${duelRoomCode}/players`).once('value');
+            }).then(snap => {
                 const players = Object.keys(snap.val() || {});
+                duelPlayerNames = players;
+
+                // Update round header
+                updateDuelRoundUI();
+
+                // Build lanes
                 const lanesEl = document.getElementById('duel-lanes');
                 lanesEl.innerHTML = '';
                 players.forEach((name, i) => {
@@ -2848,7 +3040,15 @@
                         if (barEl) barEl.style.width = Math.min((score / DUEL_WINNING_SCORE) * 100, 100) + '%';
                     });
                 });
-                duelListeners.push({ ref: scoresRef, event: 'value', fn: scoresListener });
+                duelListeners.push({ ref: scoresRef, event: 'value', fn: scoresListener, arena: true });
+
+                // Listen for round wins changes
+                const roundWinsRef = db.ref(`duels/${duelRoomCode}/roundWins`);
+                const roundWinsListener = roundWinsRef.on('value', snap => {
+                    duelRoundWins = snap.val() || {};
+                    updateDuelRoundUI();
+                });
+                duelListeners.push({ ref: roundWinsRef, event: 'value', fn: roundWinsListener, arena: true });
 
                 // Start countdown
                 runDuelCountdown();
@@ -2943,51 +3143,140 @@
 
             document.getElementById('duel-tap-container').style.display = 'none';
 
-            // Determine winner from current displayed scores
+            // Determine round winner from scores
             setTimeout(() => {
                 db.ref(`duels/${duelRoomCode}/scores`).once('value').then(snap => {
                     const scores = snap.val() || {};
                     let maxScore = -1;
-                    let winner = 'TIE';
+                    let roundWinner = null;
                     Object.entries(scores).forEach(([name, score]) => {
                         if (score > maxScore) {
                             maxScore = score;
-                            winner = name;
+                            roundWinner = name;
                         }
                     });
 
                     // Check for tie
                     const scoreValues = Object.values(scores);
-                    if (scoreValues.length === 2 && scoreValues[0] === scoreValues[1]) {
-                        winner = 'TIE!';
+                    const isTie = scoreValues.length === 2 && scoreValues[0] === scoreValues[1];
+
+                    if (isTie) {
+                        // Tie — doesn't count, replay this round
+                        showDuelRoundFlash(null, duelCurrentRound);
+                        return;
                     }
 
-                    const resultEl = document.getElementById('duel-result');
-                    const winnerNameEl = document.getElementById('duel-winner-name');
-                    resultEl.classList.remove('hidden');
-                    winnerNameEl.innerText = winner;
+                    // Award round win
+                    const newWins = (duelRoundWins[roundWinner] || 0) + 1;
+                    duelRoundWins[roundWinner] = newWins;
 
-                    if (winner === 'TIE!') {
-                        winnerNameEl.style.color = 'var(--yellow)';
-                        document.querySelector('.duel-result-title').innerText = 'DRAW';
+                    // Write round wins to Firebase (room creator handles this)
+                    if (!duelIsSpectator) {
+                        db.ref(`duels/${duelRoomCode}/roundWins/${roundWinner}`).set(newWins);
+                    }
+
+                    // Check if match is won
+                    if (newWins >= duelRoundsToWin) {
+                        // Match over — show final result
+                        showDuelMatchResult(roundWinner, scores);
                     } else {
-                        // Find index of winner for color
-                        const playerNames = Object.keys(scores);
-                        const winnerIdx = playerNames.indexOf(winner);
-                        winnerNameEl.style.color = winnerIdx === 0 ? 'var(--purple)' : 'var(--pink)';
-                        document.querySelector('.duel-result-title').innerText = 'WINNER';
+                        // Show round flash then continue
+                        duelCurrentRound++;
+                        showDuelRoundFlash(roundWinner, duelCurrentRound - 1);
                     }
-
-                    playBeep('win');
-                    db.ref(`duels/${duelRoomCode}/status`).set('finished');
                 });
             }, 500);
+        }
+
+        function showDuelRoundFlash(winner, roundNum) {
+            const flashEl = document.getElementById('duel-round-flash');
+            const isTie = !winner;
+
+            if (isTie) {
+                flashEl.innerHTML = `
+                    <div class="duel-round-flash-title">ROUND ${roundNum}</div>
+                    <div class="duel-round-flash-name" style="color:var(--yellow)">DRAW!</div>
+                    <div class="duel-round-flash-sub">REPLAYING ROUND...</div>
+                `;
+            } else {
+                const winnerIdx = duelPlayerNames.indexOf(winner);
+                const color = winnerIdx === 0 ? 'var(--purple)' : 'var(--pink)';
+                flashEl.innerHTML = `
+                    <div class="duel-round-flash-title">ROUND ${roundNum}</div>
+                    <div class="duel-round-flash-name" style="color:${color}">${winner} WINS</div>
+                    <div class="duel-round-flash-sub">NEXT ROUND STARTING...</div>
+                `;
+            }
+
+            flashEl.classList.remove('hidden');
+            playBeep('win');
+
+            // Auto-start next round after 2.5 seconds (only non-spectator triggers)
+            setTimeout(() => {
+                flashEl.classList.add('hidden');
+                if (!duelIsSpectator) {
+                    startNextRound();
+                }
+            }, 2500);
+        }
+
+        function showDuelMatchResult(winner, scores) {
+            const resultEl = document.getElementById('duel-result');
+            const winnerNameEl = document.getElementById('duel-winner-name');
+            resultEl.classList.remove('hidden');
+            winnerNameEl.innerText = winner;
+
+            const winnerIdx = duelPlayerNames.indexOf(winner);
+            winnerNameEl.style.color = winnerIdx === 0 ? 'var(--purple)' : 'var(--pink)';
+            document.querySelector('.duel-result-title').innerText = 'MATCH WINNER';
+
+            playBeep('win');
+            db.ref(`duels/${duelRoomCode}/status`).set('finished');
+        }
+
+        function updateDuelRoundUI() {
+            const headerEl = document.getElementById('duel-round-header');
+            if (duelMaxRounds === 1) {
+                if (headerEl) headerEl.style.display = 'none';
+                return;
+            } else {
+                if (headerEl) headerEl.style.display = 'flex';
+            }
+
+            // Update round label
+            const roundLabel = document.getElementById('duel-round-label');
+            if (roundLabel) {
+                roundLabel.innerText = `ROUND ${duelCurrentRound} OF ${duelMaxRounds}`;
+            }
+
+            // Update stars
+            const starsContainer = document.getElementById('duel-round-stars');
+            if (!starsContainer || duelPlayerNames.length < 2) return;
+
+            starsContainer.innerHTML = duelPlayerNames.map((name, i) => {
+                const color = i === 0 ? 'var(--purple)' : 'var(--pink)';
+                const wins = duelRoundWins[name] || 0;
+                let stars = '';
+                for (let s = 0; s < duelRoundsToWin; s++) {
+                    stars += `<span class="duel-star ${s < wins ? 'won' : ''}" style="color:${color}">★</span>`;
+                }
+                const displayName = name.length > 6 ? name.substring(0, 6) : name;
+                return `
+                    <div class="duel-star-group">
+                        <span class="duel-star-name" style="color:${color}">${displayName}</span>
+                        <div class="duel-stars">${stars}</div>
+                    </div>
+                `;
+            }).join('<span style="color:#333">vs</span>');
         }
 
         function rematchDuel() {
             if (!duelRoomCode) return;
             document.getElementById('duel-result').classList.add('hidden');
+            document.getElementById('duel-round-flash').classList.add('hidden');
             document.getElementById('duel-timer').style.color = '';
+            duelRoundWins = {};
+            duelCurrentRound = 1;
             startDuel();
         }
 
@@ -3015,6 +3304,9 @@
             duelIsSpectator = false;
             duelState = 'idle';
             duelPendingTaps = 0;
+            duelRoundWins = {};
+            duelCurrentRound = 1;
+            duelPlayerNames = [];
 
             document.getElementById('duel-screen').classList.add('hidden');
             document.getElementById('setup').classList.remove('hidden');
@@ -3028,6 +3320,7 @@
         window.showWatchInput = showWatchInput;
         window.watchDuelRoom = watchDuelRoom;
         window.startDuel = startDuel;
+        window.startNextRound = startNextRound;
         window.rematchDuel = rematchDuel;
         window.exitDuel = exitDuel;
     </script>
