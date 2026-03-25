@@ -1546,7 +1546,12 @@
             const roundCounterRef = db.ref(`duels/${duelRoomCode}/roundCounter`);
             const roundCounterListener = roundCounterRef.on('value', snap => {
                 const counter = snap.val();
-                if (counter === null || counter === 0) return; // 0 = not started yet
+                if (counter === null) return;
+                if (counter === 0) {
+                    // A rematch reset happened — reset our local tracker
+                    duelLastRoundCounter = 0;
+                    return;
+                }
                 if (counter <= duelLastRoundCounter) return;   // Already handled this value
                 duelLastRoundCounter = counter;
                 enterDuelArena();
@@ -1576,7 +1581,9 @@
                 db.ref(`duels/${duelRoomCode}/roundWins`).set(rwUpdates);
                 db.ref(`duels/${duelRoomCode}/currentRound`).set(1);
                 db.ref(`duels/${duelRoomCode}/winner`).remove();
-                // Increment roundCounter to trigger arena entry on all devices
+                // Mark the creator as the round driver so only one device calls startNextRound
+                db.ref(`duels/${duelRoomCode}/roundDriver`).set(duelMyName);
+                // Increment roundCounter to trigger arena entry on ALL devices
                 db.ref(`duels/${duelRoomCode}/roundCounter`).set(1);
             });
         }
@@ -1590,14 +1597,15 @@
                 players.forEach(n => scoreUpdates[n] = 0);
                 db.ref(`duels/${duelRoomCode}/scores`).set(scoreUpdates);
                 db.ref(`duels/${duelRoomCode}/currentRound`).set(duelCurrentRound);
-                // Increment the counter — this is the ONLY signal to enter the arena
+                // Increment the counter — triggers arena entry on ALL devices
                 db.ref(`duels/${duelRoomCode}/roundCounter`).transaction(c => (c || 0) + 1);
             });
         }
 
         function enterDuelArena() {
-            // Prevent stacking: if already in countdown/playing, ignore
-            if (duelState === 'countdown' || duelState === 'playing') return;
+            // duelLastRoundCounter already prevents duplicate triggers for the same round.
+            // We do NOT guard on duelState here — doing so blocked the non-driver from
+            // re-entering after their local state got out of sync.
             duelState = 'countdown';
 
             // Clear previous arena-specific listeners
@@ -1803,11 +1811,9 @@
                     <div class="duel-round-flash-title">ROUND ${roundNum}</div>
                     <div class="duel-round-flash-name" style="color:var(--yellow)">DRAW!</div>
                     <div class="duel-round-flash-sub">REPLAYING ROUND...</div>`;
-                // On a tie, don't increment duelCurrentRound — replay same round
             } else {
                 const idx   = duelPlayerNames.indexOf(winner);
                 const color = idx === 0 ? 'var(--purple)' : 'var(--pink)';
-                const remaining = duelRoundsToWin - (duelRoundWins[winner] || 0);
                 flashEl.innerHTML = `
                     <div class="duel-round-flash-title">ROUND ${roundNum}</div>
                     <div class="duel-round-flash-name" style="color:${color}">${winner} WINS</div>
@@ -1817,13 +1823,19 @@
             flashEl.classList.remove('hidden');
             playBeep('win');
 
-            // After flash, start next round — only the non-spectator triggers this
+            // Only the designated round driver triggers the next round.
+            // We check Firebase to confirm, avoiding the race where both
+            // non-spectator players both call startNextRound().
             setTimeout(() => {
                 flashEl.classList.add('hidden');
                 if (!duelIsSpectator) {
-                    startNextRound();
+                    db.ref(`duels/${duelRoomCode}/roundDriver`).once('value').then(snap => {
+                        if (snap.val() === duelMyName) {
+                            startNextRound();
+                        }
+                        // The non-driver just waits — roundCounter listener will fire for them too
+                    });
                 }
-                // Spectators re-enter via the roundCounter listener automatically
             }, 2500);
         }
 
@@ -1868,6 +1880,8 @@
             duelRoundWins    = {};
             duelCurrentRound = 1;
             duelLastRoundCounter = 0; // Reset so the next increment triggers entry
+            // Whoever hits rematch becomes the new round driver
+            db.ref(`duels/${duelRoomCode}/roundDriver`).set(duelMyName);
             startDuel();
         }
 
