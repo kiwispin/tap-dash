@@ -1177,6 +1177,13 @@
             document.getElementById('host').classList.remove('hidden');
             initAudio();
 
+            // Immediately flush any stale activeTeams values from Firebase.
+            // (e.g. left over from a player selecting a team before the fix)
+            // The checkboxes start all unchecked, so write false for every team now.
+            const staleClear = {};
+            teams.forEach(t => staleClear[`game/activeTeams/${t.id}`] = false);
+            db.ref().update(staleClear);
+
             const board = document.getElementById('scoreboard');
             board.innerHTML = '<div class="vs-watermark">VS</div>';
             teams.forEach(t => {
