@@ -94,9 +94,10 @@
             #duel-arena { padding: 60px 24px 24px; }
 
             .duel-round-header { margin-bottom: 8px; }
-            .duel-round-label  { font-size: 0.7rem; letter-spacing: 5px; }
+            .duel-round-label  { font-size: 0.75rem; letter-spacing: 5px; }
             .duel-round-stars  { gap: 30px; margin-top: 8px; }
-            .duel-star         { font-size: 1.2rem; }
+            .duel-star-name    { font-size: 1rem; letter-spacing: 3px; }
+            .duel-star         { font-size: 1.4rem; }
 
             /* Timer: big and proud in portrait */
             .duel-timer { font-size: clamp(5rem, 22vw, 10rem); margin: 12px 0; }
@@ -576,12 +577,12 @@
             margin-bottom: 12px;
             flex-shrink: 0;
         }
-        .duel-round-label { font-size: 0.8rem; color: #555; letter-spacing: 6px; text-transform: uppercase; }
-        .duel-round-stars { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 10px; }
-        .duel-star-group { display: flex; align-items: center; gap: 10px; }
-        .duel-star-name { font-size: 0.75rem; letter-spacing: 3px; font-weight: 700; }
-        .duel-stars { display: flex; gap: 6px; }
-        .duel-star { font-size: 1.4rem; opacity: 0.15; transition: opacity 0.4s, transform 0.4s; }
+        .duel-round-label { font-size: clamp(1rem, 2vw, 1.8rem); color: #555; letter-spacing: 8px; text-transform: uppercase; }
+        .duel-round-stars { display: flex; justify-content: center; align-items: center; gap: 60px; margin-top: 14px; }
+        .duel-star-group { display: flex; align-items: center; gap: 16px; }
+        .duel-star-name { font-size: clamp(1.2rem, 2.5vw, 2.2rem); letter-spacing: 4px; font-weight: 900; }
+        .duel-stars { display: flex; gap: 10px; }
+        .duel-star { font-size: clamp(1.8rem, 3vw, 3rem); opacity: 0.15; transition: opacity 0.4s, transform 0.4s; }
         .duel-star.won { opacity: 1; transform: scale(1.25); filter: drop-shadow(0 0 8px currentColor); }
 
         /* BIG timer */
@@ -703,8 +704,13 @@
         .duel-round-flash-sub { font-size: 0.8rem; color: #333; letter-spacing: 5px; margin-top: 20px; animation: duelPulse 1.5s infinite; }
         @keyframes duelFlashIn { from { opacity: 0; transform: scale(1.06); } to { opacity: 1; transform: scale(1); } }
 
-        .duel-result { text-align: center; }
-        .duel-result-title { font-size: 1rem; color: #555; letter-spacing: 6px; margin-bottom: 10px; }
+        .duel-result {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .duel-result-title { font-size: clamp(1rem, 2vw, 1.8rem); color: #555; letter-spacing: 8px; margin-bottom: 10px; }
         .duel-result-name {
             font-size: clamp(3rem, 8vw, 6rem);
             font-weight: 900; letter-spacing: 5px;
@@ -937,7 +943,7 @@
             <div id="duel-result" class="duel-result hidden">
                 <div class="duel-result-title">MATCH WINNER</div>
                 <div class="duel-result-name" id="duel-winner-name">---</div>
-                <div class="duel-btn-row" style="margin-top:30px;max-width:400px;">
+                <div class="duel-btn-row" style="margin-top:30px;width:clamp(260px,35vw,460px);justify-content:center;">
                     <button class="duel-action-btn" onclick="rematchDuel()">REMATCH</button>
                     <button class="duel-action-btn pink" onclick="exitDuel()">EXIT</button>
                 </div>
