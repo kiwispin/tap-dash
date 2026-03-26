@@ -1099,7 +1099,6 @@
         function joinGame(teamId) {
             const btn = document.getElementById(`btn-select-${teamId}`);
             if (btn && btn.classList.contains('disabled-team')) return;
-            db.ref(`game/activeTeams/${teamId}`).set(true);
             myTeam = teamId;
             document.getElementById('setup').classList.add('hidden');
             const clientScreen = document.getElementById('client');
