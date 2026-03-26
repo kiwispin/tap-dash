@@ -1969,12 +1969,17 @@
             document.getElementById('duel-result').classList.add('hidden');
             document.getElementById('duel-round-flash').classList.add('hidden');
             document.getElementById('duel-timer').style.color = '';
-            duelRoundWins    = {};
-            duelCurrentRound = 1;
-            duelLastRoundCounter = 0; // Reset so the next increment triggers entry
-            // Whoever hits rematch becomes the new round driver
-            db.ref(`duels/${duelRoomCode}/roundDriver`).set(duelMyName);
-            startDuel();
+            duelRoundWins        = {};
+            duelCurrentRound     = 1;
+            duelLastRoundCounter = 0;
+            // Reset roundCounter to 0 in Firebase FIRST — this triggers the listener
+            // on ALL devices to clear their duelLastRoundCounter before the new
+            // match starts. Without this, the non-rematch device still has a high
+            // counter value and ignores the incoming roundCounter = 1.
+            db.ref(`duels/${duelRoomCode}/roundCounter`).set(0).then(() => {
+                db.ref(`duels/${duelRoomCode}/roundDriver`).set(duelMyName);
+                startDuel();
+            });
         }
 
         function exitDuel() {
