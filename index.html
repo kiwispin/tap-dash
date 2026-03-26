@@ -66,58 +66,6 @@
             position: relative;
         }
 
-        /* ── Portrait lock (player iPads) ───────────────────────────────────────
-           Players use iPads locked to portrait. Portrait iPad = ~768×1024 minus
-           browser chrome ≈ 900px usable height. Plenty of room — just scale
-           elements sensibly so nothing is comically oversized on a tablet.
-           The watching screen (desktop landscape) never hits this query.
-        ─────────────────────────────────────────────────────────────────────── */
-        @media (orientation: portrait) {
-
-            /* Setup screen */
-            #setup h1 { font-size: clamp(1.6rem, 5vw, 2.8rem); letter-spacing: 8px; margin-bottom: 30px; }
-            .btn-grid { gap: 14px; }
-            .btn-grid button { height: clamp(65px, 9vh, 100px); font-size: clamp(0.9rem, 2.5vw, 1.3rem); }
-            .btn-duel { margin-top: 16px; }
-
-            /* Client tap screen */
-            #tap-btn, #practice-btn {
-                width: 72vw; height: 72vw;
-                max-width: 420px; max-height: 420px;
-            }
-            #msg { font-size: clamp(1.8rem, 5vw, 2.8rem); margin-bottom: 35px; }
-
-            /* Duel lobby */
-            .duel-lobby { gap: 14px; max-width: 90vw; }
-
-            /* Duel arena — portrait has lots of height, size off vw (the narrow axis) */
-            #duel-arena { padding: 60px 24px 24px; }
-
-            .duel-round-header { margin-bottom: 8px; }
-            .duel-round-label  { font-size: 0.75rem; letter-spacing: 5px; }
-            .duel-round-stars  { gap: 30px; margin-top: 8px; }
-            .duel-star-name    { font-size: 1rem; letter-spacing: 3px; }
-            .duel-star         { font-size: 1.4rem; }
-
-            /* Timer: big and proud in portrait */
-            .duel-timer { font-size: clamp(5rem, 20vw, 9rem); margin: 6px 0; }
-
-            /* Lanes */
-            .duel-lanes { gap: 12px; margin: 6px 0; max-width: 100%; }
-            .duel-lane  { gap: 6px; }
-            .duel-lane-name  { font-size: clamp(1rem, 3.5vw, 1.4rem); letter-spacing: 3px; }
-            .duel-lane-score { font-size: clamp(1.3rem, 4vw, 1.8rem); }
-            .duel-track { height: clamp(20px, 3.5vw, 36px); }
-
-            /* Tap button: sized off vw in portrait — nice and big for thumbs */
-            .duel-tap-zone {
-                width:  clamp(160px, 52vw, 300px);
-                height: clamp(160px, 52vw, 300px);
-                font-size: clamp(1.3rem, 5vw, 2rem);
-                margin-top: 16px;
-            }
-        }
-
         button {
             cursor: pointer;
             transition: all 0.2s ease-out;
@@ -732,6 +680,57 @@
         }
 
         @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-6px); } 100% { transform: translateX(0); } }
+
+        /* ── Portrait (player iPads locked to portrait) ─────────────────────────
+           MUST be at the end of the stylesheet so it overrides all base rules.
+           Desktop/projector is always landscape so never matches this query.
+        ─────────────────────────────────────────────────────────────────────── */
+        @media (orientation: portrait) {
+
+            /* Setup screen */
+            #setup h1 { font-size: clamp(1.6rem, 5vw, 2.8rem) !important; letter-spacing: 8px; margin-bottom: 30px; }
+            .btn-grid { gap: 14px; }
+            .btn-grid button { height: clamp(65px, 9vh, 100px) !important; font-size: clamp(0.9rem, 2.5vw, 1.3rem) !important; }
+            .btn-duel { margin-top: 16px; }
+
+            /* Client tap screen — BIG thumbable buttons */
+            #tap-btn, #practice-btn {
+                width: 72vw !important;
+                height: 72vw !important;
+                max-width: 420px !important;
+                max-height: 420px !important;
+            }
+            #msg { font-size: clamp(1.8rem, 5vw, 2.8rem); margin-bottom: 35px; }
+
+            /* Duel lobby */
+            .duel-lobby { gap: 14px; max-width: 90vw; }
+
+            /* Duel arena */
+            #duel-arena { padding: 60px 24px 24px; }
+            .duel-round-header { margin-bottom: 8px; }
+            .duel-round-label  { font-size: 0.75rem; letter-spacing: 5px; }
+            .duel-round-stars  { gap: 30px; margin-top: 8px; }
+            .duel-star-name    { font-size: 1rem; letter-spacing: 3px; }
+            .duel-star         { font-size: 1.4rem; }
+
+            /* Timer */
+            .duel-timer { font-size: clamp(5rem, 20vw, 9rem) !important; margin: 6px 0; }
+
+            /* Lanes */
+            .duel-lanes { gap: 12px; margin: 6px 0; max-width: 100%; }
+            .duel-lane  { gap: 6px; }
+            .duel-lane-name  { font-size: clamp(1rem, 3.5vw, 1.4rem); letter-spacing: 3px; }
+            .duel-lane-score { font-size: clamp(1.3rem, 4vw, 1.8rem); }
+            .duel-track { height: clamp(20px, 3.5vw, 36px) !important; }
+
+            /* Duel tap button — BIG thumbable circle */
+            .duel-tap-zone {
+                width:  clamp(160px, 52vw, 300px) !important;
+                height: clamp(160px, 52vw, 300px) !important;
+                font-size: clamp(1.3rem, 5vw, 2rem) !important;
+                margin-top: 16px;
+            }
+        }
     </style>
 </head>
 
