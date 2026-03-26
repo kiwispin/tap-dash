@@ -681,6 +681,81 @@
 
         @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-6px); } 100% { transform: translateX(0); } }
 
+        /* ── RELAY MODE STYLES ───────────────────────────────────────────────── */
+
+        /* Slot indicators shown above the scoreboard */
+        .relay-header {
+            width: 100%; display: flex; align-items: center;
+            justify-content: center; gap: 30px;
+            padding: 8px 0; flex-shrink: 0;
+        }
+        .relay-slot-pip {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+        }
+        .relay-slot-dot {
+            width: clamp(18px,2vw,28px); height: clamp(18px,2vw,28px);
+            border-radius: 50%; border: 2px solid #333; background: #111;
+            transition: all 0.4s;
+        }
+        .relay-slot-dot.done    { background: #444; border-color: #666; }
+        .relay-slot-dot.active  { background: var(--orange); border-color: var(--orange); box-shadow: 0 0 15px var(--orange); }
+        .relay-slot-label {
+            font-size: clamp(0.5rem,0.9vw,0.75rem); color: #444; letter-spacing: 3px;
+        }
+        .relay-slot-label.active { color: var(--orange); }
+
+        /* Cumulative total shown to the right of each score */
+        .relay-total {
+            font-size: clamp(1rem, 1.8vw, 2rem);
+            font-weight: 900; color: #555;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 2px;
+            min-width: 80px; text-align: center;
+            transition: color 0.3s;
+        }
+        .relay-total.leading { color: #fff; text-shadow: 0 0 10px #fff; }
+
+        /* Handoff countdown overlay — shown between slots */
+        #relay-handoff {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.92);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 500; backdrop-filter: blur(6px);
+        }
+        .relay-handoff-slot {
+            font-size: clamp(0.8rem,1.5vw,1.2rem);
+            color: var(--orange); letter-spacing: 8px;
+            margin-bottom: 10px;
+        }
+        .relay-handoff-msg {
+            font-size: clamp(2rem,5vw,4rem);
+            font-weight: 900; color: #fff;
+            letter-spacing: 6px;
+            text-shadow: 0 0 30px #fff;
+            margin-bottom: 30px;
+        }
+        .relay-handoff-scores {
+            display: flex; gap: 60px; margin-bottom: 30px;
+        }
+        .relay-handoff-team {
+            text-align: center; display: flex; flex-direction: column; gap: 6px;
+        }
+        .relay-handoff-name {
+            font-size: clamp(1rem,2vw,1.6rem); font-weight: 900; letter-spacing: 3px;
+        }
+        .relay-handoff-score {
+            font-size: clamp(2rem,4vw,3.5rem); font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+        .relay-handoff-timer {
+            font-size: clamp(3rem,8vw,7rem); font-weight: 900;
+            color: var(--orange);
+            text-shadow: 0 0 40px var(--orange);
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
         /* ── Portrait (player iPads locked to portrait) ─────────────────────────
            MUST be at the end of the stylesheet so it overrides all base rules.
            Desktop/projector is always landscape so never matches this query.
@@ -828,21 +903,34 @@
         <div class="host-hud-bar">
             <div class="hud-live-badge">⬤ LIVE</div>
             <div id="timer-display">15</div>
-            <div id="race-lights">
-                <div class="light" id="light-1"></div>
-                <div class="light" id="light-2"></div>
-                <div class="light" id="light-3"></div>
-                <div class="light" id="light-4"></div>
-                <div class="light" id="light-5"></div>
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div id="race-lights">
+                    <div class="light" id="light-1"></div>
+                    <div class="light" id="light-2"></div>
+                    <div class="light" id="light-3"></div>
+                    <div class="light" id="light-4"></div>
+                    <div class="light" id="light-5"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:16px;">
+                    <button id="btn-music-mute" onclick="toggleMusicMute()"
+                        style="background:rgba(0,0,0,0.6);border:1px solid #444;color:#aaa;
+                               font-family:'Orbitron';font-size:0.65rem;letter-spacing:2px;
+                               padding:5px 12px;cursor:pointer;transition:all 0.2s;white-space:nowrap;">
+                        🔊 MUSIC
+                    </button>
+                    <input type="range" id="music-vol-slider" min="0" max="1" step="0.05" value="1"
+                        oninput="adjustMusicVolume(this.value)"
+                        style="width:80px;accent-color:var(--orange);cursor:pointer;">
+                </div>
             </div>
         </div>
 
         <!-- Match Setup Panel -->
         <div id="match-setup">
-            <div style="display:flex;justify-content:center;width:100%;margin-bottom:5px;">
+            <div style="display:flex;justify-content:center;gap:40px;width:100%;margin-bottom:5px;flex-wrap:wrap;">
                 <label class="setup-checkbox" style="color:var(--cyan);font-size:0.85rem;">
-                    <input type="checkbox" id="chk-auto-director" onchange="evaluateBracketState()">
-                    AUTO-RUN TOURNAMENT (DIRECTOR MODE)
+                    <input type="checkbox" id="chk-auto-director">
+                    TOURNAMENT MODE (DIRECTOR + RELAY 3×20s)
                 </label>
             </div>
             <div class="immersive-hint" style="width:100%;text-align:center;color:#444;font-size:0.65rem;margin-top:2px;">PRESS 'H' TO TOGGLE HUD</div>
@@ -858,10 +946,18 @@
 
         <div id="scoreboard"></div>
 
+        <!-- Relay handoff overlay (hidden by default) -->
+        <div id="relay-handoff" class="hidden">
+            <div class="relay-handoff-slot" id="relay-handoff-slot">SLOT 1 COMPLETE</div>
+            <div class="relay-handoff-msg">SWAP PLAYERS!</div>
+            <div class="relay-handoff-scores" id="relay-handoff-scores"></div>
+            <div class="relay-handoff-timer" id="relay-handoff-timer">10</div>
+        </div>
+
         <div id="controls">
             <div id="host-status" class="status-badge">SYSTEM IDLE</div>
-            <button onclick="startSequence()" class="control-btn primary">ENGAGE (Space)</button>
-            <button onclick="resetScores()" class="control-btn">RESET ROUND (R)</button>
+            <button onclick="startSequence()" class="control-btn primary" id="btn-engage">ENGAGE (Space)</button>
+            <button onclick="resetScores()" class="control-btn" id="btn-reset-round">RESET (R)</button>
             <button onclick="resetMatch()" class="control-btn danger">NEW MATCH (WIPE ALL)</button>
             <button onclick="exitHost()" class="control-btn exit">EXIT SYSTEM</button>
         </div>
@@ -925,7 +1021,7 @@
             </div>
 
             <!-- Big countdown/game timer -->
-            <div class="duel-timer" id="duel-timer">3</div>
+            <div class="duel-timer" id="duel-timer">15</div>
 
             <!-- Score bars for both players -->
             <div class="duel-lanes" id="duel-lanes"></div>
@@ -1052,9 +1148,86 @@
         window.goToSetup       = goToSetup;
 
         // ─── AUDIO ────────────────────────────────────────────────────────────────
+
+        // ── MUSIC PLAYER ─────────────────────────────────────────────────────────
+        // Place music.ogg in the same folder as this HTML file.
+        // All volume levels: 0.0 – 1.0
+        const MUSIC_VOL_IDLE      = 0.15;  // waiting / between matches
+        const MUSIC_VOL_COUNTDOWN = 0.45;  // 5-second F1 countdown
+        const MUSIC_VOL_PLAYING   = 0.85;  // slot/round in progress
+        const MUSIC_VOL_HANDOFF   = 0.25;  // handoff break between slots
+        const MUSIC_VOL_WINNER    = 0.15;  // winner overlay
+
+        let musicAudio    = null;  // HTMLAudioElement
+        let musicMuted    = false;
+        let musicFadeRAF  = null;  // requestAnimationFrame handle for fades
+        let musicEnabled  = false; // only play on host/spectator screens
+
+        function initMusic() {
+            if (musicAudio) return;
+            musicAudio = new Audio('./music.ogg');
+            musicAudio.loop   = true;
+            musicAudio.volume = MUSIC_VOL_IDLE;
+            // If file doesn't exist, fail silently — game works without music
+            musicAudio.onerror = () => { musicAudio = null; };
+            musicAudio.play().catch(() => {});
+            musicEnabled = true;
+        }
+
+        function musicFadeTo(targetVol, durationMs) {
+            if (!musicAudio || musicMuted) return;
+            if (musicFadeRAF) cancelAnimationFrame(musicFadeRAF);
+            const startVol  = musicAudio.volume;
+            const startTime = performance.now();
+            function step(now) {
+                const t = Math.min((now - startTime) / durationMs, 1);
+                musicAudio.volume = startVol + (targetVol - startVol) * t;
+                if (t < 1) musicFadeRAF = requestAnimationFrame(step);
+            }
+            musicFadeRAF = requestAnimationFrame(step);
+        }
+
+        function toggleMusicMute() {
+            if (!musicAudio) return;
+            musicMuted = !musicMuted;
+            musicAudio.volume = musicMuted ? 0 : Math.min(currentMusicTarget * musicMasterVol, 1);
+            const btn = document.getElementById('btn-music-mute');
+            if (btn) btn.innerText = musicMuted ? '🔇 MUTED' : '🔊 MUSIC';
+        }
+
+        function adjustMusicVolume(val) {
+            // Slider acts as a master volume multiplier (0–1)
+            // Store as a global scale factor applied on top of auto-fades
+            musicMasterVol = parseFloat(val);
+            if (musicAudio && !musicMuted) {
+                musicAudio.volume = Math.min(currentMusicTarget * musicMasterVol, 1);
+            }
+        }
+
+        // Track current target so slider can scale it correctly
+        let musicMasterVol   = 1.0;
+        let currentMusicTarget = MUSIC_VOL_IDLE;
+
+        function musicFadeTo(targetVol, durationMs) {
+            if (!musicAudio) return;
+            currentMusicTarget = targetVol;
+            if (musicMuted) return;
+            const scaledTarget = Math.min(targetVol * musicMasterVol, 1);
+            if (musicFadeRAF) cancelAnimationFrame(musicFadeRAF);
+            const startVol  = musicAudio.volume;
+            const startTime = performance.now();
+            function step(now) {
+                const t = Math.min((now - startTime) / durationMs, 1);
+                if (!musicMuted) musicAudio.volume = startVol + (scaledTarget - startVol) * t;
+                if (t < 1) musicFadeRAF = requestAnimationFrame(step);
+            }
+            musicFadeRAF = requestAnimationFrame(step);
+        }
+
         function initAudio() {
             if (!audioCtx) { const AC = window.AudioContext || window.webkitAudioContext; audioCtx = new AC(); }
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            initMusic(); // start music when host/spectator screen unlocks audio
         }
         function playBeep(type, val) {
             if (!audioCtx) return;
@@ -1227,6 +1400,16 @@
                 if (e.code === 'Space') startSequence();
                 if (e.code === 'KeyR') resetScores();
             });
+
+            // When tournament mode is toggled, update button labels and timer
+            document.getElementById('chk-auto-director').addEventListener('change', () => {
+                const relay = isRelayMode();
+                document.getElementById('btn-engage').innerText = relay ? 'START RELAY (Space)' : 'ENGAGE (Space)';
+                if (!isSequenceRunning) {
+                    document.getElementById('timer-display').innerText = relay ? RELAY_SLOT_DURATION : STANDARD_DURATION;
+                }
+                evaluateBracketState();
+            });
         }
 
         function updateActiveTeams() {
@@ -1242,6 +1425,7 @@
         }
 
         function determineWinner() {
+            // Standard mode only — relay mode uses endRelayMatch()
             let maxScore = -1, winningTeamId = null;
             teams.forEach(t => {
                 if (document.getElementById(`chk-${t.id}`).checked) {
@@ -1286,33 +1470,126 @@
             else if (state === -1) { container.classList.add('go-signal'); }
         }
 
+        // ─── RELAY MODE STATE ─────────────────────────────────────────────────────
+        const RELAY_SLOTS      = 3;
+        const RELAY_SLOT_DURATION = 20;   // seconds per slot
+        const RELAY_HANDOFF    = 10;      // seconds between slots
+        const STANDARD_DURATION = 15;     // seconds for standard (non-relay) mode
+
+        let relayCurrentSlot   = 0;       // 1-3, 0 = not started
+        let relaySlotScores    = {};      // { teamId: [slot1, slot2, slot3] }
+        let relayHandoffInterval = null;
+
+        function isRelayMode() {
+            return document.getElementById('chk-auto-director')?.checked;
+        }
+
+        function getActiveTeamIds() {
+            return teams.filter(t => document.getElementById(`chk-${t.id}`).checked).map(t => t.id);
+        }
+
+        // ─── SLOT INDICATOR UI ────────────────────────────────────────────────────
+        function buildRelayHeader() {
+            // Remove old header if exists
+            const old = document.getElementById('relay-header');
+            if (old) old.remove();
+            if (!isRelayMode()) return;
+
+            const header = document.createElement('div');
+            header.className = 'relay-header';
+            header.id = 'relay-header';
+            for (let i = 1; i <= RELAY_SLOTS; i++) {
+                header.innerHTML += `
+                    <div class="relay-slot-pip">
+                        <div class="relay-slot-dot" id="relay-dot-${i}"></div>
+                        <div class="relay-slot-label" id="relay-slot-lbl-${i}">SLOT ${i}</div>
+                    </div>`;
+            }
+            // Insert before scoreboard
+            const scoreboard = document.getElementById('scoreboard');
+            scoreboard.parentNode.insertBefore(header, scoreboard);
+        }
+
+        function updateRelayDots(activeSlot) {
+            for (let i = 1; i <= RELAY_SLOTS; i++) {
+                const dot = document.getElementById(`relay-dot-${i}`);
+                const lbl = document.getElementById(`relay-slot-lbl-${i}`);
+                if (!dot) continue;
+                dot.className   = 'relay-slot-dot' + (i < activeSlot ? ' done' : i === activeSlot ? ' active' : '');
+                lbl.className   = 'relay-slot-label' + (i === activeSlot ? ' active' : '');
+            }
+        }
+
+        // ─── CUMULATIVE TOTAL UI ──────────────────────────────────────────────────
+        function updateRelayTotals() {
+            const activeIds = getActiveTeamIds();
+            const totals = {};
+            activeIds.forEach(id => {
+                totals[id] = (relaySlotScores[id] || []).reduce((a,b) => a+b, 0);
+            });
+            const maxTotal = Math.max(...Object.values(totals), 0);
+
+            activeIds.forEach(id => {
+                const el = document.getElementById(`relay-total-${id}`);
+                if (!el) return;
+                el.innerText = totals[id] || 0;
+                el.className = 'relay-total' + (totals[id] === maxTotal && maxTotal > 0 ? ' leading' : '');
+            });
+        }
+
+        // Inject relay-total element into each active lane
+        function injectRelayTotals() {
+            getActiveTeamIds().forEach(id => {
+                // Remove existing if any
+                const existing = document.getElementById(`relay-total-${id}`);
+                if (existing) existing.remove();
+                const lane = document.getElementById(`lane-${id}`);
+                if (!lane) return;
+                const team = teams.find(t => t.id === id);
+                const totalEl = document.createElement('div');
+                totalEl.className = 'relay-total';
+                totalEl.id = `relay-total-${id}`;
+                totalEl.title = 'CUMULATIVE TOTAL';
+                // Add label above
+                totalEl.innerHTML = `<div style="font-size:0.5rem;color:#444;letter-spacing:3px;margin-bottom:3px;">TOTAL</div><span id="relay-total-val-${id}">0</span>`;
+                totalEl.style.color = `var(--${team.color})`;
+                lane.appendChild(totalEl);
+            });
+        }
+
+        // ─── MAIN SEQUENCE ────────────────────────────────────────────────────────
         function startSequence() {
             if (!isHost || isSequenceRunning) return;
+            if (isRelayMode()) {
+                startRelayMatch();
+            } else {
+                startStandardSequence();
+            }
+        }
+
+        // ─── STANDARD MODE (unchanged) ────────────────────────────────────────────
+        function startStandardSequence() {
             resetScores(true); closeWinner();
             isSequenceRunning = true;
             setLights(0);
+            musicFadeTo(MUSIC_VOL_COUNTDOWN, 1500); // fade up during countdown
             let count = 5;
             document.getElementById('timer-display').style.color = 'var(--yellow)';
             runCountdownBeat(count);
             countdownInterval = setInterval(() => {
                 count--;
                 if (count > 0) runCountdownBeat(count);
-                else { clearInterval(countdownInterval); startGameplay(); }
+                else { clearInterval(countdownInterval); startStandardGameplay(); }
             }, 1000);
         }
-        function runCountdownBeat(num) {
-            document.getElementById('timer-display').innerText = num;
-            playBeep('count', num);
-            const light = document.getElementById(`light-${6 - num}`);
-            if (light) light.classList.add('active');
-        }
-        function startGameplay() {
-            let timeLeft = ROUND_DURATION;
+        function startStandardGameplay() {
+            let timeLeft = STANDARD_DURATION;
             const timerDisplay = document.getElementById('timer-display');
             timerDisplay.style.color = 'var(--green)';
             timerDisplay.innerText = 'GO';
             setLights(-1);
             playBeep('go');
+            musicFadeTo(MUSIC_VOL_PLAYING, 800); // full hype
             db.ref('game/status').set('playing');
             setTimeout(() => {
                 timerDisplay.style.color = '#fff';
@@ -1321,45 +1598,227 @@
                 gameInterval = setInterval(() => {
                     timeLeft--;
                     timerDisplay.innerText = timeLeft;
-                    if (timeLeft <= 0) { clearInterval(gameInterval); endRound(); }
+                    if (timeLeft <= 0) { clearInterval(gameInterval); endStandardRound(); }
                 }, 1000);
             }, 1000);
         }
-        function endRound() {
+        function endStandardRound() {
             db.ref('game/status').set('paused');
             isSequenceRunning = false;
             document.getElementById('timer-display').style.color = '#555';
             document.getElementById('timer-display').innerText = '0';
+            musicFadeTo(MUSIC_VOL_IDLE, 2000); // fade back down
             determineWinner();
+        }
+
+        // ─── RELAY MODE ───────────────────────────────────────────────────────────
+        function startRelayMatch() {
+            // Full reset
+            relayCurrentSlot = 0;
+            relaySlotScores  = {};
+            getActiveTeamIds().forEach(id => relaySlotScores[id] = []);
+
+            closeWinner();
+            clearInterval(gameInterval);
+            clearInterval(countdownInterval);
+            clearInterval(relayHandoffInterval);
+            document.getElementById('relay-handoff').classList.add('hidden');
+
+            // Reset Firebase scores
+            const updates = {};
+            teams.forEach(t => updates[`scores/${t.id}`] = 0);
+            updates['game/status'] = 'paused';
+            db.ref().update(updates);
+
+            buildRelayHeader();
+            injectRelayTotals();
+            updateRelayTotals();
+
+            isSequenceRunning = true;
+            startRelaySlotCountdown();
+        }
+
+        function startRelaySlotCountdown() {
+            relayCurrentSlot++;
+            updateRelayDots(relayCurrentSlot);
+            const updates = {};
+            teams.forEach(t => updates[`scores/${t.id}`] = 0);
+            db.ref().update(updates);
+            const timerDisplay = document.getElementById('timer-display');
+            setLights(0);
+            musicFadeTo(MUSIC_VOL_COUNTDOWN, 1500); // build tension
+            let count = 5;
+            timerDisplay.style.color = 'var(--yellow)';
+            timerDisplay.innerText = count;
+            runCountdownBeat(count);
+            countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0) runCountdownBeat(count);
+                else { clearInterval(countdownInterval); startRelaySlotGameplay(); }
+            }, 1000);
+        }
+
+        function startRelaySlotGameplay() {
+            let timeLeft = RELAY_SLOT_DURATION;
+            const timerDisplay = document.getElementById('timer-display');
+            timerDisplay.style.color = 'var(--green)';
+            timerDisplay.innerText = 'GO';
+            setLights(-1);
+            playBeep('go');
+            musicFadeTo(MUSIC_VOL_PLAYING, 800); // full hype
+            db.ref('game/status').set('playing');
+            setTimeout(() => {
+                timerDisplay.style.color = '#fff';
+                timerDisplay.innerText = timeLeft;
+                setLights(0);
+                gameInterval = setInterval(() => {
+                    timeLeft--;
+                    timerDisplay.innerText = timeLeft;
+                    if (timeLeft <= 5) timerDisplay.style.color = 'var(--orange)';
+                    if (timeLeft <= 0) {
+                        clearInterval(gameInterval);
+                        timerDisplay.style.color = '#fff';
+                        endRelaySlot();
+                    }
+                }, 1000);
+            }, 1000);
+        }
+
+        function endRelaySlot() {
+            db.ref('game/status').set('paused');
+
+            // Snapshot current slot scores
+            const activeIds = getActiveTeamIds();
+            activeIds.forEach(id => {
+                const slotScore = currentScores[id] || 0;
+                if (!relaySlotScores[id]) relaySlotScores[id] = [];
+                relaySlotScores[id][relayCurrentSlot - 1] = slotScore;
+            });
+            updateRelayTotals();
+
+            if (relayCurrentSlot >= RELAY_SLOTS) {
+                // All slots done — determine overall winner
+                endRelayMatch();
+            } else {
+                // Show handoff screen
+                showRelayHandoff();
+            }
+        }
+
+        function showRelayHandoff() {
+            const activeIds = getActiveTeamIds();
+            musicFadeTo(MUSIC_VOL_HANDOFF, 1000); // drop for announcer
+            const scoresHTML = activeIds.map(id => {
+                const team  = teams.find(t => t.id === id);
+                const total = (relaySlotScores[id] || []).reduce((a,b) => a+b, 0);
+                return `
+                    <div class="relay-handoff-team">
+                        <div class="relay-handoff-name" style="color:var(--${team.color})">${team.name}</div>
+                        <div class="relay-handoff-score" style="color:var(--${team.color})">${total}</div>
+                    </div>`;
+            }).join('');
+            document.getElementById('relay-handoff-slot').innerText   = `SLOT ${relayCurrentSlot} COMPLETE`;
+            document.getElementById('relay-handoff-scores').innerHTML = scoresHTML;
+            document.getElementById('relay-handoff').classList.remove('hidden');
+            let t = RELAY_HANDOFF;
+            const timerDisplay  = document.getElementById('timer-display');
+            const handoffTimer  = document.getElementById('relay-handoff-timer');
+            timerDisplay.style.color = 'var(--orange)';
+            timerDisplay.innerText   = t;
+            handoffTimer.innerText   = t;
+            playBeep('count', 5);
+            relayHandoffInterval = setInterval(() => {
+                t--;
+                timerDisplay.innerText = t;
+                handoffTimer.innerText = t;
+                if (t <= 3 && t > 0) playBeep('count', t);
+                if (t <= 0) {
+                    clearInterval(relayHandoffInterval);
+                    document.getElementById('relay-handoff').classList.add('hidden');
+                    timerDisplay.style.color = '#fff';
+                    startRelaySlotCountdown();
+                }
+            }, 1000);
+        }
+
+        function endRelayMatch() {
+            isSequenceRunning = false;
+            document.getElementById('timer-display').style.color = '#555';
+            document.getElementById('timer-display').innerText   = '✓';
+            musicFadeTo(MUSIC_VOL_WINNER, 2000); // fade under winner announcement
+            const activeIds = getActiveTeamIds();
+            let maxTotal = -1, winningTeamId = null;
+            activeIds.forEach(id => {
+                const total = (relaySlotScores[id] || []).reduce((a,b) => a+b, 0);
+                if (total > maxTotal) { maxTotal = total; winningTeamId = id; }
+            });
+            if (winningTeamId) {
+                updateRelayDots(RELAY_SLOTS + 1);
+                const newWins = (teamWins[winningTeamId] || 0) + 1;
+                db.ref(`wins/${winningTeamId}`).set(newWins);
+                const isDirector = document.getElementById('chk-auto-director')?.checked;
+                if (isDirector) directorHandleWin(winningTeamId);
+                showWinnerOverlay(winningTeamId, true);
+            }
+            setTimeout(() => {
+                const old = document.getElementById('relay-header');
+                if (old) old.remove();
+                getActiveTeamIds().forEach(id => {
+                    const el = document.getElementById(`relay-total-${id}`);
+                    if (el) el.remove();
+                });
+            }, 500);
         }
 
         function resetScores(force) {
             if (!isHost) return;
             if (!force && !confirm('Reset current scores? (Dots/Wins will remain)')) return;
             closeWinner();
-            clearInterval(gameInterval); clearInterval(countdownInterval);
+            clearInterval(gameInterval); clearInterval(countdownInterval); clearInterval(relayHandoffInterval);
             isSequenceRunning = false;
-            document.getElementById('timer-display').innerText = ROUND_DURATION;
+            relayCurrentSlot  = 0;
+            relaySlotScores   = {};
+            document.getElementById('relay-handoff').classList.add('hidden');
+            document.getElementById('timer-display').innerText = RELAY_SLOT_DURATION;
             document.getElementById('timer-display').style.color = '#fff';
             setLights(0);
             const updates = {};
             teams.forEach(t => updates[`scores/${t.id}`] = 0);
             updates['game/status'] = 'paused';
             db.ref().update(updates);
+            // Clean up relay UI
+            const old = document.getElementById('relay-header');
+            if (old) old.remove();
+            getActiveTeamIds().forEach(id => {
+                const el = document.getElementById(`relay-total-${id}`);
+                if (el) el.remove();
+            });
+            updateRelayDots(0);
         }
         function resetMatch(force) {
             if (!isHost) return;
             if (!force && !confirm('NEW MATCH? This will clear ALL scores and Win Dots.')) return;
             closeWinner();
-            clearInterval(gameInterval); clearInterval(countdownInterval);
+            clearInterval(gameInterval); clearInterval(countdownInterval); clearInterval(relayHandoffInterval);
             isSequenceRunning = false;
-            document.getElementById('timer-display').innerText = ROUND_DURATION;
+            relayCurrentSlot  = 0;
+            relaySlotScores   = {};
+            document.getElementById('relay-handoff').classList.add('hidden');
+            document.getElementById('timer-display').innerText = RELAY_SLOT_DURATION;
             document.getElementById('timer-display').style.color = '#fff';
             setLights(0);
             const updates = {};
             teams.forEach(t => { updates[`scores/${t.id}`] = 0; updates[`wins/${t.id}`] = 0; });
             updates['game/status'] = 'paused';
             db.ref().update(updates);
+            // Clean up relay UI
+            const old = document.getElementById('relay-header');
+            if (old) old.remove();
+            getActiveTeamIds().forEach(id => {
+                const el = document.getElementById(`relay-total-${id}`);
+                if (el) el.remove();
+            });
+            updateRelayDots(0);
         }
 
         // ─── TOURNAMENT DIRECTOR ──────────────────────────────────────────────────
@@ -1471,7 +1930,7 @@
         // ═══════════════════════════════════════════════════════════════════════════
 
         const DUEL_DURATION      = 15;
-        const DUEL_WINNING_SCORE = 200;
+        const DUEL_WINNING_SCORE = 500; // increased: 15s rounds allow far more taps
 
         let duelRoundsToWin  = 2;
         let duelMaxRounds    = 3;
@@ -1521,6 +1980,7 @@
             db.ref(`duels/${code}`).once('value').then(snap => {
                 if (!snap.val()) { document.getElementById('duel-error').innerText = 'ROOM NOT FOUND'; return; }
                 duelRoomCode = code; duelMyName = null; duelIsSpectator = true;
+                initAudio(); // unlock audio + start music for spectator (no PIN needed)
                 showDuelWaiting(); listenToDuelRoom();
             });
         }
@@ -1706,7 +2166,7 @@
             const timerEl = document.getElementById('duel-timer');
             timerEl.className = 'duel-timer';
             timerEl.style.color = '';
-            timerEl.innerText = '3';
+            timerEl.innerText = DUEL_DURATION;
 
             if (duelIsSpectator) {
                 document.getElementById('duel-tap-container').style.display = 'none';
@@ -1818,6 +2278,7 @@
         function runDuelCountdown() {
             const timerEl = document.getElementById('duel-timer');
             timerEl.className = 'duel-timer countdown';
+            musicFadeTo(MUSIC_VOL_COUNTDOWN, 1500);
             let count = 3;
             timerEl.innerText = count;
             playBeep('count', count);
@@ -1834,6 +2295,7 @@
             timerEl.className = 'duel-timer go';
             timerEl.innerText = 'GO!';
             playBeep('go');
+            musicFadeTo(MUSIC_VOL_PLAYING, 800);
             duelPendingTaps  = 0;
             duelFlushInterval = setInterval(flushDuelTaps, 300);
             let timeLeft = DUEL_DURATION;
@@ -1931,6 +2393,7 @@
 
             flashEl.classList.remove('hidden');
             playBeep('win');
+            musicFadeTo(MUSIC_VOL_HANDOFF, 800); // drop for between-round moment
 
             // Only the designated round driver triggers the next round.
             // We check Firebase to confirm, avoiding the race where both
@@ -1958,6 +2421,7 @@
             winnerNameEl.style.color = idx === 0 ? 'var(--purple)' : 'var(--pink)';
             if (titleEl) titleEl.innerText = 'MATCH WINNER';
             playBeep('win');
+            musicFadeTo(MUSIC_VOL_WINNER, 2000); // fade under winner reveal
             db.ref(`duels/${duelRoomCode}/status`).set('finished');
         }
 
@@ -2012,6 +2476,7 @@
             duelState     = 'idle'; duelPendingTaps = 0;
             duelRoundWins = {}; duelCurrentRound = 1; duelPlayerNames = [];
             duelLastRoundCounter = 0;
+            musicFadeTo(MUSIC_VOL_IDLE, 2000); // back to background level
             document.getElementById('duel-screen').classList.add('hidden');
             document.getElementById('setup').classList.remove('hidden');
         }
