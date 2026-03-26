@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tournament Dash: School Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 
@@ -30,6 +30,7 @@
             font-family: 'Orbitron', sans-serif;
             margin: 0;
             overflow: hidden;
+            overscroll-behavior: none; /* kills iOS rubber-band bounce */
             background-color: var(--bg-color);
             color: var(--text-main);
             touch-action: manipulation;
@@ -55,10 +56,65 @@
         .hidden { display: none !important; }
 
         .screen {
-            height: 100vh; width: 100vw;
+            /* dvh = dynamic viewport height — accounts for iOS browser chrome.
+               Falls back to 100vh on browsers that don't support dvh. */
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             position: relative;
+        }
+
+        /* ── Portrait lock (player iPads) ───────────────────────────────────────
+           Players use iPads locked to portrait. Portrait iPad = ~768×1024 minus
+           browser chrome ≈ 900px usable height. Plenty of room — just scale
+           elements sensibly so nothing is comically oversized on a tablet.
+           The watching screen (desktop landscape) never hits this query.
+        ─────────────────────────────────────────────────────────────────────── */
+        @media (orientation: portrait) {
+
+            /* Setup screen */
+            #setup h1 { font-size: clamp(1.6rem, 5vw, 2.8rem); letter-spacing: 8px; margin-bottom: 30px; }
+            .btn-grid { gap: 14px; }
+            .btn-grid button { height: clamp(65px, 9vh, 100px); font-size: clamp(0.9rem, 2.5vw, 1.3rem); }
+            .btn-duel { margin-top: 16px; }
+
+            /* Client tap screen */
+            #tap-btn, #practice-btn {
+                width: 60vw; height: 60vw;
+                max-width: 320px; max-height: 320px;
+            }
+            #msg { font-size: clamp(1.8rem, 5vw, 2.8rem); margin-bottom: 35px; }
+
+            /* Duel lobby */
+            .duel-lobby { gap: 14px; max-width: 90vw; }
+
+            /* Duel arena — portrait has lots of height, size off vw (the narrow axis) */
+            #duel-arena { padding: 60px 24px 24px; }
+
+            .duel-round-header { margin-bottom: 8px; }
+            .duel-round-label  { font-size: 0.7rem; letter-spacing: 5px; }
+            .duel-round-stars  { gap: 30px; margin-top: 8px; }
+            .duel-star         { font-size: 1.2rem; }
+
+            /* Timer: big and proud in portrait */
+            .duel-timer { font-size: clamp(5rem, 22vw, 10rem); margin: 12px 0; }
+
+            /* Lanes */
+            .duel-lanes { gap: 16px; margin: 10px 0; max-width: 100%; }
+            .duel-lane  { gap: 6px; }
+            .duel-lane-name  { font-size: clamp(1rem, 3.5vw, 1.4rem); letter-spacing: 3px; }
+            .duel-lane-score { font-size: clamp(1.3rem, 4vw, 1.8rem); }
+            .duel-track { height: clamp(20px, 3.5vw, 36px); }
+
+            /* Tap button: sized off vw in portrait */
+            .duel-tap-zone {
+                width:  clamp(120px, 38vw, 220px);
+                height: clamp(120px, 38vw, 220px);
+                font-size: clamp(1.1rem, 4vw, 1.6rem);
+                margin-top: 16px;
+            }
         }
 
         button {
