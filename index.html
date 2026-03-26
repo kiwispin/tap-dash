@@ -1892,21 +1892,23 @@
                         return;
                     }
 
-                    // Award round win
+                    // Award round win — only the driver writes to Firebase
+                    // to prevent both devices writing and doubling the count
                     const newWins = (duelRoundWins[roundWinner] || 0) + 1;
                     duelRoundWins[roundWinner] = newWins;
 
-                    // Only the non-spectator writes (prevents double-write)
-                    if (!duelIsSpectator) {
-                        db.ref(`duels/${duelRoomCode}/roundWins/${roundWinner}`).set(newWins);
-                    }
+                    db.ref(`duels/${duelRoomCode}/roundDriver`).once('value').then(driverSnap => {
+                        if (driverSnap.val() === duelMyName) {
+                            db.ref(`duels/${duelRoomCode}/roundWins/${roundWinner}`).set(newWins);
+                        }
 
-                    if (newWins >= duelRoundsToWin) {
-                        showDuelMatchResult(roundWinner);
-                    } else {
-                        duelCurrentRound++;
-                        showDuelRoundFlash(roundWinner, duelCurrentRound - 1);
-                    }
+                        if (newWins >= duelRoundsToWin) {
+                            showDuelMatchResult(roundWinner);
+                        } else {
+                            duelCurrentRound++;
+                            showDuelRoundFlash(roundWinner, duelCurrentRound - 1);
+                        }
+                    });
                 });
             }, 500);
         }
