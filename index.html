@@ -1540,13 +1540,14 @@
             duelMyName   = name;
             duelRoomCode = generateRoomCode();
             db.ref(`duels/${duelRoomCode}`).set({
-                players: { [name]: true },
-                scores:  { [name]: 0 },
-                roundWins: { [name]: 0 },
-                roundCounter: 0,  // NEW: the trigger for starting/restarting rounds
-                status: 'waiting',
-                format: format,
-                created: firebase.database.ServerValue.TIMESTAMP
+                players:      { [name]: true },
+                scores:       { [name]: 0 },
+                roundWins:    { [name]: 0 },
+                roundCounter: 0,
+                matchId:      null,
+                status:       'waiting',
+                format:       format,
+                created:      firebase.database.ServerValue.TIMESTAMP
             }).then(() => { showDuelWaiting(); listenToDuelRoom(); });
         }
 
@@ -1607,20 +1608,30 @@
             });
             duelListeners.push({ ref: playersRef, event: 'value', fn: playersListener });
 
-            // ── KEY FIX: Listen on roundCounter, not 'status' ──────────────────
-            // roundCounter increments each time a new round should begin.
-            // We record the last value we acted on (duelLastRoundCounter) to
-            // avoid responding to the same increment twice.
+            // ── matchId: triggers a FULL NEW MATCH on all devices ─────────────
+            // Any change to matchId means "start fresh" — no counter comparison,
+            // no stale state. Used by startDuel() and rematch.
+            let lastMatchId = null;
+            const matchIdRef = db.ref(`duels/${duelRoomCode}/matchId`);
+            const matchIdListener = matchIdRef.on('value', snap => {
+                const id = snap.val();
+                if (!id) return;
+                if (id === lastMatchId) return;
+                lastMatchId = id;
+                duelLastRoundCounter = 0; // reset within-match counter too
+                enterDuelArena();
+            });
+            duelListeners.push({ ref: matchIdRef, event: 'value', fn: matchIdListener });
+
+            // ── roundCounter: triggers NEXT ROUND within an ongoing match ─────
             const roundCounterRef = db.ref(`duels/${duelRoomCode}/roundCounter`);
             const roundCounterListener = roundCounterRef.on('value', snap => {
                 const counter = snap.val();
-                if (counter === null) return;
-                if (counter === 0) {
-                    // A rematch reset happened — reset our local tracker
+                if (counter === null || counter === 0) {
                     duelLastRoundCounter = 0;
                     return;
                 }
-                if (counter <= duelLastRoundCounter) return;   // Already handled this value
+                if (counter <= duelLastRoundCounter) return;
                 duelLastRoundCounter = counter;
                 enterDuelArena();
             });
@@ -1645,27 +1656,32 @@
                 duelRoundWins    = rwUpdates;
                 duelCurrentRound = 1;
                 duelPlayerNames  = players;
-                db.ref(`duels/${duelRoomCode}/scores`).set(scoreUpdates);
-                db.ref(`duels/${duelRoomCode}/roundWins`).set(rwUpdates);
-                db.ref(`duels/${duelRoomCode}/currentRound`).set(1);
-                db.ref(`duels/${duelRoomCode}/winner`).remove();
-                // Mark the creator as the round driver so only one device calls startNextRound
-                db.ref(`duels/${duelRoomCode}/roundDriver`).set(duelMyName);
-                // Increment roundCounter to trigger arena entry on ALL devices
-                db.ref(`duels/${duelRoomCode}/roundCounter`).set(1);
+                // Write everything at once atomically
+                db.ref(`duels/${duelRoomCode}`).update({
+                    scores:       scoreUpdates,
+                    roundWins:    rwUpdates,
+                    currentRound: 1,
+                    roundDriver:  duelMyName,
+                    winner:       null,
+                    // matchId is a timestamp — changing it is the signal to ALL
+                    // devices to enter the arena fresh, with no counter comparison
+                    matchId:      Date.now()
+                });
             });
         }
 
         function startNextRound() {
             if (!duelRoomCode) return;
-            // Reset scores for the new round
             db.ref(`duels/${duelRoomCode}/players`).once('value').then(snap => {
                 const players = Object.keys(snap.val() || {});
                 const scoreUpdates = {};
                 players.forEach(n => scoreUpdates[n] = 0);
-                db.ref(`duels/${duelRoomCode}/scores`).set(scoreUpdates);
-                db.ref(`duels/${duelRoomCode}/currentRound`).set(duelCurrentRound);
-                // Increment the counter — triggers arena entry on ALL devices
+                // Use roundCounter increment for within-match round transitions
+                // (both devices are already in sync at this point)
+                db.ref(`duels/${duelRoomCode}`).update({
+                    scores:       scoreUpdates,
+                    currentRound: duelCurrentRound
+                });
                 db.ref(`duels/${duelRoomCode}/roundCounter`).transaction(c => (c || 0) + 1);
             });
         }
@@ -1972,14 +1988,9 @@
             duelRoundWins        = {};
             duelCurrentRound     = 1;
             duelLastRoundCounter = 0;
-            // Reset roundCounter to 0 in Firebase FIRST — this triggers the listener
-            // on ALL devices to clear their duelLastRoundCounter before the new
-            // match starts. Without this, the non-rematch device still has a high
-            // counter value and ignores the incoming roundCounter = 1.
-            db.ref(`duels/${duelRoomCode}/roundCounter`).set(0).then(() => {
-                db.ref(`duels/${duelRoomCode}/roundDriver`).set(duelMyName);
-                startDuel();
-            });
+            // startDuel writes a new matchId timestamp — all devices' listeners
+            // fire immediately and enter the arena fresh. No counter juggling needed.
+            startDuel();
         }
 
         function exitDuel() {
