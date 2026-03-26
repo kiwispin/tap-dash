@@ -682,9 +682,9 @@
             position: absolute;
             top: -10px; left: -10px; right: -10px; bottom: -10px;
             border-radius: 50%;
-            border: 2px solid var(--purple);
+            border: 2px solid currentColor;
             opacity: 0.35;
-            box-shadow: 0 0 20px var(--purple);
+            box-shadow: 0 0 20px currentColor;
             animation: pulse 2s infinite;
         }
 
@@ -1712,6 +1712,11 @@
 
                 updateDuelRoundUI();
 
+                // Work out this player's colour based on their index
+                const myIndex    = players.indexOf(duelMyName);
+                const myColor    = myIndex === 0 ? 'var(--purple)' : myIndex === 1 ? 'var(--pink)' : 'var(--purple)';
+                const myColorHex = myIndex === 0 ? 'rgba(157,0,255,' : 'rgba(255,0,204,';
+
                 // Build lanes
                 const lanesEl = document.getElementById('duel-lanes');
                 lanesEl.innerHTML = '';
@@ -1719,7 +1724,6 @@
                     const isMe   = name === duelMyName;
                     const color  = i === 0 ? 'var(--purple)' : 'var(--pink)';
                     const barCls = i === 0 ? 'p1' : 'p2';
-                    // Sanitize name for use as DOM id (replace spaces/special chars)
                     const safeId = 'player_' + i;
 
                     const lane = document.createElement('div');
@@ -1759,15 +1763,35 @@
                 });
                 duelListeners.push({ ref: rwRef, event: 'value', fn: rwListener, arena: true });
 
+                // ── Tap button: rebind listener + apply player colour ──────────
+                // Done INSIDE the promise so it always happens after lanes are built
+                // and the container is definitely visible before we clone the button.
+                const tapContainer = document.getElementById('duel-tap-container');
+                if (duelIsSpectator) {
+                    tapContainer.style.display = 'none';
+                } else {
+                    tapContainer.style.display = 'flex';
+                    tapContainer.style.justifyContent = 'center';
+
+                    // Rebind by cloning (removes stale listeners from previous rounds)
+                    const oldBtn = document.getElementById('duel-tap-btn');
+                    const newBtn = oldBtn.cloneNode(true);
+                    oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+
+                    // Colour the button to match this player's lane colour
+                    newBtn.style.color        = myColor;
+                    newBtn.style.borderColor  = myColor.replace('var(--', '').replace(')', ''); // fallback
+                    newBtn.style.border       = `4px solid ${myColor}`;
+                    newBtn.style.background   = `radial-gradient(circle, ${myColorHex}0.15) 0%, rgba(0,0,0,0.7) 70%)`;
+                    newBtn.style.boxShadow    = `0 0 40px ${myColorHex}0.2), inset 0 0 40px rgba(0,0,0,0.5)`;
+
+                    const ev = 'ontouchstart' in window ? 'touchstart' : 'click';
+                    newBtn.addEventListener(ev, e => { e.preventDefault(); handleDuelTap(); });
+                }
+
                 runDuelCountdown();
             });
-
-            // Rebind tap button
-            const oldBtn = document.getElementById('duel-tap-btn');
-            const newBtn = oldBtn.cloneNode(true);
-            oldBtn.parentNode.replaceChild(newBtn, oldBtn);
-            const ev = 'ontouchstart' in window ? 'touchstart' : 'click';
-            newBtn.addEventListener(ev, e => { e.preventDefault(); handleDuelTap(); });
+            // NOTE: tap button rebind is now inside the promise above — do NOT rebind here
         }
 
         function runDuelCountdown() {
