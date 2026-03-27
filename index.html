@@ -1374,11 +1374,12 @@
             const board = document.getElementById('scoreboard');
             board.innerHTML = '<div class="vs-watermark">VS</div>';
             teams.forEach(t => {
+                const modeLabel = isRelayMode() ? 'RELAY 3×20s' : 'BEST OF 3';
                 board.innerHTML += `
 <div class="lane" id="lane-${t.id}" style="z-index:1;">
     <div class="lane-info">
         <div class="lane-label" style="color:var(--${t.color})">${t.name}</div>
-        <div style="font-size:0.6rem;color:#444;letter-spacing:3px;margin-bottom:2px;">BEST OF 3</div>
+        <div class="lane-mode-label" id="mode-lbl-${t.id}" style="font-size:0.6rem;color:#444;letter-spacing:3px;margin-bottom:2px;">${modeLabel}</div>
         <div class="win-dots" id="dots-${t.id}">
             <div class="dot"></div><div class="dot"></div><div class="dot"></div>
         </div>
@@ -1416,13 +1417,18 @@
                 if (e.code === 'KeyR') resetScores();
             });
 
-            // When tournament mode is toggled, update button labels and timer
+            // When tournament mode is toggled, update button labels, timer and scoreboard labels
             document.getElementById('chk-auto-director').addEventListener('change', () => {
                 const relay = isRelayMode();
                 document.getElementById('btn-engage').innerText = relay ? 'START RELAY (Space)' : 'ENGAGE (Space)';
                 if (!isSequenceRunning) {
                     document.getElementById('timer-display').innerText = relay ? RELAY_SLOT_DURATION : STANDARD_DURATION;
                 }
+                const modeLabel = relay ? 'RELAY 3×20s' : 'BEST OF 3';
+                teams.forEach(t => {
+                    const el = document.getElementById(`mode-lbl-${t.id}`);
+                    if (el) el.innerText = modeLabel;
+                });
                 evaluateBracketState();
             });
         }
