@@ -981,7 +981,7 @@
             <input class="duel-input" id="duel-name-input" type="text" placeholder="YOUR NAME" maxlength="12">
             <select class="duel-select" id="duel-format-select">
                 <option value="best_of_3">Best of 3 (Series)</option>
-                <option value="1_round">1 Round (Quick)</option>
+                <option value="relay">Tournament Practice (3 × 20s)</option>
             </select>
             <div class="duel-btn-row">
                 <button class="duel-action-btn" onclick="createDuelRoom()">CREATE</button>
@@ -1014,10 +1014,17 @@
             <!-- Spectator badge (top right) -->
             <div id="duel-spectator-badge" class="duel-spectator-badge hidden">SPECTATING</div>
 
-            <!-- Round header: "ROUND X OF 3" + stars -->
+            <!-- Round header: "ROUND X OF 3" + stars (best_of_3 only) -->
             <div id="duel-round-header" class="duel-round-header">
                 <div class="duel-round-label" id="duel-round-label">ROUND 1 OF 3</div>
                 <div class="duel-round-stars" id="duel-round-stars"></div>
+            </div>
+
+            <!-- Relay slot dots (relay format only) -->
+            <div id="duel-slot-header" class="relay-header hidden" style="margin-bottom:8px;">
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-1"></div><div class="relay-slot-label" id="duel-slot-lbl-1">SLOT 1</div></div>
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-2"></div><div class="relay-slot-label" id="duel-slot-lbl-2">SLOT 2</div></div>
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-3"></div><div class="relay-slot-label" id="duel-slot-lbl-3">SLOT 3</div></div>
             </div>
 
             <!-- Big countdown/game timer -->
@@ -1033,6 +1040,14 @@
 
             <!-- Round result flash (overlay) -->
             <div id="duel-round-flash" class="duel-round-flash hidden"></div>
+
+            <!-- Duel relay handoff overlay -->
+            <div id="duel-handoff" class="duel-round-flash hidden" style="gap:16px;">
+                <div class="relay-handoff-slot" id="duel-handoff-slot">SLOT 1 COMPLETE</div>
+                <div class="relay-handoff-msg" style="font-size:clamp(1.5rem,4vw,3rem);">SWAP PLAYERS!</div>
+                <div class="relay-handoff-scores" id="duel-handoff-scores"></div>
+                <div class="relay-handoff-timer" id="duel-handoff-timer">10</div>
+            </div>
 
             <!-- Final match result -->
             <div id="duel-result" class="duel-result hidden">
@@ -1929,11 +1944,18 @@
         // means "start a fresh round", regardless of previous duelState.
         // ═══════════════════════════════════════════════════════════════════════════
 
-        const DUEL_DURATION      = 15;
-        const DUEL_WINNING_SCORE = 500; // increased: 15s rounds allow far more taps
+        const DUEL_DURATION        = 15;
+        const DUEL_WINNING_SCORE   = 500;
+        const DUEL_RELAY_SLOTS     = 3;
+        const DUEL_RELAY_SLOT_DUR  = 20;
+        const DUEL_RELAY_HANDOFF   = 10;
 
         let duelRoundsToWin  = 2;
         let duelMaxRounds    = 3;
+        let duelIsRelay      = false;
+        let duelRelaySlot    = 0;
+        let duelRelayScores  = {};
+        let duelRelayHandoffInterval = null;
         let duelRoomCode     = null;
         let duelMyName       = null;
         let duelIsSpectator  = false;
@@ -2183,8 +2205,28 @@
             db.ref(`duels/${duelRoomCode}`).once('value').then(snap => {
                 const data = snap.val() || {};
                 const format = data.format || 'best_of_3';
-                if (format === '1_round') { duelRoundsToWin = 1; duelMaxRounds = 1; }
-                else { duelRoundsToWin = 2; duelMaxRounds = 3; }
+                if (format === 'relay') {
+                    duelIsRelay     = true;
+                    duelRoundsToWin = 0; // not used in relay
+                    duelMaxRounds   = 0;
+                    duelRelaySlot   = 0;
+                    duelRelayScores = {};
+                    duelPlayerNames.forEach(n => duelRelayScores[n] = []);
+                    // Show slot dots, hide round stars
+                    document.getElementById('duel-round-header').style.display = 'none';
+                    document.getElementById('duel-slot-header').classList.remove('hidden');
+                    updateDuelSlotDots(0);
+                } else if (format === '1_round') {
+                    duelIsRelay     = false;
+                    duelRoundsToWin = 1; duelMaxRounds = 1;
+                    document.getElementById('duel-round-header').style.display = '';
+                    document.getElementById('duel-slot-header').classList.add('hidden');
+                } else {
+                    duelIsRelay     = false;
+                    duelRoundsToWin = 2; duelMaxRounds = 3;
+                    document.getElementById('duel-round-header').style.display = '';
+                    document.getElementById('duel-slot-header').classList.add('hidden');
+                }
 
                 duelCurrentRound = data.currentRound || 1;
                 duelRoundWins    = data.roundWins    || {};
@@ -2213,6 +2255,7 @@
                         <div class="duel-lane-header">
                             <span class="duel-lane-name" style="color:${color}">${name}${isMe ? ' ★' : ''}</span>
                             <span class="duel-lane-score" id="duel-score-${safeId}" style="color:${color}">0</span>
+                            ${duelIsRelay ? `<span class="relay-total" id="duel-relay-total-${safeId}" style="color:${color};font-size:clamp(0.8rem,1.5vw,1.2rem);"><span style="font-size:0.5rem;color:#444;display:block;letter-spacing:3px;">TOTAL</span>0</span>` : ''}
                         </div>
                         <div class="duel-track">
                             <div class="duel-bar ${barCls}" id="duel-bar-${safeId}"></div>
@@ -2225,13 +2268,14 @@
                 const scoresRef = db.ref(`duels/${duelRoomCode}/scores`);
                 const scoresListener = scoresRef.on('value', snap => {
                     const scores = snap.val() || {};
+                    const barMax = duelIsRelay ? 700 : DUEL_WINNING_SCORE;
                     players.forEach((name, i) => {
                         const safeId  = 'player_' + i;
                         const score   = scores[name] || 0;
                         const scoreEl = document.getElementById(`duel-score-${safeId}`);
                         const barEl   = document.getElementById(`duel-bar-${safeId}`);
                         if (scoreEl) scoreEl.innerText = score;
-                        if (barEl)   barEl.style.width = Math.min((score / DUEL_WINNING_SCORE) * 100, 100) + '%';
+                        if (barEl)   barEl.style.width = Math.min((score / barMax) * 100, 100) + '%';
                     });
                 });
                 duelListeners.push({ ref: scoresRef, event: 'value', fn: scoresListener, arena: true });
@@ -2291,14 +2335,28 @@
 
         function startDuelGameplay() {
             duelState = 'playing';
-            const timerEl = document.getElementById('duel-timer');
+            const duration = duelIsRelay ? DUEL_RELAY_SLOT_DUR : DUEL_DURATION;
+            const timerEl  = document.getElementById('duel-timer');
             timerEl.className = 'duel-timer go';
             timerEl.innerText = 'GO!';
             playBeep('go');
             musicFadeTo(MUSIC_VOL_PLAYING, 800);
-            duelPendingTaps  = 0;
+            duelPendingTaps   = 0;
             duelFlushInterval = setInterval(flushDuelTaps, 300);
-            let timeLeft = DUEL_DURATION;
+
+            if (duelIsRelay) {
+                duelRelaySlot++;
+                updateDuelSlotDots(duelRelaySlot);
+                // Reset scores for this slot
+                db.ref(`duels/${duelRoomCode}/players`).once('value').then(snap => {
+                    const players = Object.keys(snap.val() || {});
+                    const scoreUpdates = {};
+                    players.forEach(n => scoreUpdates[n] = 0);
+                    db.ref(`duels/${duelRoomCode}/scores`).set(scoreUpdates);
+                });
+            }
+
+            let timeLeft = duration;
             setTimeout(() => {
                 timerEl.className = 'duel-timer';
                 timerEl.innerText = timeLeft;
@@ -2306,7 +2364,10 @@
                     timeLeft--;
                     timerEl.innerText = timeLeft;
                     if (timeLeft <= 3) timerEl.className = 'duel-timer countdown';
-                    if (timeLeft <= 0) { clearInterval(duelGameInterval); endDuel(); }
+                    if (timeLeft <= 0) {
+                        clearInterval(duelGameInterval);
+                        duelIsRelay ? endDuelRelaySlot() : endDuel();
+                    }
                 }, 1000);
             }, 800);
         }
@@ -2324,6 +2385,95 @@
                 const c = duelPendingTaps; duelPendingTaps = 0;
                 db.ref(`duels/${duelRoomCode}/scores/${duelMyName}`).transaction(cur => (cur || 0) + c);
             }
+        }
+
+        function endDuelRelaySlot() {
+            duelState = 'finished';
+            clearInterval(duelFlushInterval);
+            clearInterval(duelGameInterval);
+            flushDuelTaps();
+
+            const timerEl = document.getElementById('duel-timer');
+            timerEl.className = 'duel-timer';
+            timerEl.innerText = '0';
+            timerEl.style.color = '#555';
+            document.getElementById('duel-tap-container').style.display = 'none';
+
+            // Snapshot slot scores
+            setTimeout(() => {
+                db.ref(`duels/${duelRoomCode}/scores`).once('value').then(snap => {
+                    const scores = snap.val() || {};
+                    duelPlayerNames.forEach(name => {
+                        if (!duelRelayScores[name]) duelRelayScores[name] = [];
+                        duelRelayScores[name][duelRelaySlot - 1] = scores[name] || 0;
+                    });
+                    updateDuelRelayTotals();
+
+                    if (duelRelaySlot >= DUEL_RELAY_SLOTS) {
+                        endDuelRelayMatch();
+                    } else {
+                        showDuelRelayHandoff();
+                    }
+                });
+            }, 400);
+        }
+
+        function showDuelRelayHandoff() {
+            musicFadeTo(MUSIC_VOL_HANDOFF, 1000);
+
+            const scoresHTML = duelPlayerNames.map((name, i) => {
+                const color = i === 0 ? 'var(--purple)' : 'var(--pink)';
+                const total = (duelRelayScores[name] || []).reduce((a,b) => a+b, 0);
+                return `<div class="relay-handoff-team">
+                    <div class="relay-handoff-name" style="color:${color}">${name}</div>
+                    <div class="relay-handoff-score" style="color:${color}">${total}</div>
+                </div>`;
+            }).join('');
+
+            document.getElementById('duel-handoff-slot').innerText   = `SLOT ${duelRelaySlot} COMPLETE`;
+            document.getElementById('duel-handoff-scores').innerHTML = scoresHTML;
+            document.getElementById('duel-handoff').classList.remove('hidden');
+
+            let t = DUEL_RELAY_HANDOFF;
+            const timerEl    = document.getElementById('duel-timer');
+            const handoffEl  = document.getElementById('duel-handoff-timer');
+            timerEl.style.color  = 'var(--orange)';
+            timerEl.innerText    = t;
+            handoffEl.innerText  = t;
+            playBeep('count', 5);
+
+            duelRelayHandoffInterval = setInterval(() => {
+                t--;
+                timerEl.innerText   = t;
+                handoffEl.innerText = t;
+                if (t <= 3 && t > 0) playBeep('count', t);
+                if (t <= 0) {
+                    clearInterval(duelRelayHandoffInterval);
+                    document.getElementById('duel-handoff').classList.add('hidden');
+                    timerEl.style.color = '';
+                    // Only driver triggers next slot
+                    db.ref(`duels/${duelRoomCode}/roundDriver`).once('value').then(snap => {
+                        if (snap.val() === duelMyName || duelIsSpectator) {
+                            // Driver and spectator both trigger via roundCounter
+                        }
+                        if (snap.val() === duelMyName) {
+                            db.ref(`duels/${duelRoomCode}/roundCounter`).transaction(c => (c || 0) + 1);
+                        }
+                    });
+                }
+            }, 1000);
+        }
+
+        function endDuelRelayMatch() {
+            musicFadeTo(MUSIC_VOL_WINNER, 2000);
+            // Find winner by total
+            let maxTotal = -1, winner = null;
+            duelPlayerNames.forEach(name => {
+                const total = (duelRelayScores[name] || []).reduce((a,b) => a+b, 0);
+                if (total > maxTotal) { maxTotal = total; winner = name; }
+            });
+            updateDuelSlotDots(DUEL_RELAY_SLOTS + 1);
+            showDuelMatchResult(winner);
         }
 
         function endDuel() {
@@ -2425,7 +2575,27 @@
             db.ref(`duels/${duelRoomCode}/status`).set('finished');
         }
 
+        function updateDuelSlotDots(activeSlot) {
+            for (let i = 1; i <= DUEL_RELAY_SLOTS; i++) {
+                const dot = document.getElementById(`duel-dot-${i}`);
+                const lbl = document.getElementById(`duel-slot-lbl-${i}`);
+                if (!dot) continue;
+                dot.className = 'relay-slot-dot' + (i < activeSlot ? ' done' : i === activeSlot ? ' active' : '');
+                lbl.className = 'relay-slot-label' + (i === activeSlot ? ' active' : '');
+            }
+        }
+
+        function updateDuelRelayTotals() {
+            duelPlayerNames.forEach((name, i) => {
+                const safeId  = 'player_' + i;
+                const total   = (duelRelayScores[name] || []).reduce((a,b) => a+b, 0);
+                const totalEl = document.getElementById(`duel-relay-total-${safeId}`);
+                if (totalEl) totalEl.innerText = total;
+            });
+        }
+
         function updateDuelRoundUI() {
+            if (duelIsRelay) return; // relay uses slot dots instead
             const headerEl = document.getElementById('duel-round-header');
             if (duelMaxRounds === 1) { if (headerEl) headerEl.style.display = 'none'; return; }
             if (headerEl) headerEl.style.display = '';
@@ -2449,10 +2619,14 @@
             if (!duelRoomCode) return;
             document.getElementById('duel-result').classList.add('hidden');
             document.getElementById('duel-round-flash').classList.add('hidden');
+            document.getElementById('duel-handoff').classList.add('hidden');
             document.getElementById('duel-timer').style.color = '';
             duelRoundWins        = {};
             duelCurrentRound     = 1;
             duelLastRoundCounter = 0;
+            duelRelaySlot        = 0;
+            duelRelayScores      = {};
+            clearInterval(duelRelayHandoffInterval);
             // startDuel writes a new matchId timestamp — all devices' listeners
             // fire immediately and enter the arena fresh. No counter juggling needed.
             startDuel();
@@ -2476,6 +2650,8 @@
             duelState     = 'idle'; duelPendingTaps = 0;
             duelRoundWins = {}; duelCurrentRound = 1; duelPlayerNames = [];
             duelLastRoundCounter = 0;
+            duelIsRelay = false; duelRelaySlot = 0; duelRelayScores = {};
+            clearInterval(duelRelayHandoffInterval);
             musicFadeTo(MUSIC_VOL_IDLE, 2000); // back to background level
             document.getElementById('duel-screen').classList.add('hidden');
             document.getElementById('setup').classList.remove('hidden');
