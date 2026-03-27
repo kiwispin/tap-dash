@@ -326,6 +326,23 @@
             position: relative; border-radius: 3px;
             box-shadow: 0 0 20px currentColor;
         }
+        .bar.leading {
+            animation: barLeadPulse 1.2s ease-in-out infinite;
+        }
+        @keyframes barLeadPulse {
+            0%, 100% { box-shadow: 0 0 20px currentColor; }
+            50%       { box-shadow: 0 0 50px currentColor, 0 0 80px currentColor; }
+        }
+
+        /* In relay mode, hide win dots and show match score instead */
+        .relay-mode .win-dots { display: none; }
+        .match-score-display {
+            font-size: clamp(0.8rem, 1.2vw, 1.1rem);
+            font-weight: 900; letter-spacing: 3px;
+            color: #555; margin-top: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+        .match-score-display.has-wins { color: #fff; text-shadow: 0 0 8px currentColor; }
         .bar::after {
             content: ''; position: absolute;
             top: -8px; right: -12px;
@@ -718,42 +735,68 @@
         /* Handoff countdown overlay — shown between slots */
         #relay-handoff {
             position: absolute; inset: 0;
-            background: rgba(0,0,0,0.92);
+            background: rgba(0,0,0,0.94);
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            z-index: 500; backdrop-filter: blur(6px);
+            z-index: 500; backdrop-filter: blur(8px);
+            animation: handoffFadeIn 0.4s ease-out;
+        }
+        @keyframes handoffFadeIn {
+            from { opacity: 0; transform: scale(1.03); }
+            to   { opacity: 1; transform: scale(1); }
         }
         .relay-handoff-slot {
-            font-size: clamp(0.8rem,1.5vw,1.2rem);
-            color: var(--orange); letter-spacing: 8px;
-            margin-bottom: 10px;
+            font-size: clamp(1rem, 2vw, 1.6rem);
+            color: var(--orange); letter-spacing: 10px;
+            margin-bottom: 16px; opacity: 0.8;
         }
         .relay-handoff-msg {
-            font-size: clamp(2rem,5vw,4rem);
+            font-size: clamp(3rem, 7vw, 6.5rem);
             font-weight: 900; color: #fff;
-            letter-spacing: 6px;
-            text-shadow: 0 0 30px #fff;
-            margin-bottom: 30px;
+            letter-spacing: 8px;
+            text-shadow: 0 0 40px #fff, 0 0 80px rgba(255,255,255,0.3);
+            margin-bottom: 40px;
+            animation: swapPulse 1s ease-in-out infinite;
+        }
+        @keyframes swapPulse {
+            0%, 100% { text-shadow: 0 0 40px #fff, 0 0 80px rgba(255,255,255,0.3); }
+            50%       { text-shadow: 0 0 60px #fff, 0 0 120px rgba(255,255,255,0.5); }
         }
         .relay-handoff-scores {
-            display: flex; gap: 60px; margin-bottom: 30px;
+            display: flex; gap: 80px; margin-bottom: 40px;
         }
         .relay-handoff-team {
-            text-align: center; display: flex; flex-direction: column; gap: 6px;
+            text-align: center; display: flex; flex-direction: column; gap: 8px;
         }
         .relay-handoff-name {
-            font-size: clamp(1rem,2vw,1.6rem); font-weight: 900; letter-spacing: 3px;
+            font-size: clamp(1.4rem, 3vw, 2.4rem); font-weight: 900; letter-spacing: 4px;
+            text-shadow: 0 0 20px currentColor;
         }
         .relay-handoff-score {
-            font-size: clamp(2rem,4vw,3.5rem); font-weight: 900;
+            font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 900;
             font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 30px currentColor;
+        }
+        .relay-handoff-next {
+            font-size: clamp(0.7rem, 1.2vw, 1rem);
+            color: #444; letter-spacing: 6px; margin-bottom: 12px;
         }
         .relay-handoff-timer {
-            font-size: clamp(3rem,8vw,7rem); font-weight: 900;
+            font-size: clamp(4rem, 10vw, 9rem); font-weight: 900;
             color: var(--orange);
-            text-shadow: 0 0 40px var(--orange);
+            text-shadow: 0 0 50px var(--orange), 0 0 100px rgba(255,170,0,0.3);
             font-variant-numeric: tabular-nums;
             line-height: 1;
+            transition: color 0.2s, text-shadow 0.2s;
+        }
+        .relay-handoff-timer.urgent {
+            color: var(--yellow);
+            text-shadow: 0 0 50px var(--yellow), 0 0 100px rgba(255,240,31,0.4);
+            animation: urgentPulse 0.5s ease-in-out infinite;
+        }
+        @keyframes urgentPulse {
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(1.05); }
         }
 
         /* ── Portrait (player iPads locked to portrait) ─────────────────────────
@@ -951,6 +994,7 @@
             <div class="relay-handoff-slot" id="relay-handoff-slot">SLOT 1 COMPLETE</div>
             <div class="relay-handoff-msg">SWAP PLAYERS!</div>
             <div class="relay-handoff-scores" id="relay-handoff-scores"></div>
+            <div class="relay-handoff-next" id="relay-handoff-next">NEXT SLOT STARTING IN</div>
             <div class="relay-handoff-timer" id="relay-handoff-timer">10</div>
         </div>
 
@@ -1267,6 +1311,7 @@
                 osc.start(); osc.stop(audioCtx.currentTime + 1.0);
             } else if (type === 'win') {
                 const now = audioCtx.currentTime;
+                // Fanfare notes
                 [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
                     const o = audioCtx.createOscillator(); const gw = audioCtx.createGain();
                     o.connect(gw); gw.connect(audioCtx.destination); o.type = 'triangle';
@@ -1276,6 +1321,24 @@
                     gw.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.4);
                     o.start(now + i * 0.1); o.stop(now + i * 0.1 + 0.5);
                 });
+                // Crowd cheer — layered noise bursts with different filters
+                for (let c = 0; c < 4; c++) {
+                    const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 1.5, audioCtx.sampleRate);
+                    const data = buf.getChannelData(0);
+                    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+                    const src  = audioCtx.createBufferSource();
+                    const filt = audioCtx.createBiquadFilter();
+                    const gCheer = audioCtx.createGain();
+                    src.buffer  = buf;
+                    filt.type   = 'bandpass';
+                    filt.frequency.value = 800 + c * 400;
+                    filt.Q.value = 0.8;
+                    src.connect(filt); filt.connect(gCheer); gCheer.connect(audioCtx.destination);
+                    gCheer.gain.setValueAtTime(0, now + 0.3);
+                    gCheer.gain.linearRampToValueAtTime(0.08 + c * 0.02, now + 0.6);
+                    gCheer.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+                    src.start(now + 0.3); src.stop(now + 1.8);
+                }
             }
         }
 
@@ -1393,12 +1456,17 @@
             });
 
             updateActiveTeams();
+            // Toggle relay-mode class for CSS-driven win dot hiding
+            document.getElementById('scoreboard').classList.toggle('relay-mode', isRelayMode());
+
             teams.forEach(t => {
                 db.ref(`scores/${t.id}`).on('value', snap => {
                     const score = snap.val() || 0;
                     currentScores[t.id] = score;
                     document.getElementById(`bar-${t.id}`).style.width = `${Math.min((score / winningScore) * 100, 100)}%`;
                     document.getElementById(`score-${t.id}`).innerText = score;
+                    // Pulse the bar of whichever active team is currently leading
+                    updateLeadingBar();
                 });
             });
             db.ref('wins').on('value', snap => {
@@ -1468,6 +1536,22 @@
             if (!container) return;
             container.querySelectorAll('.dot').forEach((dot, i) => {
                 dot.classList.toggle('active', i < teamWins[teamId]);
+            });
+        }
+
+        function updateLeadingBar() {
+            const activeIds = getActiveTeamIds();
+            if (activeIds.length < 2) return;
+            let maxScore = -1, leaderId = null;
+            activeIds.forEach(id => {
+                if (currentScores[id] > maxScore) { maxScore = currentScores[id]; leaderId = id; }
+            });
+            // Only pulse if there's an actual lead (not tied at 0)
+            activeIds.forEach(id => {
+                const bar = document.getElementById(`bar-${id}`);
+                if (!bar) return;
+                if (id === leaderId && maxScore > 0) bar.classList.add('leading');
+                else bar.classList.remove('leading');
             });
         }
 
@@ -1756,6 +1840,7 @@
                     playBeep('count', t);
                     timerDisplay.style.color = 'var(--yellow)';
                     handoffTimer.style.color = 'var(--yellow)';
+                    handoffTimer.classList.add('urgent');
                 }
                 if (t <= 0) {
                     clearInterval(relayHandoffInterval);
