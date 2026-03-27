@@ -153,6 +153,21 @@
         }
         .btn-bracket-corner:hover { background: var(--blue); color: #000; box-shadow: 0 0 30px var(--blue); }
 
+        .btn-admin-corner {
+            position: absolute; top: 30px; left: 30px;
+            padding: 12px 24px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid #333; color: #444;
+            font-weight: 700; letter-spacing: 3px; font-size: 0.75rem;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+            backdrop-filter: blur(4px); z-index: 100;
+            transition: all 0.2s;
+        }
+        .btn-admin-corner:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: #666; color: #888;
+        }
+
         .btn-solo-practice {
             width: 100%; max-width: 350px; margin-top: 20px; height: 50px;
             background: linear-gradient(135deg, rgba(0,243,255,0.1), rgba(0,243,255,0.05));
@@ -945,6 +960,7 @@
     <!-- SETUP SCREEN -->
     <div id="setup" class="screen">
         <button class="btn-bracket-corner" onclick="showBracket()">TOURNAMENT BRACKET</button>
+        <button class="btn-admin-corner" onclick="showPinModal()">🔒 ADMIN</button>
 
         <!-- TOURNAMENT VIEW: shown when teams are active -->
         <div id="setup-tournament" style="display:none;flex-direction:column;align-items:center;width:100%;">
@@ -984,7 +1000,7 @@
             </div>
         </div>
 
-        <button class="btn-host" onclick="showPinModal()">HOST CONTROLS</button>
+        <button class="btn-host" onclick="showPinModal()" style="display:none;">HOST CONTROLS</button>
     </div>
 
     <!-- PIN MODAL -->
