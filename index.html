@@ -2228,12 +2228,14 @@
         function activateMatchFromData(match, data) {
             currentDirectorMatch = match;
             targetWins = Math.ceil(match.bestOf / 2);
-            const teamNameA = data[match.inputs[0]] || '';
-            const teamNameB = data[match.inputs[1]] || '';
+            const teamNameA = (data[match.inputs[0]] || '').trim();
+            const teamNameB = (data[match.inputs[1]] || '').trim();
             let idA = null, idB = null;
+            // Case-insensitive match — bracket inputs display uppercase via CSS
+            // but stored values may be mixed case depending on how they were entered
             teams.forEach(t => {
-                if (t.name === teamNameA) idA = t.id;
-                if (t.name === teamNameB) idB = t.id;
+                if (t.name.toLowerCase() === teamNameA.toLowerCase()) idA = t.id;
+                if (t.name.toLowerCase() === teamNameB.toLowerCase()) idB = t.id;
             });
             if (idA && idB) {
                 let needsUpdate = false;
@@ -2253,6 +2255,15 @@
                         setTimeout(() => lbl.style.textShadow = '', 1500);
                     }
                 });
+
+                // Update status badge to show which match is up
+                const teamA = teams.find(t => t.id === idA);
+                const teamB = teams.find(t => t.id === idB);
+                const badge = document.getElementById('host-status');
+                if (badge) {
+                    badge.innerText = `${teamA.name} vs ${teamB.name}`;
+                    badge.classList.add('active');
+                }
             } else {
                 // Team names in bracket don't match known teams — warn host
                 const chk = document.getElementById('chk-auto-director');
