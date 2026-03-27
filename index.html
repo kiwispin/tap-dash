@@ -1015,7 +1015,7 @@
         <!-- Top HUD Bar -->
         <div class="host-hud-bar">
             <div class="hud-live-badge">⬤ LIVE</div>
-            <div id="timer-display">15</div>
+            <div id="timer-display">20</div>
             <div style="display:flex;align-items:center;gap:12px;">
                 <div id="race-lights">
                     <div class="light" id="light-1"></div>
@@ -1212,7 +1212,8 @@
         teams.forEach(t => { currentScores[t.id] = 0; teamWins[t.id] = 0; });
 
         const winningScore   = 300;
-        const ROUND_DURATION = 15;
+        const ROUND_DURATION = 20;  // kept for reference
+        const STANDARD_DURATION = 20; // single practice round
 
         let gameInterval, countdownInterval;
         let isSequenceRunning = false;
@@ -1507,7 +1508,7 @@
             const board = document.getElementById('scoreboard');
             board.innerHTML = '<div class="vs-watermark">VS</div>';
             teams.forEach(t => {
-                const modeLabel = isRelayMode() ? 'RELAY 3×20s' : 'BEST OF 3';
+                const modeLabel = isRelayMode() ? 'RELAY 3×20s' : 'PRACTICE 20s';
                 board.innerHTML += `
 <div class="lane" id="lane-${t.id}" style="z-index:1;">
     <div class="lane-info">
@@ -1562,7 +1563,7 @@
                 if (!isSequenceRunning) {
                     document.getElementById('timer-display').innerText = relay ? RELAY_SLOT_DURATION : STANDARD_DURATION;
                 }
-                const modeLabel = relay ? 'RELAY 3×20s' : 'BEST OF 3';
+                const modeLabel = relay ? 'RELAY 3×20s' : 'PRACTICE 20s';
                 teams.forEach(t => {
                     const el = document.getElementById(`mode-lbl-${t.id}`);
                     if (el) el.innerText = modeLabel;
