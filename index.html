@@ -2136,16 +2136,17 @@
                 players.forEach(n => { scoreUpdates[n] = 0; rwUpdates[n] = 0; });
                 duelRoundWins    = rwUpdates;
                 duelCurrentRound = 1;
+                duelRelaySlot    = 0;
+                duelRelayScores  = {};
+                players.forEach(n => duelRelayScores[n] = []);
                 duelPlayerNames  = players;
-                // Write everything at once atomically
                 db.ref(`duels/${duelRoomCode}`).update({
                     scores:       scoreUpdates,
                     roundWins:    rwUpdates,
                     currentRound: 1,
+                    relayScores:  null, // clear saved slot scores
                     roundDriver:  duelMyName,
                     winner:       null,
-                    // matchId is a timestamp — changing it is the signal to ALL
-                    // devices to enter the arena fresh, with no counter comparison
                     matchId:      Date.now()
                 });
             });
@@ -2207,15 +2208,18 @@
                 const format = data.format || 'best_of_3';
                 if (format === 'relay') {
                     duelIsRelay     = true;
-                    duelRoundsToWin = 0; // not used in relay
+                    duelRoundsToWin = 0;
                     duelMaxRounds   = 0;
-                    duelRelaySlot   = 0;
-                    duelRelayScores = {};
-                    duelPlayerNames.forEach(n => duelRelayScores[n] = []);
-                    // Show slot dots, hide round stars
+                    // currentRound holds the slot number (1, 2, 3)
+                    duelRelaySlot   = data.currentRound || 1;
+                    // Restore cumulative scores from Firebase if available
+                    const savedSlotScores = data.relayScores || {};
+                    duelPlayerNames.forEach(n => {
+                        duelRelayScores[n] = savedSlotScores[n] || [];
+                    });
                     document.getElementById('duel-round-header').style.display = 'none';
                     document.getElementById('duel-slot-header').classList.remove('hidden');
-                    updateDuelSlotDots(0);
+                    updateDuelSlotDots(duelRelaySlot);
                 } else if (format === '1_round') {
                     duelIsRelay     = false;
                     duelRoundsToWin = 1; duelMaxRounds = 1;
@@ -2345,14 +2349,17 @@
             duelFlushInterval = setInterval(flushDuelTaps, 300);
 
             if (duelIsRelay) {
-                duelRelaySlot++;
+                // duelRelaySlot is already set from Firebase in enterDuelArena (via currentRound)
                 updateDuelSlotDots(duelRelaySlot);
-                // Reset scores for this slot
-                db.ref(`duels/${duelRoomCode}/players`).once('value').then(snap => {
-                    const players = Object.keys(snap.val() || {});
-                    const scoreUpdates = {};
-                    players.forEach(n => scoreUpdates[n] = 0);
-                    db.ref(`duels/${duelRoomCode}/scores`).set(scoreUpdates);
+                // Only driver resets scores for this slot — prevents double-write
+                db.ref(`duels/${duelRoomCode}/roundDriver`).once('value').then(snap => {
+                    if (snap.val() === duelMyName) {
+                        db.ref(`duels/${duelRoomCode}/players`).once('value').then(pSnap => {
+                            const scoreUpdates = {};
+                            Object.keys(pSnap.val() || {}).forEach(n => scoreUpdates[n] = 0);
+                            db.ref(`duels/${duelRoomCode}/scores`).set(scoreUpdates);
+                        });
+                    }
                 });
             }
 
@@ -2435,11 +2442,11 @@
             document.getElementById('duel-handoff').classList.remove('hidden');
 
             let t = DUEL_RELAY_HANDOFF;
-            const timerEl    = document.getElementById('duel-timer');
-            const handoffEl  = document.getElementById('duel-handoff-timer');
-            timerEl.style.color  = 'var(--orange)';
-            timerEl.innerText    = t;
-            handoffEl.innerText  = t;
+            const timerEl   = document.getElementById('duel-timer');
+            const handoffEl = document.getElementById('duel-handoff-timer');
+            timerEl.style.color = 'var(--orange)';
+            timerEl.innerText   = t;
+            handoffEl.innerText = t;
             playBeep('count', 5);
 
             duelRelayHandoffInterval = setInterval(() => {
@@ -2453,11 +2460,20 @@
                     timerEl.style.color = '';
                     // Only driver triggers next slot
                     db.ref(`duels/${duelRoomCode}/roundDriver`).once('value').then(snap => {
-                        if (snap.val() === duelMyName || duelIsSpectator) {
-                            // Driver and spectator both trigger via roundCounter
-                        }
                         if (snap.val() === duelMyName) {
-                            db.ref(`duels/${duelRoomCode}/roundCounter`).transaction(c => (c || 0) + 1);
+                            const nextSlot = duelRelaySlot + 1;
+                            // Write next slot number and saved relay scores to Firebase
+                            // so all devices read the correct slot on enterDuelArena
+                            const relayScoresUpdate = {};
+                            duelPlayerNames.forEach(n => {
+                                relayScoresUpdate[n] = duelRelayScores[n] || [];
+                            });
+                            db.ref(`duels/${duelRoomCode}`).update({
+                                currentRound: nextSlot,
+                                relayScores:  relayScoresUpdate
+                            }).then(() => {
+                                db.ref(`duels/${duelRoomCode}/roundCounter`).transaction(c => (c || 0) + 1);
+                            });
                         }
                     });
                 }
