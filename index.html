@@ -304,7 +304,7 @@
             display: flex; flex-direction: column;
             justify-content: center;
             gap: 0;
-            padding: 20px 60px;
+            padding: 10px 20px 10px 40px;
             position: relative; overflow: hidden;
         }
 
@@ -323,22 +323,23 @@
 
         .lane {
             display: grid;
-            grid-template-columns: 280px 1fr 100px;
+            grid-template-columns: clamp(200px, 22vw, 320px) 1fr clamp(60px, 8vw, 120px);
             align-items: center;
             gap: 20px;
             padding: 10px 0;
             position: relative; z-index: 1;
             transition: opacity 0.3s;
         }
-        .lane.inactive { opacity: 0.12; pointer-events: none; }
+        .lane.inactive { display: none; }
 
         .lane-info { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 
         .lane-label {
             font-weight: 900;
-            font-size: clamp(1.4rem, 3vw, 2.8rem);
-            text-transform: uppercase; letter-spacing: 3px;
+            font-size: clamp(1.2rem, 2.2vw, 2.4rem);
+            text-transform: uppercase; letter-spacing: 2px;
             text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            white-space: nowrap;
         }
 
         .win-dots { display: flex; gap: 6px; margin-top: 2px; }
@@ -385,7 +386,7 @@
         }
 
         .score-text {
-            font-size: clamp(1.8rem, 3vw, 3.5rem);
+            font-size: clamp(1.5rem, 2.5vw, 3rem);
             font-weight: 900; color: #fff; text-align: center;
             text-shadow: 0 0 15px currentColor;
             font-variant-numeric: tabular-nums;
@@ -1681,7 +1682,7 @@
     </div>
     <div class="track">
         <div id="bar-${t.id}" class="bar bg-${t.id}"></div>
-        <div id="score-${t.id}" class="score-text" style="position:absolute;right:-110px;top:50%;transform:translateY(-50%);">0</div>
+        <div id="score-${t.id}" class="score-text">0</div>
     </div>
     <div></div>
 </div>`;
@@ -2182,10 +2183,9 @@
             const isAuto = document.getElementById('chk-auto-director')?.checked;
             if (!isAuto) { targetWins = 2; return; }
 
-            // Read bracket directly from Firebase — not DOM inputs — so this works
-            // even if the bracket screen hasn't been opened yet
             db.ref('bracket').once('value').then(snap => {
                 const data = snap.val() || {};
+                console.log('=== BRACKET DATA FROM FIREBASE ===', JSON.stringify(data));
 
                 // Sync DOM inputs with Firebase values so bracket screen stays current
                 Object.entries(data).forEach(([key, val]) => {
@@ -2198,6 +2198,7 @@
                     const valA      = data[match.inputs[0]] || '';
                     const valB      = data[match.inputs[1]] || '';
                     const valTarget = data[match.target]    || '';
+                    console.log(`Match ${match.id}: A="${valA}" B="${valB}" target="${valTarget}"`);
 
                     if (valA && valB && !valTarget) {
                         if (valA === 'BYE') { saveBracket(match.target, valB); setTimeout(evaluateBracketState, 500); return; }
@@ -2205,13 +2206,14 @@
                     }
                     if (!foundMatch && valA && valB && valA !== 'BYE' && valB !== 'BYE' && !valTarget) {
                         foundMatch = match;
+                        console.log('Found playable match:', match.id, valA, 'vs', valB);
                     }
                 }
 
                 if (foundMatch) {
                     activateMatchFromData(foundMatch, data);
                 } else {
-                    // No match found — flash the checkbox to signal "no bracket data"
+                    console.warn('No playable match found in bracket data');
                     const chk = document.getElementById('chk-auto-director');
                     if (chk) {
                         const lbl = chk.closest('label') || chk.parentElement;
