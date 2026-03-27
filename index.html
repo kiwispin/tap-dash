@@ -308,6 +308,38 @@
             position: relative; overflow: hidden;
         }
 
+        /* When only 2 teams are active, scale everything up for projector readability */
+        #scoreboard.match-active {
+            gap: 30px;
+            padding: 20px 60px;
+        }
+        #scoreboard.match-active .lane {
+            grid-template-columns: clamp(280px, 28vw, 480px) 1fr clamp(100px, 10vw, 180px);
+            padding: 20px 0;
+            gap: 30px;
+        }
+        #scoreboard.match-active .lane-label {
+            font-size: clamp(2.5rem, 5vw, 5.5rem);
+            letter-spacing: 4px;
+        }
+        #scoreboard.match-active .lane-mode-label {
+            font-size: clamp(0.7rem, 1.2vw, 1.1rem) !important;
+            letter-spacing: 4px;
+        }
+        #scoreboard.match-active .track {
+            height: clamp(50px, 8vh, 100px);
+        }
+        #scoreboard.match-active .score-text {
+            font-size: clamp(3rem, 5vw, 6rem);
+        }
+        #scoreboard.match-active .win-dots {
+            gap: 10px; margin-top: 6px;
+        }
+        #scoreboard.match-active .dot {
+            width: clamp(18px, 2.5vw, 32px);
+            height: clamp(18px, 2.5vw, 32px);
+        }
+
         .vs-watermark {
             position: absolute; left: 50%; top: 50%;
             transform: translate(-50%, -50%);
@@ -1737,13 +1769,18 @@
         function updateActiveTeams() {
             if (!isHost) return;
             const updates = {};
+            let activeCount = 0;
             teams.forEach(t => {
                 const isChecked = document.getElementById(`chk-${t.id}`).checked;
+                if (isChecked) activeCount++;
                 updates[`game/activeTeams/${t.id}`] = isChecked;
                 const lane = document.getElementById(`lane-${t.id}`);
                 if (lane) lane.classList.toggle('inactive', !isChecked);
             });
             db.ref().update(updates);
+            // Scale up scoreboard when exactly 2 teams are active (projector mode)
+            const board = document.getElementById('scoreboard');
+            if (board) board.classList.toggle('match-active', activeCount === 2);
         }
 
         function determineWinner() {
