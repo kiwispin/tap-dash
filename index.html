@@ -1746,12 +1746,19 @@
                 t--;
                 timerDisplay.innerText = t;
                 handoffTimer.innerText = t;
-                if (t <= 3 && t > 0) playBeep('count', t);
+                if (t <= 3 && t > 0) {
+                    playBeep('count', t);
+                    timerDisplay.style.color = 'var(--yellow)';
+                    handoffTimer.style.color = 'var(--yellow)';
+                }
                 if (t <= 0) {
                     clearInterval(relayHandoffInterval);
                     document.getElementById('relay-handoff').classList.add('hidden');
-                    timerDisplay.style.color = '#fff';
-                    startRelaySlotCountdown();
+                    timerDisplay.style.color = 'var(--green)';
+                    timerDisplay.innerText   = 'GO';
+                    playBeep('go');
+                    musicFadeTo(MUSIC_VOL_PLAYING, 800);
+                    setTimeout(() => startRelaySlotGameplay(), 800);
                 }
             }, 1000);
         }
@@ -2324,17 +2331,10 @@
         }
 
         function runDuelCountdown() {
-            const timerEl = document.getElementById('duel-timer');
-            timerEl.className = 'duel-timer countdown';
-            musicFadeTo(MUSIC_VOL_COUNTDOWN, 1500);
-            let count = 3;
-            timerEl.innerText = count;
-            playBeep('count', count);
-            const cdInterval = setInterval(() => {
-                count--;
-                if (count > 0) { timerEl.innerText = count; playBeep('count', count); }
-                else { clearInterval(cdInterval); startDuelGameplay(); }
-            }, 1000);
+            // Skip the 3-second countdown — go straight to gameplay.
+            // Beeps happen on 3, 2, 1 of the 10-second handoff countdown instead.
+            musicFadeTo(MUSIC_VOL_COUNTDOWN, 800);
+            startDuelGameplay();
         }
 
         function startDuelGameplay() {
@@ -2453,29 +2453,37 @@
                 t--;
                 timerEl.innerText   = t;
                 handoffEl.innerText = t;
-                if (t <= 3 && t > 0) playBeep('count', t);
+                if (t <= 3 && t > 0) {
+                    playBeep('count', t);
+                    timerEl.className = 'duel-timer countdown'; // flash yellow
+                }
                 if (t <= 0) {
                     clearInterval(duelRelayHandoffInterval);
                     document.getElementById('duel-handoff').classList.add('hidden');
                     timerEl.style.color = '';
-                    // Only driver triggers next slot
-                    db.ref(`duels/${duelRoomCode}/roundDriver`).once('value').then(snap => {
-                        if (snap.val() === duelMyName) {
-                            const nextSlot = duelRelaySlot + 1;
-                            // Write next slot number and saved relay scores to Firebase
-                            // so all devices read the correct slot on enterDuelArena
-                            const relayScoresUpdate = {};
-                            duelPlayerNames.forEach(n => {
-                                relayScoresUpdate[n] = duelRelayScores[n] || [];
-                            });
-                            db.ref(`duels/${duelRoomCode}`).update({
-                                currentRound: nextSlot,
-                                relayScores:  relayScoresUpdate
-                            }).then(() => {
-                                db.ref(`duels/${duelRoomCode}/roundCounter`).transaction(c => (c || 0) + 1);
-                            });
-                        }
-                    });
+                    timerEl.className   = 'duel-timer go';
+                    timerEl.innerText   = 'GO!';
+                    playBeep('go');
+                    musicFadeTo(MUSIC_VOL_PLAYING, 800);
+                    // Brief GO moment before next slot fires
+                    setTimeout(() => {
+                        // Only driver triggers next slot
+                        db.ref(`duels/${duelRoomCode}/roundDriver`).once('value').then(snap => {
+                            if (snap.val() === duelMyName) {
+                                const nextSlot = duelRelaySlot + 1;
+                                const relayScoresUpdate = {};
+                                duelPlayerNames.forEach(n => {
+                                    relayScoresUpdate[n] = duelRelayScores[n] || [];
+                                });
+                                db.ref(`duels/${duelRoomCode}`).update({
+                                    currentRound: nextSlot,
+                                    relayScores:  relayScoresUpdate
+                                }).then(() => {
+                                    db.ref(`duels/${duelRoomCode}/roundCounter`).transaction(c => (c || 0) + 1);
+                                });
+                            }
+                        });
+                    }, 800);
                 }
             }, 1000);
         }
