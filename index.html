@@ -1116,7 +1116,7 @@
 
         <div id="controls">
             <div id="host-status" class="status-badge">SYSTEM IDLE</div>
-            <button onclick="startSequence()" class="control-btn primary" id="btn-engage">ENGAGE (Space)</button>
+            <button onclick="startSequence()" class="control-btn primary" id="btn-engage">START MATCH (Space)</button>
             <button onclick="resetScores()" class="control-btn" id="btn-reset-round">RESET (R)</button>
             <button onclick="resetMatch()" class="control-btn danger">NEW MATCH (WIPE ALL)</button>
             <button onclick="exitHost()" class="control-btn exit">EXIT SYSTEM</button>
@@ -1517,7 +1517,7 @@
                     const status = snap.val();
                     if (status === 'playing') {
                         clientScreen.classList.remove('locked');
-                        document.getElementById('msg').innerText = 'ENGAGED';
+                        document.getElementById('msg').innerText = 'TAP!';
                         document.getElementById('tps-display').classList.add('hidden');
                         tapTimestamps = [];
                         if (navigator.vibrate) navigator.vibrate(50);
@@ -1704,7 +1704,7 @@
             // When tournament mode is toggled, update button labels, timer and scoreboard labels
             document.getElementById('chk-auto-director').addEventListener('change', () => {
                 const relay = isRelayMode();
-                document.getElementById('btn-engage').innerText = relay ? 'START RELAY (Space)' : 'ENGAGE (Space)';
+                document.getElementById('btn-engage').innerText = relay ? 'START MATCH (Space)' : 'START MATCH (Space)';
                 if (!isSequenceRunning) {
                     document.getElementById('timer-display').innerText = relay ? RELAY_SLOT_DURATION : STANDARD_DURATION;
                 }
@@ -2165,27 +2165,60 @@
         function evaluateBracketState() {
             const isAuto = document.getElementById('chk-auto-director')?.checked;
             if (!isAuto) { targetWins = 2; return; }
-            let foundMatch = null;
-            for (const match of bracketMatches) {
-                const valA = document.getElementById(match.inputs[0])?.value;
-                const valB = document.getElementById(match.inputs[1])?.value;
-                const valTarget = document.getElementById(match.target)?.value;
-                if (valA && valB && !valTarget) {
-                    if (valA === 'BYE') { saveBracket(match.target, valB); setTimeout(evaluateBracketState, 500); return; }
-                    if (valB === 'BYE') { saveBracket(match.target, valA); setTimeout(evaluateBracketState, 500); return; }
+
+            // Read bracket directly from Firebase — not DOM inputs — so this works
+            // even if the bracket screen hasn't been opened yet
+            db.ref('bracket').once('value').then(snap => {
+                const data = snap.val() || {};
+
+                // Sync DOM inputs with Firebase values so bracket screen stays current
+                Object.entries(data).forEach(([key, val]) => {
+                    const el = document.getElementById(key);
+                    if (el) el.value = val || '';
+                });
+
+                let foundMatch = null;
+                for (const match of bracketMatches) {
+                    const valA      = data[match.inputs[0]] || '';
+                    const valB      = data[match.inputs[1]] || '';
+                    const valTarget = data[match.target]    || '';
+
+                    if (valA && valB && !valTarget) {
+                        if (valA === 'BYE') { saveBracket(match.target, valB); setTimeout(evaluateBracketState, 500); return; }
+                        if (valB === 'BYE') { saveBracket(match.target, valA); setTimeout(evaluateBracketState, 500); return; }
+                    }
+                    if (!foundMatch && valA && valB && valA !== 'BYE' && valB !== 'BYE' && !valTarget) {
+                        foundMatch = match;
+                    }
                 }
-                if (!foundMatch && valA && valB && valA !== 'BYE' && valB !== 'BYE' && !valTarget) foundMatch = match;
-            }
-            if (foundMatch) activateMatch(foundMatch);
+
+                if (foundMatch) {
+                    activateMatchFromData(foundMatch, data);
+                } else {
+                    // No match found — flash the checkbox to signal "no bracket data"
+                    const chk = document.getElementById('chk-auto-director');
+                    if (chk) {
+                        const lbl = chk.closest('label') || chk.parentElement;
+                        if (lbl) {
+                            lbl.style.color = 'var(--orange)';
+                            lbl.title = 'No bracket data found — populate the bracket first';
+                            setTimeout(() => { lbl.style.color = 'var(--cyan)'; }, 2000);
+                        }
+                    }
+                }
+            });
         }
 
-        function activateMatch(match) {
+        function activateMatchFromData(match, data) {
             currentDirectorMatch = match;
             targetWins = Math.ceil(match.bestOf / 2);
-            const teamNameA = document.getElementById(match.inputs[0])?.value;
-            const teamNameB = document.getElementById(match.inputs[1])?.value;
+            const teamNameA = data[match.inputs[0]] || '';
+            const teamNameB = data[match.inputs[1]] || '';
             let idA = null, idB = null;
-            teams.forEach(t => { if (t.name === teamNameA) idA = t.id; if (t.name === teamNameB) idB = t.id; });
+            teams.forEach(t => {
+                if (t.name === teamNameA) idA = t.id;
+                if (t.name === teamNameB) idB = t.id;
+            });
             if (idA && idB) {
                 let needsUpdate = false;
                 teams.forEach(t => {
@@ -2194,7 +2227,35 @@
                     if (chk.checked !== should) { chk.checked = should; needsUpdate = true; }
                 });
                 if (needsUpdate) { updateActiveTeams(); resetMatch(true); }
+
+                // Visual feedback — flash the two activated team labels
+                [idA, idB].forEach(id => {
+                    const lbl = document.getElementById(`lane-${id}`)?.querySelector('.lane-label');
+                    if (lbl) {
+                        lbl.style.transition = 'text-shadow 0.3s';
+                        lbl.style.textShadow = `0 0 30px currentColor, 0 0 60px currentColor`;
+                        setTimeout(() => lbl.style.textShadow = '', 1500);
+                    }
+                });
+            } else {
+                // Team names in bracket don't match known teams — warn host
+                const chk = document.getElementById('chk-auto-director');
+                if (chk) {
+                    const lbl = chk.closest('label') || chk.parentElement;
+                    if (lbl) {
+                        lbl.style.color = 'var(--orange)';
+                        lbl.title = `Could not match "${teamNameA}" or "${teamNameB}" to a known team`;
+                        setTimeout(() => { lbl.style.color = 'var(--cyan)'; }, 2000);
+                    }
+                }
             }
+        }
+
+        // Keep activateMatch as a wrapper for compatibility
+        function activateMatch(match) {
+            db.ref('bracket').once('value').then(snap => {
+                activateMatchFromData(match, snap.val() || {});
+            });
         }
 
         function directorHandleWin(winningTeamId) {
