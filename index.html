@@ -945,7 +945,7 @@
         <button class="btn-bracket-corner" onclick="showBracket()">TOURNAMENT BRACKET</button>
 
         <!-- TOURNAMENT VIEW: shown when teams are active -->
-        <div id="setup-tournament" class="hidden" style="display:flex;flex-direction:column;align-items:center;width:100%;">
+        <div id="setup-tournament" style="display:none;flex-direction:column;align-items:center;width:100%;">
             <h1>Select Team</h1>
             <div class="btn-grid">
                 <button id="btn-select-aranui"   class="btn-aranui"   onclick="joinGame('aranui')">Aranui</button>
@@ -958,8 +958,8 @@
             </div>
         </div>
 
-        <!-- PRACTICE VIEW: shown when no tournament is running -->
-        <div id="setup-practice" class="hidden" style="display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;">
+        <!-- PRACTICE VIEW: shown when no tournament is running (default) -->
+        <div id="setup-practice" style="display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;">
             <h1 style="font-size:clamp(1.8rem,4vw,3.5rem);letter-spacing:10px;text-shadow:0 0 30px var(--cyan);">PRACTICE</h1>
             <p style="color:#555;font-size:clamp(0.7rem,1.5vw,1rem);letter-spacing:4px;margin:0;">NO TOURNAMENT RUNNING</p>
             <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:20px;width:100%;max-width:400px;">
@@ -1300,17 +1300,12 @@
                 if (btn) btn.classList.toggle('disabled-team', !active[t.id]);
             });
 
-            // Show tournament view or practice view
+            // Switch between tournament and practice view
             const tournView    = document.getElementById('setup-tournament');
             const practiceView = document.getElementById('setup-practice');
             if (!tournView || !practiceView) return;
-            if (anyActive) {
-                tournView.style.display    = 'flex';
-                practiceView.style.display = 'none';
-            } else {
-                tournView.style.display    = 'none';
-                practiceView.style.display = 'flex';
-            }
+            tournView.style.display    = anyActive ? 'flex' : 'none';
+            practiceView.style.display = anyActive ? 'none' : 'flex';
         });
 
         // ─── BRACKET ─────────────────────────────────────────────────────────────
