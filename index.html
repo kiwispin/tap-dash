@@ -229,13 +229,13 @@
             padding: 0; justify-content: flex-start; overflow: hidden;
         }
 
-        /* Top HUD Bar */
+        /* Top HUD Bar — compact status strip */
         .host-hud-bar {
-            width: 100%; height: 90px;
+            width: 100%; height: 60px;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px;
-            background: rgba(0,0,0,0.7);
-            border-bottom: 1px solid rgba(0,243,255,0.2);
+            padding: 0 30px;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 1px solid rgba(0,243,255,0.15);
             backdrop-filter: blur(10px);
             flex-shrink: 0; z-index: 10;
         }
@@ -243,37 +243,39 @@
         .hud-live-badge {
             background: #e60000;
             color: #fff; font-weight: 900;
-            padding: 8px 20px; font-size: 1rem;
+            padding: 6px 16px; font-size: 0.85rem;
             letter-spacing: 4px;
             transform: skewX(-8deg);
-            box-shadow: 0 0 20px rgba(230,0,0,0.6);
+            box-shadow: 0 0 15px rgba(230,0,0,0.5);
         }
 
+        /* Timer — centred below the HUD bar, big for projector */
         #timer-display {
-            font-size: clamp(5rem, 10vw, 10rem);
+            font-size: clamp(4rem, 8vw, 9rem);
             font-weight: 900; line-height: 1;
             color: #fff;
-            text-shadow: 0 0 40px rgba(255,255,255,0.6);
+            text-shadow: 0 0 40px rgba(255,255,255,0.5);
             font-variant-numeric: tabular-nums;
+            text-align: center;
+            flex-shrink: 0;
         }
 
         #race-lights {
-            display: flex; gap: 16px;
-            background: rgba(0,0,0,0.8); padding: 12px 25px;
+            display: flex; gap: 12px;
+            background: rgba(0,0,0,0.6); padding: 8px 20px;
             border: 1px solid #333; border-radius: 50px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
-        .light { width: 28px; height: 28px; border-radius: 50%; background: #1a1a1a; border: 2px solid #333; transition: all 0.05s; }
-        .light.active { background: #ff0000; box-shadow: 0 0 25px #ff0000; border-color: #fff; }
-        #race-lights.go-signal .light { background: #00ff00 !important; box-shadow: 0 0 50px #00ff00 !important; border-color: #fff; transform: scale(1.1); }
+        .light { width: 22px; height: 22px; border-radius: 50%; background: #1a1a1a; border: 2px solid #333; transition: all 0.05s; }
+        .light.active { background: #ff0000; box-shadow: 0 0 20px #ff0000; border-color: #fff; }
+        #race-lights.go-signal .light { background: #00ff00 !important; box-shadow: 0 0 40px #00ff00 !important; border-color: #fff; transform: scale(1.1); }
 
         /* Match Setup Panel */
         #match-setup {
             width: 100%;
-            background: rgba(0,0,0,0.5);
-            border-bottom: 1px solid #222;
-            padding: 8px 30px;
-            display: flex; gap: 20px; font-size: 0.75rem;
+            background: rgba(0,0,0,0.6);
+            border-bottom: 1px solid #1a1a1a;
+            padding: 6px 20px;
+            display: flex; gap: 16px; font-size: 0.72rem;
             justify-content: center; flex-wrap: wrap; align-items: center;
             flex-shrink: 0;
         }
@@ -313,7 +315,7 @@
             position: relative; z-index: 1;
             transition: opacity 0.3s;
         }
-        .lane.inactive { display: none; }
+        .lane.inactive { opacity: 0.12; pointer-events: none; }
 
         .lane-info { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 
@@ -1055,41 +1057,41 @@
             <button class="winner-close-btn" onclick="closeWinner()">CONTINUE</button>
         </div>
 
-        <!-- Top HUD Bar -->
+        <!-- Top HUD Bar — compact status strip -->
         <div class="host-hud-bar">
             <div class="hud-live-badge">⬤ LIVE</div>
-            <div id="timer-display">20</div>
-            <div style="display:flex;align-items:center;gap:12px;">
-                <div id="race-lights">
-                    <div class="light" id="light-1"></div>
-                    <div class="light" id="light-2"></div>
-                    <div class="light" id="light-3"></div>
-                    <div class="light" id="light-4"></div>
-                    <div class="light" id="light-5"></div>
-                </div>
-                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:16px;">
-                    <button id="btn-music-mute" onclick="toggleMusicMute()"
-                        style="background:rgba(0,0,0,0.6);border:1px solid #444;color:#aaa;
-                               font-family:'Orbitron';font-size:0.65rem;letter-spacing:2px;
-                               padding:5px 12px;cursor:pointer;transition:all 0.2s;white-space:nowrap;">
-                        🔊 MUSIC
-                    </button>
-                    <input type="range" id="music-vol-slider" min="0" max="1" step="0.05" value="1"
-                        oninput="adjustMusicVolume(this.value)"
-                        style="width:80px;accent-color:var(--orange);cursor:pointer;">
-                </div>
+            <div id="race-lights">
+                <div class="light" id="light-1"></div>
+                <div class="light" id="light-2"></div>
+                <div class="light" id="light-3"></div>
+                <div class="light" id="light-4"></div>
+                <div class="light" id="light-5"></div>
             </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <button id="btn-music-mute" onclick="toggleMusicMute()"
+                    style="background:rgba(0,0,0,0.6);border:1px solid #444;color:#aaa;
+                           font-family:'Orbitron';font-size:0.6rem;letter-spacing:2px;
+                           padding:4px 10px;cursor:pointer;transition:all 0.2s;white-space:nowrap;">
+                    🔊 MUSIC
+                </button>
+                <input type="range" id="music-vol-slider" min="0" max="1" step="0.05" value="1"
+                    oninput="adjustMusicVolume(this.value)"
+                    style="width:70px;accent-color:var(--orange);cursor:pointer;">
+            </div>
+        </div>
+
+        <!-- Big timer — centred, below the HUD bar -->
+        <div style="display:flex;align-items:center;justify-content:center;padding:10px 0;flex-shrink:0;">
+            <div id="timer-display">20</div>
         </div>
 
         <!-- Match Setup Panel -->
         <div id="match-setup">
-            <div style="display:flex;justify-content:center;gap:40px;width:100%;margin-bottom:5px;flex-wrap:wrap;">
-                <label class="setup-checkbox" style="color:var(--cyan);font-size:0.85rem;">
-                    <input type="checkbox" id="chk-auto-director">
-                    TOURNAMENT MODE (DIRECTOR + RELAY 3×20s)
-                </label>
-            </div>
-            <div class="immersive-hint" style="width:100%;text-align:center;color:#444;font-size:0.65rem;margin-top:2px;">PRESS 'H' TO TOGGLE HUD</div>
+            <label class="setup-checkbox" style="color:var(--cyan);font-size:0.8rem;">
+                <input type="checkbox" id="chk-auto-director">
+                TOURNAMENT MODE
+            </label>
+            <span style="color:#555;letter-spacing:2px;margin-left:10px;">|</span>
             <span style="color:#555;letter-spacing:2px;">ACTIVE:</span>
             <label class="setup-checkbox"><input type="checkbox" id="chk-aranui"   onchange="updateActiveTeams()"> Aranui</label>
             <label class="setup-checkbox"><input type="checkbox" id="chk-tainui"   onchange="updateActiveTeams()"> Tainui</label>
@@ -1098,6 +1100,7 @@
             <label class="setup-checkbox"><input type="checkbox" id="chk-tearoha"  onchange="updateActiveTeams()"> Te Aroha</label>
             <label class="setup-checkbox"><input type="checkbox" id="chk-year9"    onchange="updateActiveTeams()"> Year 9</label>
             <label class="setup-checkbox"><input type="checkbox" id="chk-staff"    onchange="updateActiveTeams()"> Staff</label>
+            <div class="immersive-hint" style="width:100%;text-align:center;color:#333;font-size:0.6rem;margin-top:2px;">H = TOGGLE HUD</div>
         </div>
 
         <div id="scoreboard"></div>
