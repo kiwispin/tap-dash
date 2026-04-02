@@ -2218,7 +2218,19 @@
 
         function evaluateBracketState() {
             const isAuto = document.getElementById('chk-auto-director')?.checked;
-            if (!isAuto) { targetWins = 2; return; }
+            if (!isAuto) {
+                targetWins = 2;
+                // Uncheck all teams and clear active state
+                teams.forEach(t => {
+                    const chk = document.getElementById(`chk-${t.id}`);
+                    if (chk) chk.checked = false;
+                });
+                updateActiveTeams();
+                currentDirectorMatch = null;
+                const badge = document.getElementById('host-status');
+                if (badge) { badge.innerText = 'SYSTEM IDLE'; badge.classList.remove('active'); }
+                return;
+            }
 
             db.ref('bracket').once('value').then(snap => {
                 const data = snap.val() || {};
@@ -2284,6 +2296,11 @@
                     if (chk.checked !== should) { chk.checked = should; needsUpdate = true; }
                 });
                 if (needsUpdate) { updateActiveTeams(); resetMatch(true); }
+                // Explicitly ensure non-active lanes are hidden
+                teams.forEach(t => {
+                    const lane = document.getElementById(`lane-${t.id}`);
+                    if (lane) lane.classList.toggle('inactive', t.id !== idA && t.id !== idB);
+                });
 
                 // Visual feedback — flash the two activated team labels
                 [idA, idB].forEach(id => {
