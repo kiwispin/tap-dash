@@ -207,6 +207,15 @@
             display: flex; justify-content: space-around; align-items: stretch;
             width: 100%; max-width: 1500px; height: 68vh; margin-top: 10px;
         }
+        /* Mobile bracket scroll container */
+        .bracket-scroll-outer {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+        }
         .round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; padding: 0 15px; }
         .round-final { justify-content: center; }
         .match-group { display: flex; flex-direction: column; justify-content: center; position: relative; margin: 8px 0; padding: 8px 0; }
@@ -936,7 +945,24 @@
             .btn-duel  { margin-top: 10px; height: 44px !important; font-size: 0.8rem !important; }
             .btn-solo-practice { margin-top: 8px; height: 40px !important; font-size: 0.75rem !important; }
             .btn-host  { margin-top: 14px; height: 40px !important; font-size: 0.75rem !important; }
-            .btn-bracket-corner { top: 16px; right: 16px; padding: 8px 16px; font-size: 0.7rem; }
+
+            /* ── Corner buttons: prevent overlap on narrow screens ── */
+            /* Admin stays top-left; bracket drops below it */
+            .btn-admin-corner   { top: 12px; left: 12px; padding: 7px 14px; font-size: 0.65rem; }
+            .btn-bracket-corner { top: 56px; right: 12px; padding: 7px 14px; font-size: 0.65rem; }
+
+            /* ── Bracket screen: horizontal scroll so it isn't squished ── */
+            #bracket-screen { padding: 12px 0 12px 12px; flex-direction: column; overflow: hidden; justify-content: flex-start; }
+            .bracket-header { font-size: 1rem !important; letter-spacing: 5px; margin-top: 8px; margin-bottom: 6px; flex-shrink: 0; }
+            .bracket-scroll-outer { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+            .bracket-wrapper {
+                width: max-content;       /* let the bracket be as wide as it needs */
+                min-width: 600px;         /* prevent collapse below readable size  */
+                height: 60vh;
+                flex-shrink: 0;
+                margin-top: 0;
+            }
+            .bracket-controls { padding: 0 12px; flex-shrink: 0; margin-bottom: 12px; }
 
             /* Client tap screen */
             #tap-btn, #practice-btn {
@@ -1066,6 +1092,7 @@
     <!-- BRACKET SCREEN -->
     <div id="bracket-screen" class="screen hidden">
         <h1 class="bracket-header">TOURNAMENT BRACKET</h1>
+        <div class="bracket-scroll-outer">
         <div class="bracket-wrapper">
             <div class="round round-qtr">
                 <div class="match-group"><div class="match"><input class="bracket-input" id="b-q1-a" onchange="saveBracket(this.id,this.value)" placeholder="TEAM 1"><input class="bracket-input" id="b-q1-b" onchange="saveBracket(this.id,this.value)" placeholder="TEAM 2"><div class="connector-right"></div></div></div>
@@ -1084,6 +1111,7 @@
                 <div class="match-group two-into-one"><div class="connector-left"></div><div class="match final-match"><div class="final-label">CHAMPION</div><input class="bracket-input champion" id="b-winner" onchange="saveBracket(this.id,this.value)" placeholder="AWAITING DATA"></div></div>
             </div>
         </div>
+        </div><!-- /bracket-scroll-outer -->
         <div class="bracket-controls">
             <button class="control-btn" onclick="goToSetup()">BACK</button>
             <button class="control-btn primary" id="btn-populate" onclick="populateBracket()">POPULATE TEAMS</button>
