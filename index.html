@@ -122,6 +122,8 @@
         .btn-tearoha  { border-color: var(--blue)   !important; background: rgba(0,243,255,0.15)   !important; box-shadow: 0 0 20px rgba(0,243,255,0.15),   inset 0 0 30px rgba(0,243,255,0.08)   !important; }
         .btn-year9    { border-color: var(--white)  !important; background: rgba(255,255,255,0.15) !important; box-shadow: 0 0 20px rgba(255,255,255,0.15), inset 0 0 30px rgba(255,255,255,0.08) !important; }
         .btn-staff    { border-color: var(--purple) !important; background: rgba(157,0,255,0.15)   !important; box-shadow: 0 0 20px rgba(157,0,255,0.15),   inset 0 0 30px rgba(157,0,255,0.08)   !important; }
+        .btn-staff-m  { border-color: #b34cff !important; background: rgba(179,76,255,0.15) !important; box-shadow: 0 0 20px rgba(179,76,255,0.15), inset 0 0 30px rgba(179,76,255,0.08) !important; }
+        .btn-staff-f  { border-color: var(--pink) !important; background: rgba(255,0,204,0.15) !important; box-shadow: 0 0 20px rgba(255,0,204,0.15), inset 0 0 30px rgba(255,0,204,0.08) !important; }
 
         .btn-aranui:hover   { background: var(--pink)  !important; box-shadow: 0 0 50px var(--pink)  !important; }
         .btn-tainui:hover   { background: var(--yellow)!important; color:#000; box-shadow: 0 0 50px var(--yellow)!important; }
@@ -130,6 +132,8 @@
         .btn-tearoha:hover  { background: var(--blue)  !important; color:#000; box-shadow: 0 0 50px var(--blue)  !important; }
         .btn-year9:hover    { background: var(--white) !important; color:#000; box-shadow: 0 0 50px var(--white) !important; }
         .btn-staff:hover    { background: var(--purple)!important; box-shadow: 0 0 50px var(--purple)!important; }
+        .btn-staff-m:hover  { background: #b34cff !important; box-shadow: 0 0 50px #b34cff !important; }
+        .btn-staff-f:hover  { background: var(--pink) !important; box-shadow: 0 0 50px var(--pink) !important; }
 
         .btn-host {
             width: 100%; max-width: 300px;
@@ -245,7 +249,43 @@
         .match.final-match { border: 2px solid var(--gold); padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.15); transform: scale(1.05); }
         .final-label { color: var(--gold); font-size: 0.7rem; letter-spacing: 4px; text-align: center; margin-bottom: 5px; opacity: 0.8; }
         .bracket-input.champion { font-size: 1.3rem; color: var(--gold); text-shadow: 0 0 10px var(--gold); border-bottom: none; }
-        .bracket-controls { margin-top: auto; display: flex; gap: 20px; margin-bottom: 25px; }
+        .bracket-controls {
+            margin-top: auto; margin-bottom: 16px; padding: 0 20px;
+            display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+            opacity: 0.38; transition: opacity 0.2s ease-out;
+        }
+        .bracket-controls:hover, .bracket-controls:focus-within { opacity: 1; }
+        #bracket-advance-banner {
+            position: absolute; top: 92px; left: 50%; transform: translateX(-50%);
+            z-index: 50; padding: 14px 28px; min-width: min(620px, calc(100vw - 40px));
+            border: 2px solid var(--gold); background: rgba(0,0,0,0.86);
+            color: var(--gold); text-align: center; font-size: clamp(0.8rem, 1.8vw, 1.4rem);
+            font-weight: 900; letter-spacing: 4px; text-transform: uppercase;
+            box-shadow: 0 0 35px rgba(255,215,0,0.35);
+            animation: bracketBannerIn 2.2s ease-out both;
+        }
+        .bracket-input.advance-reveal {
+            color: var(--gold); border-bottom-color: var(--gold);
+            animation: bracketSlotReveal 2.2s ease-out both;
+        }
+        .match.match-advanced {
+            border-color: var(--gold); box-shadow: 0 0 36px rgba(255,215,0,0.35);
+            animation: bracketMatchPulse 2.2s ease-out both;
+        }
+        @keyframes bracketBannerIn {
+            0% { opacity: 0; transform: translate(-50%, -30px) scale(0.95); }
+            16%, 78% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -12px) scale(0.98); }
+        }
+        @keyframes bracketSlotReveal {
+            0% { opacity: 0; transform: translateX(-34px) scale(0.94); text-shadow: none; }
+            28% { opacity: 1; transform: translateX(0) scale(1.18); text-shadow: 0 0 28px var(--gold), 0 0 48px var(--gold); }
+            100% { opacity: 1; transform: translateX(0) scale(1); text-shadow: 0 0 14px var(--gold); }
+        }
+        @keyframes bracketMatchPulse {
+            0%, 100% { transform: scale(1); }
+            35% { transform: scale(1.05); }
+        }
 
         /* ===== HOST SCREEN — BIG SCREEN OVERHAUL ===== */
         #host {
@@ -441,29 +481,63 @@
         .bg-tearoha  { background: linear-gradient(90deg, rgba(0,243,255,0.5),  var(--blue));   color: var(--blue);   }
         .bg-year9    { background: linear-gradient(90deg, rgba(200,200,200,0.5),var(--white));  color: var(--white);  }
         .bg-staff    { background: linear-gradient(90deg, rgba(157,0,255,0.5),  var(--purple)); color: var(--purple); }
+        .bg-staff-m  { background: linear-gradient(90deg, rgba(179,76,255,0.5), #b34cff); color: #b34cff; }
+        .bg-staff-f  { background: linear-gradient(90deg, rgba(255,0,204,0.5), var(--pink)); color: var(--pink); }
 
         /* CONTROLS */
         #controls {
-            height: 70px; display: flex; gap: 15px;
-            align-items: center; justify-content: center; width: 100%;
-            background: rgba(0,0,0,0.9); padding: 0 30px;
+            min-height: 70px; display: grid; gap: 15px;
+            grid-template-columns:
+                minmax(0, 0.9fr)
+                minmax(0, 1.3fr)
+                minmax(0, 0.8fr)
+                minmax(0, 1.55fr)
+                minmax(0, 0.9fr);
+            align-items: center; width: 100%;
+            background: rgba(0,0,0,0.9); padding: 10px clamp(12px, 2vw, 30px);
             border-top: 1px solid #222; flex-shrink: 0;
         }
         .status-badge, .control-btn {
             height: 44px; display: flex; align-items: center; justify-content: center;
-            font-size: 0.85rem; font-weight: bold; letter-spacing: 2px;
+            font-size: clamp(0.58rem, 0.9vw, 0.85rem); font-weight: bold; letter-spacing: clamp(0.8px, 0.12vw, 1.5px);
+            line-height: 1; white-space: nowrap; text-align: center;
             text-transform: uppercase; border-radius: 3px; box-sizing: border-box;
         }
-        .status-badge { background: #0a0a0a; color: #444; border: 1px solid #222; min-width: 180px; padding: 0 20px; }
+        .status-badge { background: #0a0a0a; color: #444; border: 1px solid #222; min-width: 0; padding: 0 20px; }
         .status-badge.active { background: rgba(57,255,20,0.08); color: var(--green); border-color: var(--green); box-shadow: 0 0 15px rgba(57,255,20,0.15); text-shadow: 0 0 5px var(--green); }
-        .control-btn { background: transparent; color: #666; border: 1px solid #333; padding: 0 25px; cursor: pointer; min-width: 180px; font-family: 'Orbitron'; transition: all 0.2s; }
+        .control-btn { background: transparent; color: #666; border: 1px solid #333; padding: 0 clamp(8px, 1.3vw, 25px); cursor: pointer; min-width: 0; width: 100%; font-family: 'Orbitron'; transition: all 0.2s; }
         .control-btn:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
         .control-btn.primary { border-color: var(--blue); color: var(--blue); box-shadow: inset 0 0 10px rgba(0,243,255,0.08); }
         .control-btn.primary:hover { background: var(--blue); color: #000; box-shadow: 0 0 25px var(--blue); }
         .control-btn.danger { border-color: var(--pink); color: var(--pink); opacity: 0.7; }
         .control-btn.danger:hover { opacity: 1; background: var(--pink); color: #fff; box-shadow: 0 0 25px var(--pink); }
-        .control-btn.exit { border-color: var(--orange); color: var(--orange); margin-left: auto; }
+        .control-btn.bracket { border-color: var(--cyan); color: var(--cyan); opacity: 0.75; }
+        .control-btn.bracket:hover { opacity: 1; background: var(--cyan); color: #000; box-shadow: 0 0 25px var(--cyan); }
+        .control-btn.exit { border-color: var(--orange); color: var(--orange); }
         .control-btn.exit:hover { background: var(--orange); color: #000; box-shadow: 0 0 25px var(--orange); }
+        .bracket-controls .control-btn {
+            width: auto; min-width: 112px; height: 32px; padding: 0 14px;
+            font-size: 0.52rem; letter-spacing: 1.4px; border-color: #333;
+            color: #777; background: rgba(0,0,0,0.42); box-shadow: none;
+        }
+        .bracket-controls .control-btn:hover {
+            border-color: var(--cyan); color: var(--cyan);
+            background: rgba(0,243,255,0.06); box-shadow: 0 0 14px rgba(0,243,255,0.16);
+        }
+        .bracket-controls .control-btn.primary {
+            border-color: rgba(0,243,255,0.45); color: #8befff;
+            box-shadow: none;
+        }
+        .bracket-controls .control-btn.danger {
+            border-color: rgba(255,0,204,0.35); color: #a64a96; opacity: 1;
+        }
+        .bracket-controls .control-btn.danger:hover {
+            border-color: var(--pink); color: var(--pink);
+            background: rgba(255,0,204,0.08); box-shadow: 0 0 14px rgba(255,0,204,0.18);
+        }
+        .bracket-controls #btn-populate { min-width: 194px; }
+        .bracket-controls #btn-save-bracket,
+        .bracket-controls #btn-restore-saved { min-width: 142px; }
 
         /* WINNER OVERLAY */
         #winner-overlay {
@@ -475,8 +549,11 @@
         .trophy-container { width: 200px; height: 200px; margin-bottom: 30px; filter: drop-shadow(0 0 30px currentColor); animation: float 2s infinite ease-in-out; }
         .winner-title { font-size: clamp(1.5rem, 3vw, 3rem); color: #fff; text-shadow: 0 0 10px #fff; margin: 0; letter-spacing: 6px; }
         .winner-name { font-size: clamp(3rem, 8vw, 7rem); font-weight: 900; text-transform: uppercase; text-shadow: 0 0 40px currentColor, 0 0 80px currentColor; margin: 15px 0 50px 0; letter-spacing: 5px; }
+        .winner-actions { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
         .winner-close-btn { background: transparent; color: #fff; border: 2px solid #fff; padding: 18px 50px; font-family: 'Orbitron'; font-size: 1.2rem; cursor: pointer; text-transform: uppercase; letter-spacing: 4px; }
         .winner-close-btn:hover { background: #fff; color: #000; box-shadow: 0 0 40px #fff; }
+        .winner-advance-btn { border-color: var(--gold); color: var(--gold); box-shadow: inset 0 0 18px rgba(255,215,0,0.1); }
+        .winner-advance-btn:hover { background: var(--gold); color: #000; box-shadow: 0 0 45px rgba(255,215,0,0.75); }
 
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
@@ -515,6 +592,34 @@
         }
         .btn-client-exit:hover { background: var(--orange); color: #000; box-shadow: 0 0 30px var(--orange); }
         #client:not(.locked) .btn-client-exit { display: none; }
+
+        .connection-indicator {
+            position: absolute; top: 30px; right: 30px;
+            padding: 8px 16px;
+            background: rgba(0,0,0,0.55);
+            border: 1px solid #333;
+            color: #666;
+            font-size: 0.65rem; font-weight: 700;
+            letter-spacing: 3px; text-transform: uppercase;
+            clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px);
+            backdrop-filter: blur(4px);
+            z-index: 120;
+            pointer-events: none;
+        }
+        .connection-indicator.connected {
+            color: var(--green);
+            border-color: rgba(57,255,20,0.5);
+            box-shadow: 0 0 14px rgba(57,255,20,0.12);
+        }
+        .connection-indicator.reconnecting {
+            color: var(--orange);
+            border-color: rgba(255,170,0,0.65);
+            box-shadow: 0 0 16px rgba(255,170,0,0.18);
+            animation: duelPulse 1.2s infinite;
+        }
+        #duel-screen .connection-indicator {
+            top: auto; right: 20px; bottom: 20px;
+        }
 
         @keyframes pulse { 0%,100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.02); opacity: 0.8; } }
 
@@ -962,7 +1067,11 @@
                 flex-shrink: 0;
                 margin-top: 0;
             }
-            .bracket-controls { padding: 0 12px; flex-shrink: 0; margin-bottom: 12px; }
+            .bracket-controls { padding: 0 12px; flex-shrink: 0; margin-bottom: 8px; gap: 8px; opacity: 0.55; }
+            .bracket-controls .control-btn { min-width: 92px; height: 30px; padding: 0 10px; font-size: 0.48rem; letter-spacing: 1px; }
+            .bracket-controls #btn-populate { min-width: 168px; }
+            .bracket-controls #btn-save-bracket,
+            .bracket-controls #btn-restore-saved { min-width: 120px; }
 
             /* Client tap screen */
             #tap-btn, #practice-btn {
@@ -1032,6 +1141,8 @@
                 <button id="btn-select-tearoha"  class="btn-tearoha"  onclick="joinGame('tearoha')">Te Aroha</button>
                 <button id="btn-select-year9"    class="btn-year9"    onclick="joinGame('year9')">YEAR 9</button>
                 <button id="btn-select-staff"    class="btn-staff"    onclick="joinGame('staff')">STAFF</button>
+                <button id="btn-select-staff-m"  class="btn-staff-m"  onclick="joinGame('staff-m')">STAFF-M</button>
+                <button id="btn-select-staff-f"  class="btn-staff-f"  onclick="joinGame('staff-f')">STAFF-F</button>
             </div>
         </div>
 
@@ -1092,17 +1203,18 @@
     <!-- BRACKET SCREEN -->
     <div id="bracket-screen" class="screen hidden">
         <h1 class="bracket-header">TOURNAMENT BRACKET</h1>
+        <div id="bracket-advance-banner" class="hidden"></div>
         <div class="bracket-scroll-outer">
         <div class="bracket-wrapper">
             <div class="round round-qtr">
-                <div class="match-group"><div class="match"><input class="bracket-input" id="b-q1-a" onchange="saveBracket(this.id,this.value)" placeholder="TEAM 1"><input class="bracket-input" id="b-q1-b" onchange="saveBracket(this.id,this.value)" placeholder="TEAM 2"><div class="connector-right"></div></div></div>
+                <div class="match-group"><div class="match"><input class="bracket-input" id="b-q1-a" onchange="saveBracket(this.id,this.value)" placeholder="STAFF"><input class="bracket-input" id="b-q1-b" onchange="saveBracket(this.id,this.value)" placeholder="STAFF"><div class="connector-right"></div></div></div>
                 <div class="match-group"><div class="match"><input class="bracket-input" id="b-q2-a" onchange="saveBracket(this.id,this.value)" placeholder="TEAM 3"><input class="bracket-input" id="b-q2-b" onchange="saveBracket(this.id,this.value)" placeholder="TEAM 4"><div class="connector-right"></div></div></div>
                 <div class="match-group"><div class="match"><input class="bracket-input" id="b-q3-a" onchange="saveBracket(this.id,this.value)" placeholder="TEAM 5"><input class="bracket-input" id="b-q3-b" onchange="saveBracket(this.id,this.value)" placeholder="BYE"><div class="connector-right"></div></div></div>
                 <div class="match-group"><div class="match"><input class="bracket-input" id="b-q4-a" onchange="saveBracket(this.id,this.value)" placeholder="BYE"><input class="bracket-input" id="b-q4-b" onchange="saveBracket(this.id,this.value)" placeholder="BYE"><div class="connector-right"></div></div></div>
             </div>
             <div class="round round-semi">
-                <div class="match-group two-into-one"><div class="connector-left"></div><div class="match single"><input class="bracket-input" id="b-s1-a" onchange="saveBracket(this.id,this.value)" placeholder="WINNER Q1/Q2"><input class="bracket-input" id="b-s1-b" onchange="saveBracket(this.id,this.value)" placeholder="WINNER Q3/Q4"><div class="connector-right"></div></div></div>
-                <div class="match-group two-into-one"><div class="connector-left"></div><div class="match single"><input class="bracket-input" id="b-s2-a" onchange="saveBracket(this.id,this.value)" placeholder="WINNER Q5/Q6"><input class="bracket-input" id="b-s2-b" onchange="saveBracket(this.id,this.value)" placeholder="WINNER Q7/Q8"><div class="connector-right"></div></div></div>
+                <div class="match-group two-into-one"><div class="connector-left"></div><div class="match single"><input class="bracket-input" id="b-s1-a" onchange="saveBracket(this.id,this.value)" placeholder="STAFF"><input class="bracket-input" id="b-s1-b" onchange="saveBracket(this.id,this.value)" placeholder="WINNER Q2"><div class="connector-right"></div></div></div>
+                <div class="match-group two-into-one"><div class="connector-left"></div><div class="match single"><input class="bracket-input" id="b-s2-a" onchange="saveBracket(this.id,this.value)" placeholder="WINNER Q3"><input class="bracket-input" id="b-s2-b" onchange="saveBracket(this.id,this.value)" placeholder="WINNER Q4"><div class="connector-right"></div></div></div>
             </div>
             <div class="round round-finals">
                 <div class="match-group two-into-one"><div class="connector-left"></div><div class="match single"><input class="bracket-input" id="b-f1-a" onchange="saveBracket(this.id,this.value)" placeholder="FINALIST A"><input class="bracket-input" id="b-f1-b" onchange="saveBracket(this.id,this.value)" placeholder="FINALIST B"><div class="connector-right"></div></div></div>
@@ -1114,7 +1226,9 @@
         </div><!-- /bracket-scroll-outer -->
         <div class="bracket-controls">
             <button class="control-btn" onclick="goToSetup()">BACK</button>
-            <button class="control-btn primary" id="btn-populate" onclick="populateBracket()">POPULATE TEAMS</button>
+            <button class="control-btn primary" id="btn-populate" onclick="restoreOfficialBracket()">RESTORE OFFICIAL START</button>
+            <button class="control-btn bracket" id="btn-save-bracket" onclick="saveBracketCheckpoint()">SAVE BRACKET</button>
+            <button class="control-btn bracket" id="btn-restore-saved" onclick="restoreSavedBracket()">RESTORE SAVED</button>
             <button class="control-btn danger" id="btn-clear-bracket" onclick="clearBracket()">CLEAR</button>
         </div>
     </div>
@@ -1131,7 +1245,10 @@
             </div>
             <h2 id="winner-title-text" class="winner-title">ROUND WINNER</h2>
             <h1 id="winner-name-text" class="winner-name">TEAM NAME</h1>
-            <button class="winner-close-btn" onclick="closeWinner()">CONTINUE</button>
+            <div class="winner-actions">
+                <button class="winner-close-btn winner-advance-btn hidden" id="btn-advance-winner" onclick="advanceWinnerToBracket()">SEND TO BRACKET</button>
+                <button class="winner-close-btn" onclick="closeWinner()">CONTINUE</button>
+            </div>
         </div>
 
         <!-- Top HUD Bar — compact status strip -->
@@ -1166,7 +1283,7 @@
         <div id="match-setup">
             <label class="setup-checkbox" style="color:var(--cyan);font-size:0.8rem;">
                 <input type="checkbox" id="chk-auto-director">
-                TOURNAMENT MODE
+                AUTO BRACKET (LOAD NEXT)
             </label>
             <span style="color:#555;letter-spacing:2px;margin-left:10px;">|</span>
             <span style="color:#555;letter-spacing:2px;">ACTIVE:</span>
@@ -1177,6 +1294,8 @@
             <label class="setup-checkbox"><input type="checkbox" id="chk-tearoha"  onchange="updateActiveTeams()"> Te Aroha</label>
             <label class="setup-checkbox"><input type="checkbox" id="chk-year9"    onchange="updateActiveTeams()"> Year 9</label>
             <label class="setup-checkbox"><input type="checkbox" id="chk-staff"    onchange="updateActiveTeams()"> Staff</label>
+            <label class="setup-checkbox"><input type="checkbox" id="chk-staff-m"  onchange="updateActiveTeams()"> Staff-M</label>
+            <label class="setup-checkbox"><input type="checkbox" id="chk-staff-f"  onchange="updateActiveTeams()"> Staff-F</label>
             <div class="immersive-hint" style="width:100%;text-align:center;color:#333;font-size:0.6rem;margin-top:2px;">H = TOGGLE HUD</div>
         </div>
 
@@ -1192,17 +1311,19 @@
         </div>
 
         <div id="controls">
-            <div id="host-status" class="status-badge">SYSTEM IDLE</div>
+            <button onclick="showBracket()" class="control-btn bracket" id="btn-host-bracket">BRACKET</button>
             <button onclick="startSequence()" class="control-btn primary" id="btn-engage">START MATCH (Space)</button>
             <button onclick="resetScores()" class="control-btn" id="btn-reset-round">RESET (R)</button>
             <button onclick="resetMatch()" class="control-btn danger">NEW MATCH (WIPE ALL)</button>
             <button onclick="exitHost()" class="control-btn exit">EXIT SYSTEM</button>
         </div>
+        <div id="host-status" class="hidden">SYSTEM IDLE</div>
     </div>
 
     <!-- CLIENT SCREEN -->
     <div id="client" class="screen hidden">
         <button class="btn-client-exit" onclick="exitClient()">EXIT</button>
+        <div class="connection-indicator reconnecting">CONNECTING</div>
         <div id="msg">WAITING</div>
         <div id="tps-display" class="tps-counter">0 TPS</div>
         <div id="practice-btn">TAP</div>
@@ -1233,6 +1354,7 @@
     <!-- DUEL SCREEN -->
     <div id="duel-screen" class="screen hidden">
         <button class="duel-back-btn" id="duel-exit-btn" onclick="exitDuel()">← EXIT</button>
+        <div class="connection-indicator reconnecting">CONNECTING</div>
 
         <div id="duel-lobby" class="duel-lobby">
             <h2>VS SOMEONE</h2>
@@ -1255,10 +1377,6 @@
                 <button class="duel-action-btn watch" style="flex:0 0 auto;padding:12px 20px;" onclick="watchDuelRoom()">GO</button>
             </div>
             <div id="duel-error" style="color:var(--pink);font-size:0.8rem;letter-spacing:2px;min-height:1.2em;"></div>
-            <div id="duel-watch-row" class="hidden" style="width:100%;display:flex;gap:10px;">
-                <input class="duel-input" id="duel-watch-code-input" type="text" placeholder="ROOM CODE" maxlength="4" style="flex:1;text-transform:uppercase;">
-                <button class="duel-action-btn watch" style="flex:0 0 auto;padding:12px 20px;" onclick="watchDuelRoom()">GO</button>
-            </div>
             <button onclick="showWatchInput()" style="background:none;border:none;color:#444;font-family:'Orbitron';font-size:0.65rem;letter-spacing:3px;cursor:pointer;margin-top:4px;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='#444'">👁 SPECTATE A ROOM</button>
         </div>
 
@@ -1342,6 +1460,18 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        function updateConnectionIndicators(isConnected) {
+            document.querySelectorAll('.connection-indicator').forEach(el => {
+                el.innerText = isConnected ? 'CONNECTED' : 'RECONNECTING';
+                el.classList.toggle('connected', isConnected);
+                el.classList.toggle('reconnecting', !isConnected);
+            });
+        }
+        updateConnectionIndicators(false);
+        db.ref('.info/connected').on('value', snap => {
+            updateConnectionIndicators(snap.val() === true);
+        });
+
         // ─── GLOBAL STATE ─────────────────────────────────────────────────────────
         let myTeam = null;
         let isHost  = false;
@@ -1353,7 +1483,9 @@
             { id: 'kiakaha',  name: 'Kia Kaha', color: 'green'  },
             { id: 'tearoha',  name: 'Te Aroha', color: 'blue'   },
             { id: 'year9',    name: 'YEAR 9',   color: 'white'  },
-            { id: 'staff',    name: 'STAFF',    color: 'purple' }
+            { id: 'staff',    name: 'STAFF',    color: 'purple' },
+            { id: 'staff-m',  name: 'STAFF-M',  color: 'purple' },
+            { id: 'staff-f',  name: 'STAFF-F',  color: 'pink'   }
         ];
 
         const currentScores = {};
@@ -1363,11 +1495,26 @@
         const winningScore   = 300;
         const ROUND_DURATION = 20;  // kept for reference
         const STANDARD_DURATION = 20; // single practice round
+        const BRACKET_FIELDS = [
+            'b-q1-a', 'b-q1-b', 'b-q2-a', 'b-q2-b', 'b-q3-a', 'b-q3-b', 'b-q4-a', 'b-q4-b',
+            'b-s1-a', 'b-s1-b', 'b-s2-a', 'b-s2-b', 'b-f1-a', 'b-f1-b', 'b-winner'
+        ];
+        const OFFICIAL_BRACKET = {
+            'b-q1-a': 'STAFF-M', 'b-q1-b': 'STAFF-F',
+            'b-q2-a': 'Tainui', 'b-q2-b': 'Aranui',
+            'b-q3-a': 'Mahi Tahi', 'b-q3-b': 'Te Aroha',
+            'b-q4-a': 'YEAR 9', 'b-q4-b': 'Kia Kaha',
+            'b-s1-a': '', 'b-s1-b': '', 'b-s2-a': '', 'b-s2-b': '',
+            'b-f1-a': '', 'b-f1-b': '', 'b-winner': ''
+        };
 
         let gameInterval, countdownInterval;
         let isSequenceRunning = false;
         let audioCtx;
         let pendingTaps = 0;
+        let bracketReturnScreen = 'setup';
+        let bracketListenerAttached = false;
+        let pendingBracketAdvance = null;
 
         // ─── SETUP SCREEN LISTENERS ───────────────────────────────────────────────
         db.ref('game/activeTeams').on('value', snap => {
@@ -1390,9 +1537,12 @@
 
         // ─── BRACKET ─────────────────────────────────────────────────────────────
         function showBracket() {
+            bracketReturnScreen = document.getElementById('host').classList.contains('hidden') ? 'setup' : 'host';
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('host').classList.add('hidden');
             document.getElementById('bracket-screen').classList.remove('hidden');
+            const banner = document.getElementById('bracket-advance-banner');
+            if (banner) banner.classList.add('hidden');
             const inputs = document.querySelectorAll('.bracket-input');
             inputs.forEach(input => {
                 input.readOnly = !isHost;
@@ -1400,85 +1550,166 @@
                 input.style.opacity = isHost ? '' : '0.75';
             });
             document.getElementById('btn-populate').style.display  = isHost ? '' : 'none';
+            document.getElementById('btn-save-bracket').style.display = isHost ? '' : 'none';
+            document.getElementById('btn-restore-saved').style.display = isHost ? '' : 'none';
             document.getElementById('btn-clear-bracket').style.display = isHost ? '' : 'none';
-            db.ref('bracket').on('value', snap => {
-                const data = snap.val() || {};
-                document.querySelectorAll('.bracket-input').forEach(input => { input.value = data[input.id] || ''; });
+            if (!bracketListenerAttached) {
+                bracketListenerAttached = true;
+                db.ref('bracket').on('value', snap => renderBracket(snap.val() || {}));
+            }
+        }
+        function goToSetup() {
+            document.getElementById('bracket-screen').classList.add('hidden');
+            if (bracketReturnScreen === 'host' && isHost) {
+                document.getElementById('host').classList.remove('hidden');
+            } else {
+                document.getElementById('setup').classList.remove('hidden');
+            }
+        }
+        function saveBracket(id, val)  { if (!isHost) return; db.ref(`bracket/${id}`).set(val); }
+
+        function renderBracket(data) {
+            document.querySelectorAll('.bracket-input').forEach(input => {
+                input.value = data[input.id] || '';
             });
         }
-        function goToSetup() { document.getElementById('bracket-screen').classList.add('hidden'); document.getElementById('setup').classList.remove('hidden'); }
-        function saveBracket(id, val)  { if (!isHost) return; db.ref(`bracket/${id}`).set(val); }
-        function populateBracket() {
-            if (!isHost) return;
-            const shuffled = [...teams].sort(() => Math.random() - 0.5);
-            const defaults = {
-                'b-q1-a': shuffled[0].name, 'b-q1-b': shuffled[1].name,
-                'b-q2-a': shuffled[2].name, 'b-q2-b': shuffled[3].name,
-                'b-q3-a': shuffled[4].name, 'b-q3-b': shuffled[5].name,
-                'b-q4-a': shuffled[6].name, 'b-q4-b': 'BYE',
-                'b-s1-a': '', 'b-s1-b': '', 'b-s2-a': '', 'b-s2-b': '',
-                'b-f1-a': '', 'b-f1-b': '', 'b-winner': ''
-            };
-            for (const [k, v] of Object.entries(defaults)) { const el = document.getElementById(k); if (el) el.value = v; }
-            const updates = {};
-            for (const [k, v] of Object.entries(defaults)) updates[`bracket/${k}`] = v;
-            db.ref().update(updates);
+
+        function collectBracketState() {
+            const state = {};
+            BRACKET_FIELDS.forEach(id => {
+                const el = document.getElementById(id);
+                state[id] = el ? el.value.trim() : '';
+            });
+            return state;
         }
+
+        function writeBracketState(state) {
+            const cleanState = {};
+            BRACKET_FIELDS.forEach(id => cleanState[id] = state[id] || '');
+            renderBracket(cleanState);
+            return db.ref('bracket').set(cleanState);
+        }
+
+        function restoreOfficialBracket() {
+            if (!isHost) return;
+            pendingBracketAdvance = null;
+            updateAdvanceWinnerButton();
+            writeBracketState(OFFICIAL_BRACKET).then(() => {
+                showBracketBanner('OFFICIAL BRACKET RESTORED');
+            });
+        }
+
+        function saveBracketCheckpoint() {
+            if (!isHost) return;
+            const state = collectBracketState();
+            db.ref('bracketSaved').set({
+                data: state,
+                savedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => showBracketBanner('BRACKET CHECKPOINT SAVED'));
+        }
+
+        function restoreSavedBracket() {
+            if (!isHost) return;
+            db.ref('bracketSaved/data').once('value').then(snap => {
+                const state = snap.val();
+                if (!state) {
+                    showBracketBanner('NO SAVED CHECKPOINT YET');
+                    return;
+                }
+                pendingBracketAdvance = null;
+                updateAdvanceWinnerButton();
+                writeBracketState(state).then(() => showBracketBanner('SAVED BRACKET RESTORED'));
+            });
+        }
+
+        function showBracketBanner(message) {
+            const banner = document.getElementById('bracket-advance-banner');
+            if (!banner) return;
+            banner.textContent = message;
+            banner.classList.remove('hidden');
+            banner.style.animation = 'none';
+            void banner.offsetWidth;
+            banner.style.animation = '';
+            clearTimeout(banner._hideTimer);
+            banner._hideTimer = setTimeout(() => banner.classList.add('hidden'), 2300);
+        }
+
+        function animateBracketAdvance(targetId, advancingName) {
+            const target = document.getElementById(targetId);
+            if (!target) return;
+            target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            target.classList.remove('advance-reveal');
+            const match = target.closest('.match');
+            if (match) match.classList.remove('match-advanced');
+            void target.offsetWidth;
+            target.classList.add('advance-reveal');
+            if (match) match.classList.add('match-advanced');
+            showBracketBanner(`${advancingName} ADVANCED`);
+            setTimeout(() => {
+                target.classList.remove('advance-reveal');
+                if (match) match.classList.remove('match-advanced');
+            }, 2400);
+        }
+
+        function populateBracket() { restoreOfficialBracket(); }
+
         function clearBracket() {
             if (!isHost) return;
+            pendingBracketAdvance = null;
+            updateAdvanceWinnerButton();
             db.ref('bracket').set(null);
             document.querySelectorAll('.bracket-input').forEach(i => i.value = '');
         }
-        window.clearBracket    = clearBracket;
-        window.populateBracket = populateBracket;
-        window.saveBracket     = saveBracket;
-        window.showBracket     = showBracket;
-        window.goToSetup       = goToSetup;
+        window.clearBracket           = clearBracket;
+        window.populateBracket        = populateBracket;
+        window.restoreOfficialBracket = restoreOfficialBracket;
+        window.saveBracketCheckpoint  = saveBracketCheckpoint;
+        window.restoreSavedBracket    = restoreSavedBracket;
+        window.saveBracket            = saveBracket;
+        window.showBracket            = showBracket;
+        window.goToSetup              = goToSetup;
 
         // ─── AUDIO ────────────────────────────────────────────────────────────────
 
         // ── MUSIC PLAYER ─────────────────────────────────────────────────────────
         // Place music.ogg in the same folder as this HTML file.
         // All volume levels: 0.0 – 1.0
-        const MUSIC_VOL_IDLE      = 0.15;  // waiting / between matches
-        const MUSIC_VOL_COUNTDOWN = 0.45;  // 5-second F1 countdown
-        const MUSIC_VOL_PLAYING   = 0.85;  // slot/round in progress
-        const MUSIC_VOL_HANDOFF   = 0.25;  // handoff break between slots
-        const MUSIC_VOL_WINNER    = 0.15;  // winner overlay
+        const MUSIC_VOL_IDLE      = 0.08;  // waiting / between matches
+        const MUSIC_VOL_COUNTDOWN = 0.22;  // 5-second F1 countdown
+        const MUSIC_VOL_PLAYING   = 0.45;  // slot/round in progress
+        const MUSIC_VOL_HANDOFF   = 0.14;  // handoff break between slots
+        const MUSIC_VOL_WINNER    = 0.08;  // winner overlay
 
         let musicAudio    = null;  // HTMLAudioElement
         let musicMuted    = false;
         let musicFadeRAF  = null;  // requestAnimationFrame handle for fades
         let musicEnabled  = false; // only play on host/spectator screens
+        // Track current target so slider can scale it correctly
+        let musicMasterVol   = 1.0;
+        let currentMusicTarget = MUSIC_VOL_IDLE;
+
+        function getScaledMusicVolume(targetVol) {
+            return Math.min(targetVol * musicMasterVol, 1);
+        }
 
         function initMusic() {
-            if (musicAudio) return;
+            if (musicAudio) {
+                musicAudio.volume = musicMuted ? 0 : getScaledMusicVolume(currentMusicTarget);
+                return;
+            }
             musicAudio = new Audio('./music.ogg');
             musicAudio.loop   = true;
-            musicAudio.volume = MUSIC_VOL_IDLE;
+            musicAudio.volume = musicMuted ? 0 : getScaledMusicVolume(MUSIC_VOL_IDLE);
             // If file doesn't exist, fail silently — game works without music
             musicAudio.onerror = () => { musicAudio = null; };
             musicAudio.play().catch(() => {});
             musicEnabled = true;
         }
 
-        function musicFadeTo(targetVol, durationMs) {
-            if (!musicAudio || musicMuted) return;
-            if (musicFadeRAF) cancelAnimationFrame(musicFadeRAF);
-            const startVol  = musicAudio.volume;
-            const startTime = performance.now();
-            function step(now) {
-                const t = Math.min((now - startTime) / durationMs, 1);
-                musicAudio.volume = startVol + (targetVol - startVol) * t;
-                if (t < 1) musicFadeRAF = requestAnimationFrame(step);
-            }
-            musicFadeRAF = requestAnimationFrame(step);
-        }
-
         function toggleMusicMute() {
             if (!musicAudio) return;
             musicMuted = !musicMuted;
-            musicAudio.volume = musicMuted ? 0 : Math.min(currentMusicTarget * musicMasterVol, 1);
+            musicAudio.volume = musicMuted ? 0 : getScaledMusicVolume(currentMusicTarget);
             const btn = document.getElementById('btn-music-mute');
             if (btn) btn.innerText = musicMuted ? '🔇 MUTED' : '🔊 MUSIC';
         }
@@ -1488,19 +1719,15 @@
             // Store as a global scale factor applied on top of auto-fades
             musicMasterVol = parseFloat(val);
             if (musicAudio && !musicMuted) {
-                musicAudio.volume = Math.min(currentMusicTarget * musicMasterVol, 1);
+                musicAudio.volume = getScaledMusicVolume(currentMusicTarget);
             }
         }
-
-        // Track current target so slider can scale it correctly
-        let musicMasterVol   = 1.0;
-        let currentMusicTarget = MUSIC_VOL_IDLE;
 
         function musicFadeTo(targetVol, durationMs) {
             if (!musicAudio) return;
             currentMusicTarget = targetVol;
             if (musicMuted) return;
-            const scaledTarget = Math.min(targetVol * musicMasterVol, 1);
+            const scaledTarget = getScaledMusicVolume(targetVol);
             if (musicFadeRAF) cancelAnimationFrame(musicFadeRAF);
             const startVol  = musicAudio.volume;
             const startTime = performance.now();
@@ -1720,13 +1947,6 @@
             document.getElementById('host').classList.remove('hidden');
             initAudio();
 
-            // Immediately flush any stale activeTeams values from Firebase.
-            // (e.g. left over from a player selecting a team before the fix)
-            // The checkboxes start all unchecked, so write false for every team now.
-            const staleClear = {};
-            teams.forEach(t => staleClear[`game/activeTeams/${t.id}`] = false);
-            db.ref().update(staleClear);
-
             const board = document.getElementById('scoreboard');
             board.innerHTML = '<div class="vs-watermark">VS</div>';
             teams.forEach(t => {
@@ -1748,7 +1968,7 @@
 </div>`;
             });
 
-            updateActiveTeams();
+            syncHostActiveTeamsFromFirebase();
             // Toggle relay-mode class for CSS-driven win dot hiding
             document.getElementById('scoreboard').classList.toggle('relay-mode', isRelayMode());
 
@@ -1811,6 +2031,23 @@
             if (board) board.classList.toggle('match-active', activeCount === 2);
         }
 
+        function syncHostActiveTeamsFromFirebase() {
+            db.ref('game/activeTeams').once('value').then(snap => {
+                const active = snap.val() || {};
+                let activeCount = 0;
+                teams.forEach(t => {
+                    const isActive = active[t.id] === true;
+                    if (isActive) activeCount++;
+                    const chk = document.getElementById(`chk-${t.id}`);
+                    if (chk) chk.checked = isActive;
+                    const lane = document.getElementById(`lane-${t.id}`);
+                    if (lane) lane.classList.toggle('inactive', !isActive);
+                });
+                const board = document.getElementById('scoreboard');
+                if (board) board.classList.toggle('match-active', activeCount === 2);
+            });
+        }
+
         function determineWinner() {
             // Standard mode only — relay mode uses endRelayMatch()
             let maxScore = -1, winningTeamId = null;
@@ -1862,15 +2099,60 @@
             document.getElementById('winner-name-text').style.color = `var(--${team.color})`;
             document.getElementById('winner-trophy').style.color = `var(--${team.color})`;
             playBeep('win');
+            updateAdvanceWinnerButton();
             document.getElementById('winner-overlay').classList.remove('hidden');
         }
         function closeWinner() { document.getElementById('winner-overlay').classList.add('hidden'); }
+
+        function updateAdvanceWinnerButton() {
+            const btn = document.getElementById('btn-advance-winner');
+            if (!btn) return;
+            const canAdvance = isHost && pendingBracketAdvance;
+            btn.classList.toggle('hidden', !canAdvance);
+            if (canAdvance) btn.innerText = `SEND ${pendingBracketAdvance.advancingName} TO BRACKET`;
+        }
+
+        function advanceWinnerToBracket() {
+            if (!isHost || !pendingBracketAdvance) return;
+            const advance = pendingBracketAdvance;
+            pendingBracketAdvance = null;
+            updateAdvanceWinnerButton();
+            closeWinner();
+            bracketReturnScreen = 'host';
+            showBracket();
+            db.ref('bracket').once('value').then(snap => {
+                const updatedState = {};
+                const current = snap.val() || {};
+                BRACKET_FIELDS.forEach(id => updatedState[id] = current[id] || '');
+                updatedState[advance.target] = advance.advancingName;
+                return db.ref().update({
+                    [`bracket/${advance.target}`]: advance.advancingName,
+                    bracketSaved: {
+                        data: updatedState,
+                        savedAt: firebase.database.ServerValue.TIMESTAMP
+                    }
+                });
+            }).then(() => {
+                setTimeout(() => animateBracketAdvance(advance.target, advance.advancingName), 250);
+                setTimeout(evaluateBracketState, 1800);
+            });
+        }
 
         function setLights(state) {
             const lights = document.querySelectorAll('.light');
             const container = document.getElementById('race-lights');
             if (state === 0)  { lights.forEach(l => l.classList.remove('active')); container.classList.remove('go-signal'); }
             else if (state === -1) { container.classList.add('go-signal'); }
+        }
+
+        function runCountdownBeat(count) {
+            const timerDisplay = document.getElementById('timer-display');
+            if (timerDisplay) timerDisplay.innerText = count;
+            const lights = document.querySelectorAll('.light');
+            lights.forEach((light, index) => {
+                light.classList.toggle('active', index < (6 - count));
+            });
+            playBeep('count', count);
         }
 
         // ─── RELAY MODE STATE ─────────────────────────────────────────────────────
@@ -2086,6 +2368,15 @@
             }, 1000);
         }
 
+        function startNextRelaySlotFromHandoff() {
+            relayCurrentSlot++;
+            updateRelayDots(relayCurrentSlot);
+            const updates = {};
+            teams.forEach(t => updates[`scores/${t.id}`] = 0);
+            db.ref().update(updates);
+            startRelaySlotGameplay();
+        }
+
         function endRelaySlot() {
             db.ref('game/status').set('paused');
 
@@ -2127,6 +2418,8 @@
             const handoffTimer  = document.getElementById('relay-handoff-timer');
             timerDisplay.style.color = 'var(--orange)';
             timerDisplay.innerText   = t;
+            handoffTimer.style.color = '';
+            handoffTimer.classList.remove('urgent');
             handoffTimer.innerText   = t;
             playBeep('count', 5);
             relayHandoffInterval = setInterval(() => {
@@ -2142,11 +2435,7 @@
                 if (t <= 0) {
                     clearInterval(relayHandoffInterval);
                     document.getElementById('relay-handoff').classList.add('hidden');
-                    timerDisplay.style.color = 'var(--green)';
-                    timerDisplay.innerText   = 'GO';
-                    playBeep('go');
-                    musicFadeTo(MUSIC_VOL_PLAYING, 800);
-                    setTimeout(() => startRelaySlotGameplay(), 800);
+                    startNextRelaySlotFromHandoff();
                 }
             }, 1000);
         }
@@ -2184,6 +2473,8 @@
             if (!isHost) return;
             if (!force && !confirm('Reset current scores? (Dots/Wins will remain)')) return;
             closeWinner();
+            pendingBracketAdvance = null;
+            updateAdvanceWinnerButton();
             clearInterval(gameInterval); clearInterval(countdownInterval); clearInterval(relayHandoffInterval);
             isSequenceRunning = false;
             relayCurrentSlot  = 0;
@@ -2209,6 +2500,8 @@
             if (!isHost) return;
             if (!force && !confirm('NEW MATCH? This will clear ALL scores and Win Dots.')) return;
             closeWinner();
+            pendingBracketAdvance = null;
+            updateAdvanceWinnerButton();
             clearInterval(gameInterval); clearInterval(countdownInterval); clearInterval(relayHandoffInterval);
             isSequenceRunning = false;
             relayCurrentSlot  = 0;
@@ -2373,8 +2666,14 @@
             if (!currentDirectorMatch) return;
             const wt = teams.find(t => t.id === winningTeamId);
             if (!wt) return;
-            saveBracket(currentDirectorMatch.target, wt.name);
-            setTimeout(evaluateBracketState, 2000);
+            const advancingName = (winningTeamId === 'staff-m' || winningTeamId === 'staff-f') ? 'STAFF' : wt.name;
+            pendingBracketAdvance = {
+                winningTeamId,
+                advancingName,
+                target: currentDirectorMatch.target,
+                matchId: currentDirectorMatch.id
+            };
+            updateAdvanceWinnerButton();
         }
 
         // ─── HOST EXIT ────────────────────────────────────────────────────────────
@@ -2448,14 +2747,42 @@
         let duelPendingTaps  = 0;
         let duelFlushInterval= null;
         let duelGameInterval = null;
+        let duelGameplayStartTimeout = null;
+        let duelSlotScoreTimeout = null;
+        let duelHandoffNextTimeout = null;
+        let duelRoundScoreTimeout = null;
+        let duelRoundFlashTimeout = null;
         let duelState        = 'idle';
         let duelRoundWins    = {};
         let duelCurrentRound = 1;
         let duelPlayerNames  = [];
+        let duelRoundToken   = 0;
+        let duelMatchResultShown = false;
+        let duelStartInProgress = false;
         // Track the last round counter value we responded to (prevents duplicate triggers)
         let duelLastRoundCounter = 0;
 
+        function clearDuelTimers() {
+            clearInterval(duelFlushInterval);
+            clearInterval(duelGameInterval);
+            clearInterval(duelRelayHandoffInterval);
+            clearTimeout(duelGameplayStartTimeout);
+            clearTimeout(duelSlotScoreTimeout);
+            clearTimeout(duelHandoffNextTimeout);
+            clearTimeout(duelRoundScoreTimeout);
+            clearTimeout(duelRoundFlashTimeout);
+            duelFlushInterval = null;
+            duelGameInterval = null;
+            duelRelayHandoffInterval = null;
+            duelGameplayStartTimeout = null;
+            duelSlotScoreTimeout = null;
+            duelHandoffNextTimeout = null;
+            duelRoundScoreTimeout = null;
+            duelRoundFlashTimeout = null;
+        }
+
         function showDuelLobby() {
+            clearDuelTimers();
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('duel-screen').classList.remove('hidden');
             document.getElementById('duel-lobby').classList.remove('hidden');
@@ -2466,6 +2793,7 @@
             document.getElementById('duel-watch-row').classList.add('hidden');
             duelIsSpectator = false;
             duelState = 'idle';
+            duelMatchResultShown = false;
         }
 
         function showJoinInput() {
@@ -2614,26 +2942,40 @@
         }
 
         function startDuel() {
-            if (!duelRoomCode) return;
-            db.ref(`duels/${duelRoomCode}/players`).once('value').then(snap => {
-                const players = Object.keys(snap.val() || {});
-                const scoreUpdates = {}; const rwUpdates = {};
+            if (!duelRoomCode || duelStartInProgress) return;
+            duelStartInProgress = true;
+            const startBtn = document.getElementById('duel-start-btn');
+            if (startBtn) startBtn.disabled = true;
+            db.ref(`duels/${duelRoomCode}`).transaction(room => {
+                if (!room || !room.players) return room;
+                if (room.status === 'starting' || room.status === 'playing') return;
+                const players = Object.keys(room.players || {});
+                if (players.length < 2) return;
+                const scoreUpdates = {};
+                const rwUpdates = {};
                 players.forEach(n => { scoreUpdates[n] = 0; rwUpdates[n] = 0; });
-                duelRoundWins    = rwUpdates;
+                room.scores = scoreUpdates;
+                room.roundWins = rwUpdates;
+                room.currentRound = 1;
+                room.relayScores = null;
+                room.roundDriver = duelMyName;
+                room.winner = null;
+                room.roundCounter = 0;
+                room.matchId = Date.now();
+                room.status = 'starting';
+                return room;
+            }, (error, committed, snap) => {
+                duelStartInProgress = false;
+                if (startBtn) startBtn.disabled = false;
+                if (error || !committed) return;
+                const room = snap.val() || {};
+                const players = Object.keys(room.players || {});
+                duelRoundWins    = room.roundWins || {};
                 duelCurrentRound = 1;
                 duelRelaySlot    = 0;
                 duelRelayScores  = {};
                 players.forEach(n => duelRelayScores[n] = []);
                 duelPlayerNames  = players;
-                db.ref(`duels/${duelRoomCode}`).update({
-                    scores:       scoreUpdates,
-                    roundWins:    rwUpdates,
-                    currentRound: 1,
-                    relayScores:  null, // clear saved slot scores
-                    roundDriver:  duelMyName,
-                    winner:       null,
-                    matchId:      Date.now()
-                });
             });
         }
 
@@ -2657,6 +2999,9 @@
             // duelLastRoundCounter already prevents duplicate triggers for the same round.
             // We do NOT guard on duelState here — doing so blocked the non-driver from
             // re-entering after their local state got out of sync.
+            clearDuelTimers();
+            const roundToken = ++duelRoundToken;
+            duelMatchResultShown = false;
             duelState = 'countdown';
 
             // Clear previous arena-specific listeners
@@ -2798,19 +3143,21 @@
                     newBtn.addEventListener(ev, e => { e.preventDefault(); handleDuelTap(); });
                 }
 
-                runDuelCountdown();
+                if (roundToken !== duelRoundToken) return;
+                runDuelCountdown(roundToken);
             });
             // NOTE: tap button rebind is now inside the promise above — do NOT rebind here
         }
 
-        function runDuelCountdown() {
+        function runDuelCountdown(roundToken) {
             // Skip the 3-second countdown — go straight to gameplay.
             // Beeps happen on 3, 2, 1 of the 10-second handoff countdown instead.
             musicFadeTo(MUSIC_VOL_COUNTDOWN, 800);
-            startDuelGameplay();
+            startDuelGameplay(roundToken);
         }
 
-        function startDuelGameplay() {
+        function startDuelGameplay(roundToken) {
+            if (roundToken !== duelRoundToken) return;
             duelState = 'playing';
             const duration = duelIsRelay ? DUEL_RELAY_SLOT_DUR : DUEL_DURATION;
             const timerEl  = document.getElementById('duel-timer');
@@ -2819,6 +3166,7 @@
             playBeep('go');
             musicFadeTo(MUSIC_VOL_PLAYING, 800);
             duelPendingTaps   = 0;
+            clearInterval(duelFlushInterval);
             duelFlushInterval = setInterval(flushDuelTaps, 300);
 
             if (duelIsRelay) {
@@ -2837,16 +3185,20 @@
             }
 
             let timeLeft = duration;
-            setTimeout(() => {
+            clearTimeout(duelGameplayStartTimeout);
+            duelGameplayStartTimeout = setTimeout(() => {
+                if (roundToken !== duelRoundToken) return;
                 timerEl.className = 'duel-timer';
                 timerEl.innerText = timeLeft;
+                clearInterval(duelGameInterval);
                 duelGameInterval = setInterval(() => {
+                    if (roundToken !== duelRoundToken) { clearInterval(duelGameInterval); return; }
                     timeLeft--;
                     timerEl.innerText = timeLeft;
                     if (timeLeft <= 3) timerEl.className = 'duel-timer countdown';
                     if (timeLeft <= 0) {
                         clearInterval(duelGameInterval);
-                        duelIsRelay ? endDuelRelaySlot() : endDuel();
+                        duelIsRelay ? endDuelRelaySlot(roundToken) : endDuel(roundToken);
                     }
                 }, 1000);
             }, 800);
@@ -2867,7 +3219,8 @@
             }
         }
 
-        function endDuelRelaySlot() {
+        function endDuelRelaySlot(roundToken) {
+            if (roundToken !== duelRoundToken || duelState !== 'playing') return;
             duelState = 'finished';
             clearInterval(duelFlushInterval);
             clearInterval(duelGameInterval);
@@ -2880,8 +3233,11 @@
             document.getElementById('duel-tap-container').style.display = 'none';
 
             // Snapshot slot scores
-            setTimeout(() => {
+            clearTimeout(duelSlotScoreTimeout);
+            duelSlotScoreTimeout = setTimeout(() => {
+                if (roundToken !== duelRoundToken) return;
                 db.ref(`duels/${duelRoomCode}/scores`).once('value').then(snap => {
+                    if (roundToken !== duelRoundToken) return;
                     const scores = snap.val() || {};
                     duelPlayerNames.forEach(name => {
                         if (!duelRelayScores[name]) duelRelayScores[name] = [];
@@ -2890,15 +3246,16 @@
                     updateDuelRelayTotals();
 
                     if (duelRelaySlot >= DUEL_RELAY_SLOTS) {
-                        endDuelRelayMatch();
+                        endDuelRelayMatch(roundToken);
                     } else {
-                        showDuelRelayHandoff();
+                        showDuelRelayHandoff(roundToken);
                     }
                 });
             }, 400);
         }
 
-        function showDuelRelayHandoff() {
+        function showDuelRelayHandoff(roundToken) {
+            if (roundToken !== duelRoundToken) return;
             musicFadeTo(MUSIC_VOL_HANDOFF, 1000);
 
             const scoresHTML = duelPlayerNames.map((name, i) => {
@@ -2922,7 +3279,9 @@
             handoffEl.innerText = t;
             playBeep('count', 5);
 
+            clearInterval(duelRelayHandoffInterval);
             duelRelayHandoffInterval = setInterval(() => {
+                if (roundToken !== duelRoundToken) { clearInterval(duelRelayHandoffInterval); return; }
                 t--;
                 timerEl.innerText   = t;
                 handoffEl.innerText = t;
@@ -2939,9 +3298,12 @@
                     playBeep('go');
                     musicFadeTo(MUSIC_VOL_PLAYING, 800);
                     // Brief GO moment before next slot fires
-                    setTimeout(() => {
+                    clearTimeout(duelHandoffNextTimeout);
+                    duelHandoffNextTimeout = setTimeout(() => {
+                        if (roundToken !== duelRoundToken) return;
                         // Only driver triggers next slot
                         db.ref(`duels/${duelRoomCode}/roundDriver`).once('value').then(snap => {
+                            if (roundToken !== duelRoundToken) return;
                             if (snap.val() === duelMyName) {
                                 const nextSlot = duelRelaySlot + 1;
                                 const relayScoresUpdate = {};
@@ -2961,7 +3323,8 @@
             }, 1000);
         }
 
-        function endDuelRelayMatch() {
+        function endDuelRelayMatch(roundToken) {
+            if (roundToken !== duelRoundToken || duelMatchResultShown) return;
             musicFadeTo(MUSIC_VOL_WINNER, 2000);
             // Find winner by total
             let maxTotal = -1, winner = null;
@@ -2973,7 +3336,8 @@
             showDuelMatchResult(winner);
         }
 
-        function endDuel() {
+        function endDuel(roundToken) {
+            if (roundToken !== duelRoundToken || duelState !== 'playing') return;
             duelState = 'finished';
             clearInterval(duelFlushInterval);
             clearInterval(duelGameInterval);
@@ -2985,8 +3349,11 @@
             timerEl.style.color = '#555';
             document.getElementById('duel-tap-container').style.display = 'none';
 
-            setTimeout(() => {
+            clearTimeout(duelRoundScoreTimeout);
+            duelRoundScoreTimeout = setTimeout(() => {
+                if (roundToken !== duelRoundToken) return;
                 db.ref(`duels/${duelRoomCode}/scores`).once('value').then(snap => {
+                    if (roundToken !== duelRoundToken) return;
                     const scores = snap.val() || {};
                     let maxScore = -1, roundWinner = null;
                     Object.entries(scores).forEach(([name, score]) => {
@@ -2997,7 +3364,7 @@
                     const isTie = vals.length === 2 && vals[0] === vals[1];
 
                     if (isTie) {
-                        showDuelRoundFlash(null, duelCurrentRound);
+                        showDuelRoundFlash(null, duelCurrentRound, roundToken);
                         return;
                     }
 
@@ -3007,6 +3374,7 @@
                     duelRoundWins[roundWinner] = newWins;
 
                     db.ref(`duels/${duelRoomCode}/roundDriver`).once('value').then(driverSnap => {
+                        if (roundToken !== duelRoundToken) return;
                         if (driverSnap.val() === duelMyName) {
                             db.ref(`duels/${duelRoomCode}/roundWins/${roundWinner}`).set(newWins);
                         }
@@ -3015,14 +3383,15 @@
                             showDuelMatchResult(roundWinner);
                         } else {
                             duelCurrentRound++;
-                            showDuelRoundFlash(roundWinner, duelCurrentRound - 1);
+                            showDuelRoundFlash(roundWinner, duelCurrentRound - 1, roundToken);
                         }
                     });
                 });
             }, 500);
         }
 
-        function showDuelRoundFlash(winner, roundNum) {
+        function showDuelRoundFlash(winner, roundNum, roundToken) {
+            if (roundToken !== duelRoundToken) return;
             const flashEl = document.getElementById('duel-round-flash');
             if (!winner) {
                 flashEl.innerHTML = `
@@ -3045,10 +3414,13 @@
             // Only the designated round driver triggers the next round.
             // We check Firebase to confirm, avoiding the race where both
             // non-spectator players both call startNextRound().
-            setTimeout(() => {
+            clearTimeout(duelRoundFlashTimeout);
+            duelRoundFlashTimeout = setTimeout(() => {
+                if (roundToken !== duelRoundToken) return;
                 flashEl.classList.add('hidden');
                 if (!duelIsSpectator) {
                     db.ref(`duels/${duelRoomCode}/roundDriver`).once('value').then(snap => {
+                        if (roundToken !== duelRoundToken) return;
                         if (snap.val() === duelMyName) {
                             startNextRound();
                         }
@@ -3059,6 +3431,16 @@
         }
 
         function showDuelMatchResult(winner) {
+            if (duelMatchResultShown) return;
+            duelMatchResultShown = true;
+            clearInterval(duelFlushInterval);
+            clearInterval(duelGameInterval);
+            clearInterval(duelRelayHandoffInterval);
+            clearTimeout(duelGameplayStartTimeout);
+            clearTimeout(duelSlotScoreTimeout);
+            clearTimeout(duelHandoffNextTimeout);
+            clearTimeout(duelRoundScoreTimeout);
+            clearTimeout(duelRoundFlashTimeout);
             const resultEl    = document.getElementById('duel-result');
             const winnerNameEl= document.getElementById('duel-winner-name');
             const titleEl     = document.querySelector('.duel-result-title');
@@ -3099,6 +3481,8 @@
 
         function rematchDuel() {
             if (!duelRoomCode) return;
+            clearDuelTimers();
+            duelRoundToken++;
             document.getElementById('duel-result').classList.add('hidden');
             document.getElementById('duel-round-flash').classList.add('hidden');
             document.getElementById('duel-handoff').classList.add('hidden');
@@ -3108,17 +3492,17 @@
             duelLastRoundCounter = 0;
             duelRelaySlot        = 0;
             duelRelayScores      = {};
-            clearInterval(duelRelayHandoffInterval);
+            duelMatchResultShown = false;
             // startDuel writes a new matchId timestamp — all devices' listeners
             // fire immediately and enter the arena fresh. No counter juggling needed.
             startDuel();
         }
 
         function exitDuel() {
+            duelRoundToken++;
             duelListeners.forEach(l => l.ref.off(l.event, l.fn));
             duelListeners = [];
-            clearInterval(duelFlushInterval);
-            clearInterval(duelGameInterval);
+            clearDuelTimers();
             if (!duelIsSpectator && duelRoomCode && duelMyName) {
                 db.ref(`duels/${duelRoomCode}/players/${duelMyName}`).remove();
                 db.ref(`duels/${duelRoomCode}/scores/${duelMyName}`).remove();
@@ -3133,7 +3517,8 @@
             duelRoundWins = {}; duelCurrentRound = 1; duelPlayerNames = [];
             duelLastRoundCounter = 0;
             duelIsRelay = false; duelRelaySlot = 0; duelRelayScores = {};
-            clearInterval(duelRelayHandoffInterval);
+            duelMatchResultShown = false;
+            duelStartInProgress = false;
             musicFadeTo(MUSIC_VOL_IDLE, 2000); // back to background level
             document.getElementById('duel-screen').classList.add('hidden');
             document.getElementById('setup').classList.remove('hidden');

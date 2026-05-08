@@ -7,13 +7,13 @@ A real-time, neon-themed tapping tournament game built with vanilla HTML/CSS/JS 
 ### For Players (Phones)
 1. Open the app URL on your phone
 2. Select your team (Aranui, Tainui, Mahi Tahi, Kia Kaha, Te Aroha, Year 9, Staff)
-3. Wait for "ENGAGED" — then tap as fast as you can!
+3. Wait for "TAP!" — then tap as fast as you can!
 4. Your taps-per-second (TPS) is shown during standby for practice
 
 ### For the Host (Big Screen)
-1. Click **HOST CONTROLS** → enter the admin PIN
+1. Click **ADMIN** → enter the admin PIN
 2. Select which teams are active for this round
-3. Press **ENGAGE** (or Spacebar) to start the countdown + round
+3. Press **START MATCH** (or Spacebar) to start the countdown + round
 4. The live scoreboard shows all team bars racing in real-time
 5. Press **H** to toggle HUD (hide admin controls for a cleaner projection)
 
@@ -29,7 +29,7 @@ A self-contained head-to-head mode that runs outside the tournament. No host or 
 1. Click **⚡ 1v1 PRACTICE DUEL** from the team selection screen
 2. **CREATE** a room (generates a 4-character code) or **JOIN** with an existing code
 3. Once both players are in, either can hit **START DUEL**
-4. 3-second countdown → 10-second tapping round → winner announced
+4. The default relay format runs 3 × 20-second tapping slots with handoff breaks between slots
 5. **REMATCH** to go again, or **EXIT** to return
 
 All duel data lives under `duels/{roomCode}/` in Firebase — completely isolated from tournament data.
