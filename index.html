@@ -333,6 +333,26 @@
         .light.active { background: #ff0000; box-shadow: 0 0 20px #ff0000; border-color: #fff; }
         #race-lights.go-signal .light { background: #00ff00 !important; box-shadow: 0 0 40px #00ff00 !important; border-color: #fff; transform: scale(1.1); }
 
+        .show-match-banner {
+            display: none; width: 100%; text-align: center; flex-shrink: 0;
+            padding: 0 40px 6px;
+        }
+        .show-match-eyebrow {
+            color: var(--gold); font-size: clamp(0.65rem, 1.1vw, 1rem);
+            letter-spacing: 8px; font-weight: 900; margin-bottom: 4px;
+            text-shadow: 0 0 16px rgba(255,215,0,0.6);
+        }
+        .show-match-title {
+            color: #fff; font-size: clamp(1.3rem, 3vw, 3.6rem); font-weight: 900;
+            letter-spacing: 6px; text-transform: uppercase;
+            text-shadow: 0 0 28px rgba(255,255,255,0.5);
+            max-width: 94vw; margin: 0 auto; overflow-wrap: anywhere;
+        }
+        .show-match-title .vs {
+            color: var(--cyan); padding: 0 0.35em;
+            text-shadow: 0 0 22px var(--cyan);
+        }
+
         /* Match Setup Panel */
         #match-setup {
             width: 100%;
@@ -397,10 +417,21 @@
             pointer-events: none; z-index: 0; user-select: none;
         }
 
+        body.immersive .host-hud-bar,
         body.immersive #match-setup,
         body.immersive #controls,
         body.immersive .immersive-hint { display: none !important; }
         body.immersive { cursor: none; }
+        body.immersive #host { justify-content: flex-start; }
+        body.immersive .show-match-banner { display: block; }
+        body.immersive #timer-display {
+            font-size: clamp(5.5rem, 11vw, 12rem);
+            padding-top: 24px;
+        }
+        body.immersive #scoreboard.match-active {
+            padding: 18px clamp(50px, 6vw, 110px) 28px;
+            gap: clamp(32px, 5vh, 70px);
+        }
 
         .lane {
             display: grid;
@@ -898,6 +929,23 @@
             font-size: clamp(0.5rem,0.9vw,0.75rem); color: #444; letter-spacing: 3px;
         }
         .relay-slot-label.active { color: var(--orange); }
+        .show-slot-headline {
+            display: none; text-align: center; flex-shrink: 0;
+            color: var(--orange); font-size: clamp(1.1rem, 2.8vw, 3.2rem);
+            font-weight: 900; letter-spacing: 10px; text-transform: uppercase;
+            text-shadow: 0 0 28px rgba(255,170,0,0.55);
+            margin-top: 6px;
+        }
+        body.immersive .relay-header {
+            gap: 44px; padding: 0 0 4px;
+        }
+        body.immersive .relay-slot-dot {
+            width: clamp(22px, 2.6vw, 42px); height: clamp(22px, 2.6vw, 42px);
+        }
+        body.immersive .relay-slot-label {
+            font-size: clamp(0.6rem, 1.1vw, 1rem);
+        }
+        body.immersive .show-slot-headline { display: block; }
 
         /* Cumulative total shown to the right of each score */
         .relay-total {
@@ -975,6 +1023,66 @@
         @keyframes urgentPulse {
             0%, 100% { transform: scale(1); }
             50%       { transform: scale(1.05); }
+        }
+
+        #match-intro-overlay,
+        #go-burst {
+            position: absolute; inset: 0; z-index: 650;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background:
+                radial-gradient(circle at center, rgba(0,243,255,0.14), rgba(0,0,0,0.92) 56%, rgba(0,0,0,0.98) 100%);
+            text-align: center; pointer-events: none;
+        }
+        .match-intro-eyebrow {
+            color: var(--gold); font-weight: 900; font-size: clamp(0.9rem, 1.7vw, 1.6rem);
+            letter-spacing: 14px; margin-bottom: 24px;
+            text-shadow: 0 0 24px rgba(255,215,0,0.65);
+            animation: introRise 0.65s ease-out both;
+        }
+        .match-intro-title {
+            color: #fff; font-size: clamp(2.8rem, 8vw, 8.5rem); font-weight: 900;
+            line-height: 0.92; letter-spacing: 8px; text-transform: uppercase;
+            text-shadow: 0 0 38px rgba(255,255,255,0.55);
+            animation: introSlam 0.75s ease-out both;
+            max-width: 94vw; overflow-wrap: anywhere;
+        }
+        .match-intro-title .vs {
+            color: var(--cyan); padding: 0 0.28em;
+            text-shadow: 0 0 42px var(--cyan), 0 0 70px rgba(0,243,255,0.45);
+        }
+        .match-intro-format {
+            margin-top: 28px; color: #777; font-size: clamp(0.75rem, 1.4vw, 1.2rem);
+            letter-spacing: 8px; text-transform: uppercase;
+            animation: introRise 0.8s 0.16s ease-out both;
+        }
+        #go-burst {
+            z-index: 640;
+            background: radial-gradient(circle at center, rgba(57,255,20,0.26), rgba(0,0,0,0.2) 46%, rgba(0,0,0,0) 72%);
+            animation: goBurstFade 0.9s ease-out both;
+        }
+        .go-burst-text {
+            color: var(--green); font-size: clamp(7rem, 22vw, 18rem); font-weight: 900;
+            letter-spacing: 10px; text-shadow: 0 0 40px var(--green), 0 0 100px rgba(57,255,20,0.75);
+            animation: goSlam 0.9s cubic-bezier(0.1, 0.9, 0.2, 1) both;
+        }
+        @keyframes introRise {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes introSlam {
+            0% { opacity: 0; transform: scale(0.82); filter: blur(6px); }
+            70% { opacity: 1; transform: scale(1.04); filter: blur(0); }
+            100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+        @keyframes goSlam {
+            0% { opacity: 0; transform: scale(0.45); filter: blur(8px); }
+            24% { opacity: 1; transform: scale(1.08); filter: blur(0); }
+            100% { opacity: 0; transform: scale(1.32); filter: blur(2px); }
+        }
+        @keyframes goBurstFade {
+            0% { opacity: 0; }
+            18%, 72% { opacity: 1; }
+            100% { opacity: 0; }
         }
 
         /* ── Portrait (player iPads locked to portrait) ─────────────────────────
@@ -1207,10 +1315,10 @@
         <div class="bracket-scroll-outer">
         <div class="bracket-wrapper">
             <div class="round round-qtr">
-                <div class="match-group"><div class="match"><input class="bracket-input" id="b-q1-a" onchange="saveBracket(this.id,this.value)" placeholder="STAFF"><input class="bracket-input" id="b-q1-b" onchange="saveBracket(this.id,this.value)" placeholder="STAFF"><div class="connector-right"></div></div></div>
-                <div class="match-group"><div class="match"><input class="bracket-input" id="b-q2-a" onchange="saveBracket(this.id,this.value)" placeholder="TEAM 3"><input class="bracket-input" id="b-q2-b" onchange="saveBracket(this.id,this.value)" placeholder="TEAM 4"><div class="connector-right"></div></div></div>
-                <div class="match-group"><div class="match"><input class="bracket-input" id="b-q3-a" onchange="saveBracket(this.id,this.value)" placeholder="TEAM 5"><input class="bracket-input" id="b-q3-b" onchange="saveBracket(this.id,this.value)" placeholder="BYE"><div class="connector-right"></div></div></div>
-                <div class="match-group"><div class="match"><input class="bracket-input" id="b-q4-a" onchange="saveBracket(this.id,this.value)" placeholder="BYE"><input class="bracket-input" id="b-q4-b" onchange="saveBracket(this.id,this.value)" placeholder="BYE"><div class="connector-right"></div></div></div>
+                <div class="match-group"><div class="match"><input class="bracket-input" id="b-q1-a" onchange="saveBracket(this.id,this.value)" value="STAFF-M" placeholder="STAFF-M"><input class="bracket-input" id="b-q1-b" onchange="saveBracket(this.id,this.value)" value="STAFF-F" placeholder="STAFF-F"><div class="connector-right"></div></div></div>
+                <div class="match-group"><div class="match"><input class="bracket-input" id="b-q2-a" onchange="saveBracket(this.id,this.value)" value="Tainui" placeholder="Tainui"><input class="bracket-input" id="b-q2-b" onchange="saveBracket(this.id,this.value)" value="Aranui" placeholder="Aranui"><div class="connector-right"></div></div></div>
+                <div class="match-group"><div class="match"><input class="bracket-input" id="b-q3-a" onchange="saveBracket(this.id,this.value)" value="Mahi Tahi" placeholder="Mahi Tahi"><input class="bracket-input" id="b-q3-b" onchange="saveBracket(this.id,this.value)" value="Te Aroha" placeholder="Te Aroha"><div class="connector-right"></div></div></div>
+                <div class="match-group"><div class="match"><input class="bracket-input" id="b-q4-a" onchange="saveBracket(this.id,this.value)" value="YEAR 9" placeholder="YEAR 9"><input class="bracket-input" id="b-q4-b" onchange="saveBracket(this.id,this.value)" value="Kia Kaha" placeholder="Kia Kaha"><div class="connector-right"></div></div></div>
             </div>
             <div class="round round-semi">
                 <div class="match-group two-into-one"><div class="connector-left"></div><div class="match single"><input class="bracket-input" id="b-s1-a" onchange="saveBracket(this.id,this.value)" placeholder="STAFF"><input class="bracket-input" id="b-s1-b" onchange="saveBracket(this.id,this.value)" placeholder="WINNER Q2"><div class="connector-right"></div></div></div>
@@ -1251,6 +1359,16 @@
             </div>
         </div>
 
+        <div id="match-intro-overlay" class="hidden">
+            <div class="match-intro-eyebrow">NEXT MATCH</div>
+            <div class="match-intro-title" id="match-intro-title">TEAM A <span class="vs">VS</span> TEAM B</div>
+            <div class="match-intro-format" id="match-intro-format">RELAY 3 x 20 SECONDS</div>
+        </div>
+
+        <div id="go-burst" class="hidden">
+            <div class="go-burst-text">GO</div>
+        </div>
+
         <!-- Top HUD Bar — compact status strip -->
         <div class="host-hud-bar">
             <div class="hud-live-badge">⬤ LIVE</div>
@@ -1279,10 +1397,15 @@
             <div id="timer-display">20</div>
         </div>
 
+        <div class="show-match-banner" id="show-match-banner">
+            <div class="show-match-eyebrow">LIVE MATCH</div>
+            <div class="show-match-title" id="show-match-title">AWAITING MATCH</div>
+        </div>
+
         <!-- Match Setup Panel -->
         <div id="match-setup">
             <label class="setup-checkbox" style="color:var(--cyan);font-size:0.8rem;">
-                <input type="checkbox" id="chk-auto-director">
+                <input type="checkbox" id="chk-auto-director" onchange="handleAutoBracketToggle()">
                 AUTO BRACKET (LOAD NEXT)
             </label>
             <span style="color:#555;letter-spacing:2px;margin-left:10px;">|</span>
@@ -1296,7 +1419,7 @@
             <label class="setup-checkbox"><input type="checkbox" id="chk-staff"    onchange="updateActiveTeams()"> Staff</label>
             <label class="setup-checkbox"><input type="checkbox" id="chk-staff-m"  onchange="updateActiveTeams()"> Staff-M</label>
             <label class="setup-checkbox"><input type="checkbox" id="chk-staff-f"  onchange="updateActiveTeams()"> Staff-F</label>
-            <div class="immersive-hint" style="width:100%;text-align:center;color:#333;font-size:0.6rem;margin-top:2px;">H = TOGGLE HUD</div>
+            <div class="immersive-hint" style="width:100%;text-align:center;color:#333;font-size:0.6rem;margin-top:2px;">H = SHOW MODE</div>
         </div>
 
         <div id="scoreboard"></div>
@@ -1508,6 +1631,28 @@
             'b-f1-a': '', 'b-f1-b': '', 'b-winner': ''
         };
 
+        function getBracketDataForEvent(rawData = {}) {
+            const hasBracketData = BRACKET_FIELDS.some(id => (rawData[id] || '').trim());
+            const data = hasBracketData ? { ...OFFICIAL_BRACKET, ...rawData } : { ...OFFICIAL_BRACKET };
+            const q1A = (data['b-q1-a'] || '').trim().toLowerCase();
+            const q1B = (data['b-q1-b'] || '').trim().toLowerCase();
+            const q2A = (data['b-q2-a'] || '').trim().toLowerCase();
+            const q2B = (data['b-q2-b'] || '').trim().toLowerCase();
+            const q1Target = (data['b-s1-a'] || '').trim();
+            const legacyStaffOpener = q1A === 'staff' && q1B === 'staff' && !q1Target;
+            const legacyTemplate = legacyStaffOpener && (q2A.startsWith('team') || q2B.startsWith('team'));
+
+            if (!hasBracketData || legacyTemplate) {
+                return { data: { ...OFFICIAL_BRACKET }, shouldPersist: true };
+            }
+            if (legacyStaffOpener) {
+                data['b-q1-a'] = OFFICIAL_BRACKET['b-q1-a'];
+                data['b-q1-b'] = OFFICIAL_BRACKET['b-q1-b'];
+                return { data, shouldPersist: true };
+            }
+            return { data, shouldPersist: false };
+        }
+
         let gameInterval, countdownInterval;
         let isSequenceRunning = false;
         let audioCtx;
@@ -1515,6 +1660,7 @@
         let bracketReturnScreen = 'setup';
         let bracketListenerAttached = false;
         let pendingBracketAdvance = null;
+        let presentationSequenceToken = 0;
 
         // ─── SETUP SCREEN LISTENERS ───────────────────────────────────────────────
         db.ref('game/activeTeams').on('value', snap => {
@@ -1569,8 +1715,9 @@
         function saveBracket(id, val)  { if (!isHost) return; db.ref(`bracket/${id}`).set(val); }
 
         function renderBracket(data) {
+            const { data: source } = getBracketDataForEvent(data);
             document.querySelectorAll('.bracket-input').forEach(input => {
-                input.value = data[input.id] || '';
+                input.value = source[input.id] || '';
             });
         }
 
@@ -1952,7 +2099,7 @@
             teams.forEach(t => {
                 const modeLabel = isRelayMode() ? 'RELAY 3×20s' : 'PRACTICE 20s';
                 board.innerHTML += `
-<div class="lane" id="lane-${t.id}" style="z-index:1;">
+<div class="lane inactive" id="lane-${t.id}" style="z-index:1;">
     <div class="lane-info">
         <div class="lane-label" style="color:var(--${t.color})">${t.name}</div>
         <div class="lane-mode-label" id="mode-lbl-${t.id}" style="font-size:0.6rem;color:#444;letter-spacing:3px;margin-bottom:2px;">${modeLabel}</div>
@@ -1969,6 +2116,7 @@
             });
 
             syncHostActiveTeamsFromFirebase();
+            updateShowMatchBanner();
             // Toggle relay-mode class for CSS-driven win dot hiding
             document.getElementById('scoreboard').classList.toggle('relay-mode', isRelayMode());
 
@@ -1998,54 +2146,117 @@
                 if (e.code === 'KeyR') resetScores();
             });
 
-            // When tournament mode is toggled, update button labels, timer and scoreboard labels
-            document.getElementById('chk-auto-director').addEventListener('change', () => {
-                const relay = isRelayMode();
-                document.getElementById('btn-engage').innerText = relay ? 'START MATCH (Space)' : 'START MATCH (Space)';
-                if (!isSequenceRunning) {
-                    document.getElementById('timer-display').innerText = relay ? RELAY_SLOT_DURATION : STANDARD_DURATION;
-                }
-                const modeLabel = relay ? 'RELAY 3×20s' : 'PRACTICE 20s';
-                teams.forEach(t => {
-                    const el = document.getElementById(`mode-lbl-${t.id}`);
-                    if (el) el.innerText = modeLabel;
-                });
-                evaluateBracketState();
+            const autoDirector = document.getElementById('chk-auto-director');
+            if (autoDirector) autoDirector.onchange = handleAutoBracketToggle;
+            if (document.getElementById('chk-auto-director')?.checked) evaluateBracketState();
+        }
+
+        function handleAutoBracketToggle() {
+            const relay = isRelayMode();
+            const engage = document.getElementById('btn-engage');
+            if (engage) engage.innerText = 'START MATCH (Space)';
+            if (!isSequenceRunning) {
+                const timer = document.getElementById('timer-display');
+                if (timer) timer.innerText = relay ? RELAY_SLOT_DURATION : STANDARD_DURATION;
+            }
+            const modeLabel = relay ? 'RELAY 3×20s' : 'PRACTICE 20s';
+            teams.forEach(t => {
+                const el = document.getElementById(`mode-lbl-${t.id}`);
+                if (el) el.innerText = modeLabel;
             });
+            evaluateBracketState();
+        }
+
+        function applyActiveTeamIds(activeIds, persist = false) {
+            const activeSet = new Set(activeIds);
+            const updates = {};
+            let activeCount = 0;
+            teams.forEach(t => {
+                const isChecked = activeSet.has(t.id);
+                if (isChecked) activeCount++;
+                const chk = document.getElementById(`chk-${t.id}`);
+                if (chk) chk.checked = isChecked;
+                const lane = document.getElementById(`lane-${t.id}`);
+                if (lane) lane.classList.toggle('inactive', !isChecked);
+                if (persist) updates[`game/activeTeams/${t.id}`] = isChecked;
+            });
+            // Scale up scoreboard when exactly 2 teams are active (projector mode)
+            const board = document.getElementById('scoreboard');
+            if (board) board.classList.toggle('match-active', activeCount === 2);
+            updateShowMatchBanner();
+            return persist ? db.ref().update(updates) : Promise.resolve();
         }
 
         function updateActiveTeams() {
             if (!isHost) return;
-            const updates = {};
-            let activeCount = 0;
-            teams.forEach(t => {
-                const isChecked = document.getElementById(`chk-${t.id}`).checked;
-                if (isChecked) activeCount++;
-                updates[`game/activeTeams/${t.id}`] = isChecked;
-                const lane = document.getElementById(`lane-${t.id}`);
-                if (lane) lane.classList.toggle('inactive', !isChecked);
-            });
-            db.ref().update(updates);
-            // Scale up scoreboard when exactly 2 teams are active (projector mode)
-            const board = document.getElementById('scoreboard');
-            if (board) board.classList.toggle('match-active', activeCount === 2);
+            const activeIds = teams
+                .filter(t => document.getElementById(`chk-${t.id}`)?.checked)
+                .map(t => t.id);
+            applyActiveTeamIds(activeIds, true);
         }
 
         function syncHostActiveTeamsFromFirebase() {
             db.ref('game/activeTeams').once('value').then(snap => {
+                if (document.getElementById('chk-auto-director')?.checked) {
+                    evaluateBracketState();
+                    return;
+                }
                 const active = snap.val() || {};
-                let activeCount = 0;
-                teams.forEach(t => {
-                    const isActive = active[t.id] === true;
-                    if (isActive) activeCount++;
-                    const chk = document.getElementById(`chk-${t.id}`);
-                    if (chk) chk.checked = isActive;
-                    const lane = document.getElementById(`lane-${t.id}`);
-                    if (lane) lane.classList.toggle('inactive', !isActive);
-                });
-                const board = document.getElementById('scoreboard');
-                if (board) board.classList.toggle('match-active', activeCount === 2);
+                const activeIds = teams
+                    .filter(t => active[t.id] === true)
+                    .map(t => t.id);
+                applyActiveTeamIds(activeIds, false);
             });
+        }
+
+        function getActiveTeams() {
+            return teams.filter(t => document.getElementById(`chk-${t.id}`)?.checked);
+        }
+
+        function getMatchTitleHTML() {
+            const active = getActiveTeams();
+            if (active.length === 2) return `${active[0].name} <span class="vs">VS</span> ${active[1].name}`;
+            if (active.length === 1) return active[0].name;
+            return 'AWAITING MATCH';
+        }
+
+        function updateShowMatchBanner() {
+            const title = document.getElementById('show-match-title');
+            if (title) title.innerHTML = getMatchTitleHTML();
+        }
+
+        function showMatchIntro(onComplete) {
+            updateShowMatchBanner();
+            const overlay = document.getElementById('match-intro-overlay');
+            const title = document.getElementById('match-intro-title');
+            const format = document.getElementById('match-intro-format');
+            if (!overlay || !title || !format) {
+                onComplete();
+                return;
+            }
+            title.innerHTML = getMatchTitleHTML();
+            format.innerText = isRelayMode() ? 'RELAY 3 x 20 SECONDS' : '20 SECOND SPEED ROUND';
+            overlay.classList.remove('hidden');
+            overlay.style.animation = 'none';
+            void overlay.offsetWidth;
+            overlay.style.animation = '';
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                onComplete();
+            }, 2300);
+        }
+
+        function showGoBurst() {
+            const burst = document.getElementById('go-burst');
+            if (!burst) return;
+            burst.classList.remove('hidden');
+            burst.style.animation = 'none';
+            const text = burst.querySelector('.go-burst-text');
+            if (text) text.style.animation = 'none';
+            void burst.offsetWidth;
+            burst.style.animation = '';
+            if (text) text.style.animation = '';
+            setTimeout(() => burst.classList.add('hidden'), 900);
         }
 
         function determineWinner() {
@@ -2169,7 +2380,7 @@
         }
 
         function getActiveTeamIds() {
-            return teams.filter(t => document.getElementById(`chk-${t.id}`).checked).map(t => t.id);
+            return teams.filter(t => document.getElementById(`chk-${t.id}`)?.checked).map(t => t.id);
         }
 
         // ─── SLOT INDICATOR UI ────────────────────────────────────────────────────
@@ -2177,7 +2388,14 @@
             // Remove old header if exists
             const old = document.getElementById('relay-header');
             if (old) old.remove();
+            const oldHeadline = document.getElementById('show-slot-headline');
+            if (oldHeadline) oldHeadline.remove();
             if (!isRelayMode()) return;
+
+            const headline = document.createElement('div');
+            headline.className = 'show-slot-headline';
+            headline.id = 'show-slot-headline';
+            headline.innerText = `SLOT 1 OF ${RELAY_SLOTS}`;
 
             const header = document.createElement('div');
             header.className = 'relay-header';
@@ -2191,6 +2409,7 @@
             }
             // Insert before scoreboard
             const scoreboard = document.getElementById('scoreboard');
+            scoreboard.parentNode.insertBefore(headline, scoreboard);
             scoreboard.parentNode.insertBefore(header, scoreboard);
         }
 
@@ -2201,6 +2420,10 @@
                 if (!dot) continue;
                 dot.className   = 'relay-slot-dot' + (i < activeSlot ? ' done' : i === activeSlot ? ' active' : '');
                 lbl.className   = 'relay-slot-label' + (i === activeSlot ? ' active' : '');
+            }
+            const headline = document.getElementById('show-slot-headline');
+            if (headline) {
+                headline.innerText = activeSlot > RELAY_SLOTS ? 'MATCH COMPLETE' : `SLOT ${activeSlot} OF ${RELAY_SLOTS}`;
             }
         }
 
@@ -2254,17 +2477,21 @@
         // ─── STANDARD MODE (unchanged) ────────────────────────────────────────────
         function startStandardSequence() {
             resetScores(true); closeWinner();
+            const introToken = ++presentationSequenceToken;
             isSequenceRunning = true;
             setLights(0);
-            musicFadeTo(MUSIC_VOL_COUNTDOWN, 1500); // fade up during countdown
-            let count = 5;
-            document.getElementById('timer-display').style.color = 'var(--yellow)';
-            runCountdownBeat(count);
-            countdownInterval = setInterval(() => {
-                count--;
-                if (count > 0) runCountdownBeat(count);
-                else { clearInterval(countdownInterval); startStandardGameplay(); }
-            }, 1000);
+            showMatchIntro(() => {
+                if (!isSequenceRunning || introToken !== presentationSequenceToken) return;
+                musicFadeTo(MUSIC_VOL_COUNTDOWN, 1500); // fade up during countdown
+                let count = 5;
+                document.getElementById('timer-display').style.color = 'var(--yellow)';
+                runCountdownBeat(count);
+                countdownInterval = setInterval(() => {
+                    count--;
+                    if (count > 0) runCountdownBeat(count);
+                    else { clearInterval(countdownInterval); startStandardGameplay(); }
+                }, 1000);
+            });
         }
         function startStandardGameplay() {
             let timeLeft = STANDARD_DURATION;
@@ -2273,6 +2500,7 @@
             timerDisplay.innerText = 'GO';
             setLights(-1);
             playBeep('go');
+            showGoBurst();
             musicFadeTo(MUSIC_VOL_PLAYING, 800); // full hype
             db.ref('game/status').set('playing');
             setTimeout(() => {
@@ -2298,6 +2526,7 @@
         // ─── RELAY MODE ───────────────────────────────────────────────────────────
         function startRelayMatch() {
             // Full reset
+            const introToken = ++presentationSequenceToken;
             relayCurrentSlot = 0;
             relaySlotScores  = {};
             getActiveTeamIds().forEach(id => relaySlotScores[id] = []);
@@ -2319,7 +2548,10 @@
             updateRelayTotals();
 
             isSequenceRunning = true;
-            startRelaySlotCountdown();
+            showMatchIntro(() => {
+                if (!isSequenceRunning || introToken !== presentationSequenceToken) return;
+                startRelaySlotCountdown();
+            });
         }
 
         function startRelaySlotCountdown() {
@@ -2349,6 +2581,7 @@
             timerDisplay.innerText = 'GO';
             setLights(-1);
             playBeep('go');
+            showGoBurst();
             musicFadeTo(MUSIC_VOL_PLAYING, 800); // full hype
             db.ref('game/status').set('playing');
             setTimeout(() => {
@@ -2462,6 +2695,8 @@
             setTimeout(() => {
                 const old = document.getElementById('relay-header');
                 if (old) old.remove();
+                const oldHeadline = document.getElementById('show-slot-headline');
+                if (oldHeadline) oldHeadline.remove();
                 getActiveTeamIds().forEach(id => {
                     const el = document.getElementById(`relay-total-${id}`);
                     if (el) el.remove();
@@ -2475,11 +2710,14 @@
             closeWinner();
             pendingBracketAdvance = null;
             updateAdvanceWinnerButton();
+            presentationSequenceToken++;
             clearInterval(gameInterval); clearInterval(countdownInterval); clearInterval(relayHandoffInterval);
             isSequenceRunning = false;
             relayCurrentSlot  = 0;
             relaySlotScores   = {};
             document.getElementById('relay-handoff').classList.add('hidden');
+            document.getElementById('match-intro-overlay').classList.add('hidden');
+            document.getElementById('go-burst').classList.add('hidden');
             document.getElementById('timer-display').innerText = RELAY_SLOT_DURATION;
             document.getElementById('timer-display').style.color = '#fff';
             setLights(0);
@@ -2490,6 +2728,8 @@
             // Clean up relay UI
             const old = document.getElementById('relay-header');
             if (old) old.remove();
+            const oldHeadline = document.getElementById('show-slot-headline');
+            if (oldHeadline) oldHeadline.remove();
             getActiveTeamIds().forEach(id => {
                 const el = document.getElementById(`relay-total-${id}`);
                 if (el) el.remove();
@@ -2502,11 +2742,14 @@
             closeWinner();
             pendingBracketAdvance = null;
             updateAdvanceWinnerButton();
+            presentationSequenceToken++;
             clearInterval(gameInterval); clearInterval(countdownInterval); clearInterval(relayHandoffInterval);
             isSequenceRunning = false;
             relayCurrentSlot  = 0;
             relaySlotScores   = {};
             document.getElementById('relay-handoff').classList.add('hidden');
+            document.getElementById('match-intro-overlay').classList.add('hidden');
+            document.getElementById('go-burst').classList.add('hidden');
             document.getElementById('timer-display').innerText = RELAY_SLOT_DURATION;
             document.getElementById('timer-display').style.color = '#fff';
             setLights(0);
@@ -2517,6 +2760,8 @@
             // Clean up relay UI
             const old = document.getElementById('relay-header');
             if (old) old.remove();
+            const oldHeadline = document.getElementById('show-slot-headline');
+            if (oldHeadline) oldHeadline.remove();
             getActiveTeamIds().forEach(id => {
                 const el = document.getElementById(`relay-total-${id}`);
                 if (el) el.remove();
@@ -2541,12 +2786,6 @@
             const isAuto = document.getElementById('chk-auto-director')?.checked;
             if (!isAuto) {
                 targetWins = 2;
-                // Uncheck all teams and clear active state
-                teams.forEach(t => {
-                    const chk = document.getElementById(`chk-${t.id}`);
-                    if (chk) chk.checked = false;
-                });
-                updateActiveTeams();
                 currentDirectorMatch = null;
                 const badge = document.getElementById('host-status');
                 if (badge) { badge.innerText = 'SYSTEM IDLE'; badge.classList.remove('active'); }
@@ -2554,13 +2793,14 @@
             }
 
             db.ref('bracket').once('value').then(snap => {
-                const data = snap.val() || {};
+                const { data, shouldPersist } = getBracketDataForEvent(snap.val() || {});
+                if (shouldPersist) db.ref('bracket').set(data);
                 console.log('=== BRACKET DATA FROM FIREBASE ===', JSON.stringify(data));
 
                 // Sync DOM inputs with Firebase values so bracket screen stays current
-                Object.entries(data).forEach(([key, val]) => {
+                BRACKET_FIELDS.forEach(key => {
                     const el = document.getElementById(key);
-                    if (el) el.value = val || '';
+                    if (el) el.value = data[key] || '';
                 });
 
                 let foundMatch = null;
@@ -2610,18 +2850,12 @@
                 if (t.name.toLowerCase() === teamNameB.toLowerCase()) idB = t.id;
             });
             if (idA && idB) {
-                let needsUpdate = false;
-                teams.forEach(t => {
-                    const chk = document.getElementById(`chk-${t.id}`);
-                    const should = (t.id === idA || t.id === idB);
-                    if (chk.checked !== should) { chk.checked = should; needsUpdate = true; }
-                });
-                if (needsUpdate) { updateActiveTeams(); resetMatch(true); }
-                // Explicitly ensure non-active lanes are hidden
-                teams.forEach(t => {
-                    const lane = document.getElementById(`lane-${t.id}`);
-                    if (lane) lane.classList.toggle('inactive', t.id !== idA && t.id !== idB);
-                });
+                const activeIds = [idA, idB];
+                const needsUpdate = teams.some(t =>
+                    document.getElementById(`chk-${t.id}`)?.checked !== activeIds.includes(t.id)
+                );
+                applyActiveTeamIds(activeIds, true);
+                if (needsUpdate) resetMatch(true);
 
                 // Visual feedback — flash the two activated team labels
                 [idA, idB].forEach(id => {
@@ -2636,6 +2870,7 @@
                 // Update status badge to show which match is up
                 const teamA = teams.find(t => t.id === idA);
                 const teamB = teams.find(t => t.id === idB);
+                updateShowMatchBanner();
                 const badge = document.getElementById('host-status');
                 if (badge) {
                     badge.innerText = `${teamA.name} vs ${teamB.name}`;
