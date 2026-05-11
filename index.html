@@ -209,7 +209,7 @@
         }
         .bracket-wrapper {
             display: flex; justify-content: space-around; align-items: stretch;
-            width: 100%; max-width: 1500px; height: 68vh; margin-top: 10px;
+            width: 100%; max-width: 1500px; height: 68vh; margin: 10px auto 0 auto;
         }
         /* Mobile bracket scroll container */
         .bracket-scroll-outer {
@@ -423,14 +423,142 @@
         body.immersive .immersive-hint { display: none !important; }
         body.immersive { cursor: none; }
         body.immersive #host { justify-content: flex-start; }
-        body.immersive .show-match-banner { display: block; }
-        body.immersive #timer-display {
-            font-size: clamp(5.5rem, 11vw, 12rem);
-            padding-top: 24px;
+        body.immersive .show-match-banner { display: block; padding: 0 40px clamp(14px, 2.4vh, 28px); }
+        body.immersive .show-match-eyebrow {
+            font-size: clamp(0.7rem, 1.2vw, 1.05rem);
+            letter-spacing: 12px;
+            margin-bottom: 8px;
         }
+        body.immersive .show-match-title {
+            font-size: clamp(1.6rem, 3.4vw, 4rem);
+            letter-spacing: 8px;
+        }
+        body.immersive #timer-display {
+            font-size: clamp(4rem, 9vh, 9.5rem);
+            padding-top: 6px;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+        /* Per-lane mode label is fully redundant in show mode — the timer value and
+           the slot indicator above already communicate match format. Suppress it
+           unconditionally (not only when .match-active is set) so it never leaks
+           through during transitions or when only one team is checked. */
+        body.immersive .lane-mode-label { display: none !important; }
+
+        /* In show mode the scoreboard must fit inside whatever vertical space remains
+           after the timer + banner + slot indicator above it. Anchor lanes to the TOP
+           (so any overflow only spills below the viewport, never above the top lane),
+           and size lane content with vh so it scales up on tall projector screens. */
+        body.immersive #scoreboard {
+            min-height: 0;
+            justify-content: flex-start !important;
+            align-content: flex-start;
+        }
+        /* Padding + gap deliberately scale generously with viewport height so the
+           two lanes spread across the available vertical room instead of bunching
+           at the top. The bottom padding doubles as a visual "floor" so any
+           residual excess room reads as deliberate margin, not dead void. */
         body.immersive #scoreboard.match-active {
-            padding: 18px clamp(50px, 6vw, 110px) 28px;
-            gap: clamp(32px, 5vh, 70px);
+            padding: clamp(6px, 1.2vh, 16px) clamp(40px, 5vw, 90px) clamp(40px, 7vh, 110px);
+            gap: clamp(28px, 6.5vh, 90px);
+        }
+        /* PRACTICE MODE (no relay-total injected): keep the 3-column grid but
+           treat column 3 as a small balance gutter. The score lives anchored
+           to the right edge of the track (see .score-text positioning below). */
+        body.immersive #scoreboard.match-active .lane {
+            grid-template-columns: clamp(320px, 28vw, 520px) 1fr clamp(40px, 4vw, 80px);
+            padding: clamp(16px, 2.6vh, 36px) 0;
+            gap: clamp(20px, 2.4vw, 40px);
+            align-items: center;
+        }
+        /* RELAY MODE (relay-total appended as a 4th child): expand to 4 columns
+           so the cumulative-total badge sits cleanly in its own cell instead of
+           wrapping onto an implicit second row. */
+        body.immersive #scoreboard.match-active .lane:has(.relay-total) {
+            grid-template-columns: clamp(320px, 28vw, 520px) 1fr clamp(40px, 4vw, 80px) clamp(120px, 12vw, 200px);
+        }
+        body.immersive #scoreboard.match-active .lane-info {
+            gap: 12px;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        body.immersive #scoreboard.match-active .lane-label {
+            font-size: clamp(2.8rem, 8.5vh, 7.5rem);
+            letter-spacing: 4px;
+            line-height: 0.95;
+        }
+        body.immersive #scoreboard.match-active .track {
+            height: clamp(68px, 11vh, 140px);
+            border-radius: 6px;
+            border-color: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.025);
+            box-shadow: inset 0 0 24px rgba(0,0,0,0.55);
+            overflow: visible;
+        }
+        /* Score numeral — anchor to the right end of the track so it visually
+           sits at the "finish line" rather than floating in an empty column. */
+        body.immersive #scoreboard.match-active .score-text {
+            position: absolute;
+            right: clamp(14px, 1.4vw, 26px);
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: clamp(3.2rem, 9vh, 7rem);
+            line-height: 1;
+            color: #fff;
+            text-shadow: 0 0 18px rgba(255,255,255,0.45), 0 2px 6px rgba(0,0,0,0.9);
+            z-index: 2;
+            pointer-events: none;
+        }
+        /* Win-dots: tone down the harsh white glow that competed with the team
+           label, sit them inline-right below the label, give them a refined
+           team-coloured active state instead of pure white. */
+        body.immersive #scoreboard.match-active .win-dots {
+            gap: 12px; margin-top: 10px;
+        }
+        body.immersive #scoreboard.match-active .dot {
+            width: clamp(16px, 2vh, 28px);
+            height: clamp(16px, 2vh, 28px);
+            border-width: 1.5px;
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.18);
+            box-shadow: none;
+        }
+        body.immersive #scoreboard.match-active .dot.active {
+            background: rgba(255,255,255,0.9);
+            border-color: rgba(255,255,255,0.95);
+            box-shadow: 0 0 10px rgba(255,255,255,0.55);
+        }
+        /* Scale the cumulative-total badge up and frame it as a real card so it
+           reads as part of the scorecard, not a floating digit. */
+        body.immersive #scoreboard.match-active .relay-total {
+            font-size: clamp(2.1rem, 5.4vh, 4.4rem);
+            min-width: clamp(110px, 11vw, 190px);
+            padding: clamp(12px, 1.8vh, 22px) clamp(10px, 1vw, 18px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 6px;
+            background: rgba(255,255,255,0.025);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            line-height: 1;
+        }
+        body.immersive #scoreboard.match-active .relay-total.leading {
+            border-color: rgba(255,255,255,0.35);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.4), 0 0 22px currentColor;
+        }
+        /* The injected "TOTAL" eyebrow inside .relay-total — bump it up so it
+           is legible at projector distance. */
+        body.immersive #scoreboard.match-active .relay-total > div {
+            font-size: clamp(0.55rem, 0.95vh, 0.8rem) !important;
+            letter-spacing: 4px !important;
+            margin-bottom: clamp(4px, 0.6vh, 8px) !important;
+            color: rgba(255,255,255,0.4) !important;
+        }
+        /* VS watermark — sit it deliberately behind the lane block, slightly
+           dimmer so it reads as atmospheric rather than as a competing element. */
+        body.immersive .vs-watermark {
+            font-size: 36vw;
+            color: rgba(255,255,255,0.018);
+            font-style: italic;
+            letter-spacing: -0.04em;
         }
 
         .lane {
@@ -1173,7 +1301,7 @@
                 min-width: 600px;         /* prevent collapse below readable size  */
                 height: 60vh;
                 flex-shrink: 0;
-                margin-top: 0;
+                margin: 0;
             }
             .bracket-controls { padding: 0 12px; flex-shrink: 0; margin-bottom: 8px; gap: 8px; opacity: 0.55; }
             .bracket-controls .control-btn { min-width: 92px; height: 30px; padding: 0 10px; font-size: 0.48rem; letter-spacing: 1px; }
@@ -2267,14 +2395,34 @@
                     if (currentScores[t.id] > maxScore) { maxScore = currentScores[t.id]; winningTeamId = t.id; }
                 }
             });
-            if (!winningTeamId || maxScore <= 0) return;
+            
+            const isDirector = document.getElementById('chk-auto-director')?.checked;
+            
+            if (!winningTeamId || maxScore <= 0) {
+                if (isDirector) {
+                    setTimeout(() => {
+                        if (document.getElementById('btn-engage') && document.getElementById('btn-engage').innerText.includes('START MATCH')) {
+                            startSequence();
+                        }
+                    }, 2500);
+                }
+                return;
+            }
             const newWins = (teamWins[winningTeamId] || 0) + 1;
             db.ref(`wins/${winningTeamId}`).set(newWins);
-            const isDirector = document.getElementById('chk-auto-director')?.checked;
             const winThreshold = isDirector ? targetWins : 2;
             const isMatchWin = newWins >= winThreshold;
             if (isMatchWin && isDirector) directorHandleWin(winningTeamId);
             showWinnerOverlay(winningTeamId, isMatchWin);
+            
+            if (isDirector && !isMatchWin) {
+                setTimeout(() => {
+                    closeWinner();
+                    if (document.getElementById('btn-engage') && document.getElementById('btn-engage').innerText.includes('START MATCH')) {
+                        startSequence();
+                    }
+                }, 3500);
+            }
         }
 
         function updateDots(teamId) {
@@ -2519,6 +2667,8 @@
             isSequenceRunning = false;
             document.getElementById('timer-display').style.color = '#555';
             document.getElementById('timer-display').innerText = '0';
+            const btn = document.getElementById('btn-engage');
+            if (btn) btn.innerText = 'START MATCH (Space)';
             musicFadeTo(MUSIC_VOL_IDLE, 2000); // fade back down
             determineWinner();
         }
