@@ -66,6 +66,54 @@
             position: relative;
         }
 
+        .screen-transition {
+            position: fixed; inset: 0; z-index: 1400;
+            display: flex; align-items: center; justify-content: center;
+            background:
+                linear-gradient(115deg, transparent 0 28%, rgba(0,243,255,0.18) 36%, rgba(0,0,0,0.96) 46% 100%),
+                radial-gradient(circle at center, rgba(0,243,255,0.14), rgba(0,0,0,0.96) 58%, #000 100%);
+            pointer-events: none;
+            overflow: hidden;
+            animation: screenWipe 1.05s cubic-bezier(0.12, 0.85, 0.18, 1) both;
+        }
+        .screen-transition::before {
+            content: '';
+            position: absolute; inset: -20%;
+            background: linear-gradient(100deg, transparent 0 38%, rgba(0,243,255,0.95) 44%, rgba(255,255,255,0.95) 47%, rgba(0,243,255,0.55) 50%, transparent 58%);
+            filter: blur(2px);
+            transform: translateX(-75%) skewX(-14deg);
+            animation: screenWipeSlash 1.05s cubic-bezier(0.12, 0.85, 0.18, 1) both;
+        }
+        .screen-transition-title {
+            position: relative; z-index: 2;
+            width: 100vw;
+            box-sizing: border-box;
+            padding: 0 clamp(28px, 5vw, 90px);
+            text-align: center;
+            color: #fff;
+            font-size: clamp(2.4rem, 7vw, 8rem);
+            font-weight: 900;
+            letter-spacing: clamp(8px, 1.8vw, 28px);
+            text-transform: uppercase;
+            text-shadow: 0 0 30px #fff, 0 0 80px rgba(0,243,255,0.65);
+            animation: screenWipeTitle 1.05s ease-out both;
+        }
+        @keyframes screenWipe {
+            0% { opacity: 0; clip-path: inset(0 100% 0 0); }
+            18% { opacity: 1; clip-path: inset(0 0 0 0); }
+            72% { opacity: 1; clip-path: inset(0 0 0 0); }
+            100% { opacity: 0; clip-path: inset(0 0 0 100%); }
+        }
+        @keyframes screenWipeSlash {
+            0% { transform: translateX(-78%) skewX(-14deg); }
+            100% { transform: translateX(78%) skewX(-14deg); }
+        }
+        @keyframes screenWipeTitle {
+            0% { opacity: 0; transform: scale(0.9); filter: blur(6px); }
+            24%, 74% { opacity: 1; transform: scale(1); filter: blur(0); }
+            100% { opacity: 0; transform: scale(1.08); filter: blur(3px); }
+        }
+
         button {
             cursor: pointer;
             transition: all 0.2s ease-out;
@@ -481,6 +529,7 @@
             gap: 12px;
             justify-content: center;
             align-items: flex-end;
+            padding-right: clamp(12px, 2vw, 42px);
         }
         body.immersive #scoreboard.match-active .lane-label {
             font-size: clamp(2.8rem, 8.5vh, 7.5rem);
@@ -513,7 +562,9 @@
            label, sit them inline-right below the label, give them a refined
            team-coloured active state instead of pure white. */
         body.immersive #scoreboard.match-active .win-dots {
-            gap: 12px; margin-top: 10px;
+            gap: 12px;
+            margin-top: 10px;
+            margin-right: clamp(18px, 3vw, 64px);
         }
         body.immersive #scoreboard.match-active .dot {
             width: clamp(16px, 2vh, 28px);
@@ -709,10 +760,13 @@
         .winner-title { font-size: clamp(1.5rem, 3vw, 3rem); color: #fff; text-shadow: 0 0 10px #fff; margin: 0; letter-spacing: 6px; }
         .winner-name { font-size: clamp(3rem, 8vw, 7rem); font-weight: 900; text-transform: uppercase; text-shadow: 0 0 40px currentColor, 0 0 80px currentColor; margin: 15px 0 50px 0; letter-spacing: 5px; }
         .winner-actions { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
+        body.immersive #winner-overlay .winner-actions { display: none !important; }
         .winner-close-btn { background: transparent; color: #fff; border: 2px solid #fff; padding: 18px 50px; font-family: 'Orbitron'; font-size: 1.2rem; cursor: pointer; text-transform: uppercase; letter-spacing: 4px; }
         .winner-close-btn:hover { background: #fff; color: #000; box-shadow: 0 0 40px #fff; }
         .winner-advance-btn { border-color: var(--gold); color: var(--gold); box-shadow: inset 0 0 18px rgba(255,215,0,0.1); }
         .winner-advance-btn:hover { background: var(--gold); color: #000; box-shadow: 0 0 45px rgba(255,215,0,0.75); }
+        .winner-admin-btn { border-color: var(--cyan); color: var(--cyan); box-shadow: inset 0 0 18px rgba(0,243,255,0.1); }
+        .winner-admin-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 45px rgba(0,243,255,0.75); }
 
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
@@ -1157,9 +1211,14 @@
         #go-burst {
             position: absolute; inset: 0; z-index: 650;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background:
-                radial-gradient(circle at center, rgba(0,243,255,0.14), rgba(0,0,0,0.92) 56%, rgba(0,0,0,0.98) 100%);
             text-align: center; pointer-events: none;
+        }
+        #match-intro-overlay {
+            background:
+                radial-gradient(circle at center, rgba(0,243,255,0.16), rgba(0,0,0,0.9) 42%, rgba(0,0,0,0.98) 100%),
+                rgba(0,0,0,0.88);
+            backdrop-filter: blur(14px) brightness(0.55) saturate(0.55);
+            -webkit-backdrop-filter: blur(14px) brightness(0.55) saturate(0.55);
         }
         .match-intro-eyebrow {
             color: var(--gold); font-weight: 900; font-size: clamp(0.9rem, 1.7vw, 1.6rem);
@@ -1436,6 +1495,10 @@
         </div>
     </div>
 
+    <div id="screen-transition" class="screen-transition hidden">
+        <div class="screen-transition-title" id="screen-transition-title">TOURNAMENT BRACKET</div>
+    </div>
+
     <!-- BRACKET SCREEN -->
     <div id="bracket-screen" class="screen hidden">
         <h1 class="bracket-header">TOURNAMENT BRACKET</h1>
@@ -1483,7 +1546,8 @@
             <h1 id="winner-name-text" class="winner-name">TEAM NAME</h1>
             <div class="winner-actions">
                 <button class="winner-close-btn winner-advance-btn hidden" id="btn-advance-winner" onclick="advanceWinnerToBracket()">SEND TO BRACKET</button>
-                <button class="winner-close-btn" onclick="closeWinner()">CONTINUE</button>
+                <button class="winner-close-btn" onclick="closeWinner()">CONTINUE SHOW</button>
+                <button class="winner-close-btn winner-admin-btn" onclick="returnToAdminFromWinner()">ADMIN CONTROLS</button>
             </div>
         </div>
 
@@ -1554,10 +1618,10 @@
 
         <!-- Relay handoff overlay (hidden by default) -->
         <div id="relay-handoff" class="hidden">
-            <div class="relay-handoff-slot" id="relay-handoff-slot">SLOT 1 COMPLETE</div>
+            <div class="relay-handoff-slot" id="relay-handoff-slot">GAME 1 COMPLETE</div>
             <div class="relay-handoff-msg">SWAP PLAYERS!</div>
             <div class="relay-handoff-scores" id="relay-handoff-scores"></div>
-            <div class="relay-handoff-next" id="relay-handoff-next">NEXT SLOT STARTING IN</div>
+            <div class="relay-handoff-next" id="relay-handoff-next">NEXT GAME STARTING IN</div>
             <div class="relay-handoff-timer" id="relay-handoff-timer">10</div>
         </div>
 
@@ -1654,9 +1718,9 @@
 
             <!-- Relay slot dots (relay format only) -->
             <div id="duel-slot-header" class="relay-header hidden" style="margin-bottom:8px;">
-                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-1"></div><div class="relay-slot-label" id="duel-slot-lbl-1">SLOT 1</div></div>
-                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-2"></div><div class="relay-slot-label" id="duel-slot-lbl-2">SLOT 2</div></div>
-                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-3"></div><div class="relay-slot-label" id="duel-slot-lbl-3">SLOT 3</div></div>
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-1"></div><div class="relay-slot-label" id="duel-slot-lbl-1">GAME 1</div></div>
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-2"></div><div class="relay-slot-label" id="duel-slot-lbl-2">GAME 2</div></div>
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-3"></div><div class="relay-slot-label" id="duel-slot-lbl-3">GAME 3</div></div>
             </div>
 
             <!-- Big countdown/game timer -->
@@ -1675,7 +1739,7 @@
 
             <!-- Duel relay handoff overlay -->
             <div id="duel-handoff" class="duel-round-flash hidden" style="gap:16px;">
-                <div class="relay-handoff-slot" id="duel-handoff-slot">SLOT 1 COMPLETE</div>
+                <div class="relay-handoff-slot" id="duel-handoff-slot">GAME 1 COMPLETE</div>
                 <div class="relay-handoff-msg" style="font-size:clamp(1.5rem,4vw,3rem);">SWAP PLAYERS!</div>
                 <div class="relay-handoff-scores" id="duel-handoff-scores"></div>
                 <div class="relay-handoff-timer" id="duel-handoff-timer">10</div>
@@ -1789,6 +1853,7 @@
         let bracketListenerAttached = false;
         let pendingBracketAdvance = null;
         let presentationSequenceToken = 0;
+        let screenTransitionTimer = null;
 
         // ─── SETUP SCREEN LISTENERS ───────────────────────────────────────────────
         db.ref('game/activeTeams').on('value', snap => {
@@ -1811,7 +1876,8 @@
 
         // ─── BRACKET ─────────────────────────────────────────────────────────────
         function showBracket() {
-            bracketReturnScreen = document.getElementById('host').classList.contains('hidden') ? 'setup' : 'host';
+            const fromHost = !document.getElementById('host').classList.contains('hidden');
+            bracketReturnScreen = fromHost ? 'host' : 'setup';
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('host').classList.add('hidden');
             document.getElementById('bracket-screen').classList.remove('hidden');
@@ -1831,12 +1897,33 @@
                 bracketListenerAttached = true;
                 db.ref('bracket').on('value', snap => renderBracket(snap.val() || {}));
             }
+            if (fromHost) playScreenTransition('TOURNAMENT BRACKET');
+        }
+        function playScreenTransition(titleText, onCovered) {
+            const overlay = document.getElementById('screen-transition');
+            const title = document.getElementById('screen-transition-title');
+            if (!overlay || !title) return;
+            if (screenTransitionTimer) clearTimeout(screenTransitionTimer);
+            title.innerText = titleText || '';
+            title.style.display = titleText ? '' : 'none';
+            overlay.classList.remove('hidden');
+            overlay.style.animation = 'none';
+            void overlay.offsetWidth;
+            overlay.style.animation = '';
+            if (onCovered) setTimeout(onCovered, 190);
+            screenTransitionTimer = setTimeout(() => {
+                overlay.classList.add('hidden');
+                title.style.display = '';
+                screenTransitionTimer = null;
+            }, 1120);
         }
         function goToSetup() {
-            document.getElementById('bracket-screen').classList.add('hidden');
-            if (bracketReturnScreen === 'host' && isHost) {
+            const returningToHost = bracketReturnScreen === 'host' && isHost;
+            if (returningToHost) {
+                document.getElementById('bracket-screen').classList.add('hidden');
                 document.getElementById('host').classList.remove('hidden');
             } else {
+                document.getElementById('bracket-screen').classList.add('hidden');
                 document.getElementById('setup').classList.remove('hidden');
             }
         }
@@ -1949,11 +2036,11 @@
         // ── MUSIC PLAYER ─────────────────────────────────────────────────────────
         // Place music.ogg in the same folder as this HTML file.
         // All volume levels: 0.0 – 1.0
-        const MUSIC_VOL_IDLE      = 0.08;  // waiting / between matches
-        const MUSIC_VOL_COUNTDOWN = 0.22;  // 5-second F1 countdown
-        const MUSIC_VOL_PLAYING   = 0.45;  // slot/round in progress
-        const MUSIC_VOL_HANDOFF   = 0.14;  // handoff break between slots
-        const MUSIC_VOL_WINNER    = 0.08;  // winner overlay
+        const MUSIC_VOL_IDLE      = 0.12;  // waiting / between matches
+        const MUSIC_VOL_COUNTDOWN = 0.36;  // 5-second F1 countdown
+        const MUSIC_VOL_PLAYING   = 0.78;  // game/round in progress
+        const MUSIC_VOL_HANDOFF   = 0.22;  // handoff break between games
+        const MUSIC_VOL_WINNER    = 0.12;  // winner overlay
 
         let musicAudio    = null;  // HTMLAudioElement
         let musicMuted    = false;
@@ -2462,6 +2549,10 @@
             document.getElementById('winner-overlay').classList.remove('hidden');
         }
         function closeWinner() { document.getElementById('winner-overlay').classList.add('hidden'); }
+        function returnToAdminFromWinner() {
+            closeWinner();
+            document.body.classList.remove('immersive');
+        }
 
         function updateAdvanceWinnerButton() {
             const btn = document.getElementById('btn-advance-winner');
@@ -2543,7 +2634,7 @@
             const headline = document.createElement('div');
             headline.className = 'show-slot-headline';
             headline.id = 'show-slot-headline';
-            headline.innerText = `SLOT 1 OF ${RELAY_SLOTS}`;
+            headline.innerText = `GAME 1 OF ${RELAY_SLOTS}`;
 
             const header = document.createElement('div');
             header.className = 'relay-header';
@@ -2552,7 +2643,7 @@
                 header.innerHTML += `
                     <div class="relay-slot-pip">
                         <div class="relay-slot-dot" id="relay-dot-${i}"></div>
-                        <div class="relay-slot-label" id="relay-slot-lbl-${i}">SLOT ${i}</div>
+                        <div class="relay-slot-label" id="relay-slot-lbl-${i}">GAME ${i}</div>
                     </div>`;
             }
             // Insert before scoreboard
@@ -2571,7 +2662,7 @@
             }
             const headline = document.getElementById('show-slot-headline');
             if (headline) {
-                headline.innerText = activeSlot > RELAY_SLOTS ? 'MATCH COMPLETE' : `SLOT ${activeSlot} OF ${RELAY_SLOTS}`;
+                headline.innerText = activeSlot > RELAY_SLOTS ? 'MATCH COMPLETE' : `GAME ${activeSlot} OF ${RELAY_SLOTS}`;
             }
         }
 
@@ -2793,7 +2884,7 @@
                         <div class="relay-handoff-score" style="color:var(--${team.color})">${total}</div>
                     </div>`;
             }).join('');
-            document.getElementById('relay-handoff-slot').innerText   = `SLOT ${relayCurrentSlot} COMPLETE`;
+            document.getElementById('relay-handoff-slot').innerText   = `GAME ${relayCurrentSlot} COMPLETE`;
             document.getElementById('relay-handoff-scores').innerHTML = scoresHTML;
             document.getElementById('relay-handoff').classList.remove('hidden');
             let t = RELAY_HANDOFF;
@@ -3652,7 +3743,7 @@
                 </div>`;
             }).join('');
 
-            document.getElementById('duel-handoff-slot').innerText   = `SLOT ${duelRelaySlot} COMPLETE`;
+            document.getElementById('duel-handoff-slot').innerText   = `GAME ${duelRelaySlot} COMPLETE`;
             document.getElementById('duel-handoff-scores').innerHTML = scoresHTML;
             document.getElementById('duel-handoff').classList.remove('hidden');
 
