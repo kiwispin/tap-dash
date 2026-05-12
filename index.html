@@ -493,21 +493,18 @@
            through during transitions or when only one team is checked. */
         body.immersive .lane-mode-label { display: none !important; }
 
-        /* In show mode the scoreboard must fit inside whatever vertical space remains
-           after the timer + banner + slot indicator above it. Anchor lanes to the TOP
-           (so any overflow only spills below the viewport, never above the top lane),
-           and size lane content with vh so it scales up on tall projector screens. */
+        /* In show mode the scoreboard lives in the remaining stage area below the
+           timer/title block. Center the lanes inside that space so a 16:9 projector
+           does not leave a heavy empty floor under the teams. */
         body.immersive #scoreboard {
             min-height: 0;
-            justify-content: flex-start !important;
-            align-content: flex-start;
+            justify-content: center !important;
+            align-content: center;
         }
-        /* Padding + gap deliberately scale generously with viewport height so the
-           two lanes spread across the available vertical room instead of bunching
-           at the top. The bottom padding doubles as a visual "floor" so any
-           residual excess room reads as deliberate margin, not dead void. */
+        /* Balanced padding lets the lane group sit optically centered in the
+           remaining vertical space while still leaving breathing room. */
         body.immersive #scoreboard.match-active {
-            padding: clamp(6px, 1.2vh, 16px) clamp(40px, 5vw, 90px) clamp(40px, 7vh, 110px);
+            padding: clamp(24px, 4vh, 70px) clamp(40px, 5vw, 90px);
             gap: clamp(28px, 6.5vh, 90px);
         }
         /* PRACTICE MODE (no relay-total injected): keep the 3-column grid but
