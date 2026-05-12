@@ -2492,8 +2492,7 @@
                 }
                 return;
             }
-            const newWins = (teamWins[winningTeamId] || 0) + 1;
-            db.ref(`wins/${winningTeamId}`).set(newWins);
+            const newWins = recordTeamWin(winningTeamId);
             const winThreshold = isDirector ? targetWins : 2;
             const isMatchWin = newWins >= winThreshold;
             if (isMatchWin && isDirector) directorHandleWin(winningTeamId);
@@ -2507,6 +2506,14 @@
                     }
                 }, 3500);
             }
+        }
+
+        function recordTeamWin(teamId) {
+            const newWins = (teamWins[teamId] || 0) + 1;
+            teamWins[teamId] = newWins;
+            updateDots(teamId);
+            db.ref(`wins/${teamId}`).set(newWins);
+            return newWins;
         }
 
         function updateDots(teamId) {
@@ -2924,8 +2931,7 @@
             });
             if (winningTeamId) {
                 updateRelayDots(RELAY_SLOTS + 1);
-                const newWins = (teamWins[winningTeamId] || 0) + 1;
-                db.ref(`wins/${winningTeamId}`).set(newWins);
+                recordTeamWin(winningTeamId);
                 const isDirector = document.getElementById('chk-auto-director')?.checked;
                 if (isDirector) directorHandleWin(winningTeamId);
                 showWinnerOverlay(winningTeamId, true);
@@ -2992,7 +2998,12 @@
             document.getElementById('timer-display').style.color = '#fff';
             setLights(0);
             const updates = {};
-            teams.forEach(t => { updates[`scores/${t.id}`] = 0; updates[`wins/${t.id}`] = 0; });
+            teams.forEach(t => {
+                teamWins[t.id] = 0;
+                updateDots(t.id);
+                updates[`scores/${t.id}`] = 0;
+                updates[`wins/${t.id}`] = 0;
+            });
             updates['game/status'] = 'paused';
             db.ref().update(updates);
             // Clean up relay UI
