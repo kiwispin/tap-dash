@@ -1735,7 +1735,6 @@
 
     <!-- CLIENT SCREEN -->
     <div id="client" class="screen hidden">
-        <button class="btn-client-exit" onclick="exitClient()">EXIT</button>
         <div class="connection-indicator reconnecting">CONNECTING</div>
         <div id="msg">WAITING</div>
         <div id="tps-display" class="tps-counter">0 TPS</div>
@@ -2287,7 +2286,8 @@
                     if (status === 'playing') {
                         clientScreen.classList.remove('locked');
                         document.getElementById('msg').innerText = 'TAP!';
-                        document.getElementById('tps-display').classList.add('hidden');
+                        document.getElementById('tps-display').classList.remove('hidden');
+                        document.getElementById('tps-display').innerText = '0 TPS';
                         tapTimestamps = [];
                         if (navigator.vibrate) navigator.vibrate(50);
                     } else {
