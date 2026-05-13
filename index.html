@@ -1907,6 +1907,8 @@
         const relayRoundWins = {};
         let showRelayRoundDots = false;
         let relayLiveLeaderId = null;
+        let currentGameStatus = 'paused';
+        let currentGameFormat = 'standard';
         teams.forEach(t => { relayRoundWins[t.id] = 0; });
 
         const winningScore   = 300;
@@ -2454,9 +2456,16 @@
             });
             db.ref('game/status').on('value', snap => {
                 const status = snap.val();
+                currentGameStatus = status || 'paused';
                 const badge = document.getElementById('host-status');
                 if (status === 'playing') { badge.innerText = 'SYSTEM ACTIVE'; badge.classList.add('active'); }
                 else { badge.innerText = 'SYSTEM IDLE'; badge.classList.remove('active'); }
+                updateRelayLiveLeader();
+            });
+            db.ref('game/format').on('value', snap => {
+                currentGameFormat = snap.val() || currentGameFormat;
+                document.getElementById('scoreboard')?.classList.toggle('relay-mode', isRelayMode());
+                updateRelayLiveLeader();
             });
             document.addEventListener('keydown', e => {
                 if (e.repeat) return;
@@ -2473,7 +2482,9 @@
         }
 
         function handleAutoBracketToggle() {
-            const relay = isRelayMode();
+            const relay = document.getElementById('chk-auto-director')?.checked === true;
+            currentGameFormat = relay ? 'relay' : 'standard';
+            db.ref('game/format').set(currentGameFormat);
             const engage = document.getElementById('btn-engage');
             if (engage) engage.innerText = 'START MATCH (Space)';
             if (!relay) {
@@ -2509,6 +2520,8 @@
             const board = document.getElementById('scoreboard');
             if (board) board.classList.toggle('match-active', activeCount === 2);
             updateShowMatchBanner();
+            updateLeadingBar();
+            updateRelayLiveLeader(activeIds);
             return persist ? db.ref().update(updates) : Promise.resolve();
         }
 
@@ -2678,7 +2691,12 @@
         function updateRelayLiveLeader(activeIds = getActiveTeamIds()) {
             const previousLeader = relayLiveLeaderId;
             relayLiveLeaderId = null;
-            if (showRelayRoundDots && isRelayMode() && isSequenceRunning) {
+            const hasActiveScore = activeIds.some(id => (currentScores[id] || 0) > 0);
+            const shouldShowRelayDots = isRelayMode() && activeIds.length === 2 &&
+                (showRelayRoundDots || isSequenceRunning || currentGameStatus === 'playing' || hasActiveScore);
+
+            if (shouldShowRelayDots) {
+                showRelayRoundDots = true;
                 let maxScore = -1;
                 let leaders = [];
                 activeIds.forEach(id => {
@@ -2776,7 +2794,7 @@
         let relayHandoffInterval = null;
 
         function isRelayMode() {
-            return document.getElementById('chk-auto-director')?.checked;
+            return currentGameFormat === 'relay' || document.getElementById('chk-auto-director')?.checked === true;
         }
 
         function getActiveTeamIds() {
@@ -2877,6 +2895,8 @@
 
         // ─── STANDARD MODE (unchanged) ────────────────────────────────────────────
         function startStandardSequence() {
+            currentGameFormat = 'standard';
+            db.ref('game/format').set('standard');
             resetScores(true); closeWinner();
             const introToken = ++presentationSequenceToken;
             isSequenceRunning = true;
@@ -2950,6 +2970,7 @@
             const updates = {};
             teams.forEach(t => updates[`scores/${t.id}`] = 0);
             updates['game/status'] = 'paused';
+            updates['game/format'] = 'relay';
             db.ref().update(updates);
 
             buildRelayHeader();
