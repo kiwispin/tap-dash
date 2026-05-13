@@ -1906,8 +1906,6 @@
         teams.forEach(t => { currentScores[t.id] = 0; teamWins[t.id] = 0; });
         const relayRoundWins = {};
         let showRelayRoundDots = false;
-        let relayLiveLeaderId = null;
-        let currentGameStatus = 'paused';
         let currentGameFormat = 'standard';
         teams.forEach(t => { relayRoundWins[t.id] = 0; });
 
@@ -2456,16 +2454,21 @@
             });
             db.ref('game/status').on('value', snap => {
                 const status = snap.val();
-                currentGameStatus = status || 'paused';
                 const badge = document.getElementById('host-status');
                 if (status === 'playing') { badge.innerText = 'SYSTEM ACTIVE'; badge.classList.add('active'); }
                 else { badge.innerText = 'SYSTEM IDLE'; badge.classList.remove('active'); }
-                updateRelayLiveLeader();
+                refreshRelayRoundDots();
             });
             db.ref('game/format').on('value', snap => {
                 currentGameFormat = snap.val() || currentGameFormat;
                 document.getElementById('scoreboard')?.classList.toggle('relay-mode', isRelayMode());
-                updateRelayLiveLeader();
+                refreshRelayRoundDots();
+            });
+            db.ref('game/relayRoundWins').on('value', snap => {
+                const winsData = snap.val() || {};
+                teams.forEach(t => { relayRoundWins[t.id] = winsData[t.id] || 0; });
+                showRelayRoundDots = isRelayMode();
+                refreshRelayRoundDots();
             });
             document.addEventListener('keydown', e => {
                 if (e.repeat) return;
@@ -2521,7 +2524,7 @@
             if (board) board.classList.toggle('match-active', activeCount === 2);
             updateShowMatchBanner();
             updateLeadingBar();
-            updateRelayLiveLeader(activeIds);
+            refreshRelayRoundDots(activeIds);
             return persist ? db.ref().update(updates) : Promise.resolve();
         }
 
@@ -2656,10 +2659,8 @@
         }
 
         function getVisibleWinDots(teamId) {
-            if (!showRelayRoundDots) return teamWins[teamId] || 0;
-            const lockedWins = relayRoundWins[teamId] || 0;
-            const livePreview = relayLiveLeaderId === teamId ? 1 : 0;
-            return Math.min(RELAY_SLOTS, lockedWins + livePreview);
+            if (isRelayMode() || showRelayRoundDots) return Math.min(RELAY_SLOTS, relayRoundWins[teamId] || 0);
+            return teamWins[teamId] || 0;
         }
 
         function updateDots(teamId) {
@@ -2685,33 +2686,11 @@
                 if (id === leaderId && maxScore > 0) bar.classList.add('leading');
                 else bar.classList.remove('leading');
             });
-            updateRelayLiveLeader(activeIds);
         }
 
-        function updateRelayLiveLeader(activeIds = getActiveTeamIds()) {
-            const previousLeader = relayLiveLeaderId;
-            relayLiveLeaderId = null;
-            const hasActiveScore = activeIds.some(id => (currentScores[id] || 0) > 0);
-            const shouldShowRelayDots = isRelayMode() && activeIds.length === 2 &&
-                (showRelayRoundDots || isSequenceRunning || currentGameStatus === 'playing' || hasActiveScore);
-
-            if (shouldShowRelayDots) {
-                showRelayRoundDots = true;
-                let maxScore = -1;
-                let leaders = [];
-                activeIds.forEach(id => {
-                    const score = currentScores[id] || 0;
-                    if (score > maxScore) {
-                        maxScore = score;
-                        leaders = [id];
-                    } else if (score === maxScore) {
-                        leaders.push(id);
-                    }
-                });
-                if (maxScore > 0 && leaders.length === 1) relayLiveLeaderId = leaders[0];
-            }
-            const affected = new Set([...activeIds, previousLeader, relayLiveLeaderId].filter(Boolean));
-            affected.forEach(id => updateDots(id));
+        function refreshRelayRoundDots(activeIds = getActiveTeamIds()) {
+            showRelayRoundDots = isRelayMode();
+            activeIds.forEach(id => updateDots(id));
         }
 
         function showWinnerOverlay(teamId, isMatchWin) {
@@ -2953,7 +2932,6 @@
             relayCurrentSlot = 0;
             relaySlotScores  = {};
             showRelayRoundDots = true;
-            relayLiveLeaderId = null;
             teams.forEach(t => {
                 relayRoundWins[t.id] = 0;
                 updateDots(t.id);
@@ -2971,6 +2949,7 @@
             teams.forEach(t => updates[`scores/${t.id}`] = 0);
             updates['game/status'] = 'paused';
             updates['game/format'] = 'relay';
+            updates['game/relayRoundWins'] = getRelayRoundWinsPayload();
             db.ref().update(updates);
 
             buildRelayHeader();
@@ -2986,7 +2965,6 @@
 
         function startRelaySlotCountdown() {
             relayCurrentSlot++;
-            relayLiveLeaderId = null;
             updateRelayDots(relayCurrentSlot);
             const updates = {};
             teams.forEach(t => updates[`scores/${t.id}`] = 0);
@@ -3035,7 +3013,6 @@
 
         function startNextRelaySlotFromHandoff() {
             relayCurrentSlot++;
-            relayLiveLeaderId = null;
             updateRelayDots(relayCurrentSlot);
             const updates = {};
             teams.forEach(t => updates[`scores/${t.id}`] = 0);
@@ -3055,7 +3032,6 @@
                 relaySlotScores[id][relayCurrentSlot - 1] = slotScore;
             });
             recordRelayRoundWin(getRelayRoundWinner(activeIds));
-            relayLiveLeaderId = null;
             activeIds.forEach(id => updateDots(id));
             updateRelayTotals();
 
@@ -3088,6 +3064,7 @@
             showRelayRoundDots = true;
             relayRoundWins[teamId] = Math.min(RELAY_SLOTS, (relayRoundWins[teamId] || 0) + 1);
             updateDots(teamId);
+            db.ref('game/relayRoundWins').set(getRelayRoundWinsPayload());
         }
 
         function ensureRelayWinnerDot(teamId) {
@@ -3095,6 +3072,13 @@
             showRelayRoundDots = true;
             if ((relayRoundWins[teamId] || 0) < 1) relayRoundWins[teamId] = 1;
             updateDots(teamId);
+            db.ref('game/relayRoundWins').set(getRelayRoundWinsPayload());
+        }
+
+        function getRelayRoundWinsPayload() {
+            const payload = {};
+            teams.forEach(t => payload[t.id] = relayRoundWins[t.id] || 0);
+            return payload;
         }
 
         function showRelayHandoff() {
@@ -3181,7 +3165,6 @@
             isSequenceRunning = false;
             relayCurrentSlot  = 0;
             relaySlotScores   = {};
-            relayLiveLeaderId = null;
             document.getElementById('relay-handoff').classList.add('hidden');
             document.getElementById('match-intro-overlay').classList.add('hidden');
             document.getElementById('go-burst').classList.add('hidden');
@@ -3215,7 +3198,6 @@
             relayCurrentSlot  = 0;
             relaySlotScores   = {};
             showRelayRoundDots = false;
-            relayLiveLeaderId = null;
             document.getElementById('relay-handoff').classList.add('hidden');
             document.getElementById('match-intro-overlay').classList.add('hidden');
             document.getElementById('go-burst').classList.add('hidden');
@@ -3231,6 +3213,7 @@
                 updates[`wins/${t.id}`] = 0;
             });
             updates['game/status'] = 'paused';
+            updates['game/relayRoundWins'] = getRelayRoundWinsPayload();
             db.ref().update(updates);
             // Clean up relay UI
             const old = document.getElementById('relay-header');
