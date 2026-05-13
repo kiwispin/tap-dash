@@ -1217,6 +1217,95 @@
             backdrop-filter: blur(14px) brightness(0.55) saturate(0.55);
             -webkit-backdrop-filter: blur(14px) brightness(0.55) saturate(0.55);
         }
+        #splash-overlay {
+            position: fixed; inset: 0; z-index: 630;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background:
+                linear-gradient(115deg, rgba(0,243,255,0.06), transparent 24% 66%, rgba(255,0,204,0.08)),
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 54px),
+                repeating-linear-gradient(90deg, rgba(0,243,255,0.035) 0 1px, transparent 1px 76px),
+                #030309;
+            overflow: hidden;
+            text-align: center;
+        }
+        #splash-overlay::before {
+            content: 'VS';
+            position: absolute; inset: auto auto -12vh 50%;
+            transform: translateX(-50%) skewX(-12deg);
+            color: rgba(255,255,255,0.035);
+            font-size: clamp(18rem, 42vw, 48rem);
+            font-weight: 900;
+            line-height: 0.8;
+            z-index: 0;
+        }
+        #splash-overlay::after {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                linear-gradient(100deg, transparent 0 36%, rgba(0,243,255,0.18) 41%, rgba(255,255,255,0.75) 43%, rgba(255,0,204,0.28) 45%, transparent 52%),
+                linear-gradient(260deg, transparent 0 58%, rgba(255,170,0,0.16) 62%, rgba(255,255,255,0.45) 64%, transparent 69%);
+            mix-blend-mode: screen;
+            animation: splashSweep 3.6s ease-in-out infinite;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .splash-kicker {
+            position: relative; z-index: 2;
+            color: var(--gold);
+            font-size: clamp(0.9rem, 1.7vw, 1.5rem);
+            font-weight: 900;
+            letter-spacing: clamp(10px, 2vw, 28px);
+            text-shadow: 0 0 24px rgba(255,215,0,0.72);
+            margin-bottom: clamp(14px, 2.4vh, 28px);
+        }
+        .splash-title {
+            position: relative; z-index: 2;
+            color: #fff;
+            font-size: clamp(4.8rem, 14vw, 15rem);
+            font-weight: 900;
+            line-height: 0.86;
+            letter-spacing: clamp(6px, 1.5vw, 24px);
+            text-transform: uppercase;
+            text-shadow: 0 0 24px #fff, 0 0 90px rgba(0,243,255,0.52), 0 0 130px rgba(255,0,204,0.32);
+        }
+        .splash-title span {
+            color: var(--cyan);
+            text-shadow: 0 0 28px var(--cyan), 0 0 90px rgba(0,243,255,0.7);
+        }
+        .splash-subtitle {
+            position: relative; z-index: 2;
+            margin-top: clamp(18px, 3vh, 36px);
+            color: rgba(255,255,255,0.82);
+            font-size: clamp(1rem, 2vw, 2rem);
+            font-weight: 900;
+            letter-spacing: clamp(8px, 1.8vw, 24px);
+            text-shadow: 0 0 24px rgba(255,255,255,0.35);
+        }
+        .splash-pulse-row {
+            position: relative; z-index: 2;
+            display: flex; gap: clamp(12px, 2vw, 28px);
+            margin-top: clamp(30px, 5vh, 70px);
+        }
+        .splash-pulse {
+            width: clamp(44px, 5vw, 92px);
+            height: 8px;
+            border-radius: 999px;
+            background: currentColor;
+            box-shadow: 0 0 24px currentColor;
+            animation: splashPulse 1.2s ease-in-out infinite;
+        }
+        .splash-pulse:nth-child(1) { color: var(--purple); animation-delay: 0s; }
+        .splash-pulse:nth-child(2) { color: var(--pink); animation-delay: 0.12s; }
+        .splash-pulse:nth-child(3) { color: var(--cyan); animation-delay: 0.24s; }
+        .splash-pulse:nth-child(4) { color: var(--gold); animation-delay: 0.36s; }
+        @keyframes splashSweep {
+            0%, 100% { opacity: 0.55; transform: translateX(-18%) skewX(-10deg); }
+            50% { opacity: 1; transform: translateX(18%) skewX(-10deg); }
+        }
+        @keyframes splashPulse {
+            0%, 100% { transform: scaleX(0.62); opacity: 0.35; }
+            50% { transform: scaleX(1); opacity: 1; }
+        }
         .match-intro-eyebrow {
             color: var(--gold); font-weight: 900; font-size: clamp(0.9rem, 1.7vw, 1.6rem);
             letter-spacing: 14px; margin-bottom: 24px;
@@ -1558,6 +1647,18 @@
             <div class="go-burst-text">GO</div>
         </div>
 
+        <div id="splash-overlay" class="hidden">
+            <div class="splash-kicker">LIVE TOURNAMENT</div>
+            <div class="splash-title">TAP <span>DASH</span></div>
+            <div class="splash-subtitle">FASTEST FINGERS WINS</div>
+            <div class="splash-pulse-row">
+                <div class="splash-pulse"></div>
+                <div class="splash-pulse"></div>
+                <div class="splash-pulse"></div>
+                <div class="splash-pulse"></div>
+            </div>
+        </div>
+
         <!-- Top HUD Bar — compact status strip -->
         <div class="host-hud-bar">
             <div class="hud-live-badge">⬤ LIVE</div>
@@ -1615,10 +1716,10 @@
 
         <!-- Relay handoff overlay (hidden by default) -->
         <div id="relay-handoff" class="hidden">
-            <div class="relay-handoff-slot" id="relay-handoff-slot">GAME 1 COMPLETE</div>
+            <div class="relay-handoff-slot" id="relay-handoff-slot">ROUND 1 COMPLETE</div>
             <div class="relay-handoff-msg">SWAP PLAYERS!</div>
             <div class="relay-handoff-scores" id="relay-handoff-scores"></div>
-            <div class="relay-handoff-next" id="relay-handoff-next">NEXT GAME STARTING IN</div>
+            <div class="relay-handoff-next" id="relay-handoff-next">NEXT ROUND STARTING IN</div>
             <div class="relay-handoff-timer" id="relay-handoff-timer">10</div>
         </div>
 
@@ -1715,9 +1816,9 @@
 
             <!-- Relay slot dots (relay format only) -->
             <div id="duel-slot-header" class="relay-header hidden" style="margin-bottom:8px;">
-                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-1"></div><div class="relay-slot-label" id="duel-slot-lbl-1">GAME 1</div></div>
-                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-2"></div><div class="relay-slot-label" id="duel-slot-lbl-2">GAME 2</div></div>
-                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-3"></div><div class="relay-slot-label" id="duel-slot-lbl-3">GAME 3</div></div>
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-1"></div><div class="relay-slot-label" id="duel-slot-lbl-1">ROUND 1</div></div>
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-2"></div><div class="relay-slot-label" id="duel-slot-lbl-2">ROUND 2</div></div>
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="duel-dot-3"></div><div class="relay-slot-label" id="duel-slot-lbl-3">ROUND 3</div></div>
             </div>
 
             <!-- Big countdown/game timer -->
@@ -1736,7 +1837,7 @@
 
             <!-- Duel relay handoff overlay -->
             <div id="duel-handoff" class="duel-round-flash hidden" style="gap:16px;">
-                <div class="relay-handoff-slot" id="duel-handoff-slot">GAME 1 COMPLETE</div>
+                <div class="relay-handoff-slot" id="duel-handoff-slot">ROUND 1 COMPLETE</div>
                 <div class="relay-handoff-msg" style="font-size:clamp(1.5rem,4vw,3rem);">SWAP PLAYERS!</div>
                 <div class="relay-handoff-scores" id="duel-handoff-scores"></div>
                 <div class="relay-handoff-timer" id="duel-handoff-timer">10</div>
@@ -1875,6 +1976,7 @@
         function showBracket() {
             const fromHost = !document.getElementById('host').classList.contains('hidden');
             bracketReturnScreen = fromHost ? 'host' : 'setup';
+            if (fromHost) hideSplashScreen();
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('host').classList.add('hidden');
             document.getElementById('bracket-screen').classList.remove('hidden');
@@ -2035,8 +2137,8 @@
         // All volume levels: 0.0 – 1.0
         const MUSIC_VOL_IDLE      = 0.12;  // waiting / between matches
         const MUSIC_VOL_COUNTDOWN = 0.36;  // 5-second F1 countdown
-        const MUSIC_VOL_PLAYING   = 0.78;  // game/round in progress
-        const MUSIC_VOL_HANDOFF   = 0.22;  // handoff break between games
+        const MUSIC_VOL_PLAYING   = 0.78;  // round in progress
+        const MUSIC_VOL_HANDOFF   = 0.22;  // handoff break between rounds
         const MUSIC_VOL_WINNER    = 0.12;  // winner overlay
 
         let musicAudio    = null;  // HTMLAudioElement
@@ -2354,8 +2456,11 @@
             });
             document.addEventListener('keydown', e => {
                 if (e.repeat) return;
+                if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target?.tagName)) return;
                 if (e.code === 'Space') startSequence();
                 if (e.code === 'KeyR') resetScores();
+                if (e.code === 'KeyS') toggleSplashScreen();
+                if (e.code === 'Escape') hideSplashScreen();
             });
 
             const autoDirector = document.getElementById('chk-auto-director');
@@ -2471,6 +2576,19 @@
             setTimeout(() => burst.classList.add('hidden'), 900);
         }
 
+        function toggleSplashScreen(forceShow) {
+            if (!isHost || document.getElementById('host').classList.contains('hidden')) return;
+            const splash = document.getElementById('splash-overlay');
+            if (!splash) return;
+            const shouldShow = forceShow ?? splash.classList.contains('hidden');
+            splash.classList.toggle('hidden', !shouldShow);
+        }
+
+        function hideSplashScreen() {
+            const splash = document.getElementById('splash-overlay');
+            if (splash) splash.classList.add('hidden');
+        }
+
         function determineWinner() {
             // Standard mode only — relay mode uses endRelayMatch()
             let maxScore = -1, winningTeamId = null;
@@ -2568,6 +2686,7 @@
 
         function advanceWinnerToBracket() {
             if (!isHost || !pendingBracketAdvance) return;
+            hideSplashScreen();
             const advance = pendingBracketAdvance;
             pendingBracketAdvance = null;
             updateAdvanceWinnerButton();
@@ -2638,7 +2757,7 @@
             const headline = document.createElement('div');
             headline.className = 'show-slot-headline';
             headline.id = 'show-slot-headline';
-            headline.innerText = `GAME 1 OF ${RELAY_SLOTS}`;
+            headline.innerText = `ROUND 1 OF ${RELAY_SLOTS}`;
 
             const header = document.createElement('div');
             header.className = 'relay-header';
@@ -2647,7 +2766,7 @@
                 header.innerHTML += `
                     <div class="relay-slot-pip">
                         <div class="relay-slot-dot" id="relay-dot-${i}"></div>
-                        <div class="relay-slot-label" id="relay-slot-lbl-${i}">GAME ${i}</div>
+                        <div class="relay-slot-label" id="relay-slot-lbl-${i}">ROUND ${i}</div>
                     </div>`;
             }
             // Insert before scoreboard
@@ -2666,7 +2785,7 @@
             }
             const headline = document.getElementById('show-slot-headline');
             if (headline) {
-                headline.innerText = activeSlot > RELAY_SLOTS ? 'MATCH COMPLETE' : `GAME ${activeSlot} OF ${RELAY_SLOTS}`;
+                headline.innerText = activeSlot > RELAY_SLOTS ? 'MATCH COMPLETE' : `ROUND ${activeSlot} OF ${RELAY_SLOTS}`;
             }
         }
 
@@ -2710,6 +2829,7 @@
         // ─── MAIN SEQUENCE ────────────────────────────────────────────────────────
         function startSequence() {
             if (!isHost || isSequenceRunning) return;
+            hideSplashScreen();
             if (isRelayMode()) {
                 startRelayMatch();
             } else {
@@ -2888,7 +3008,7 @@
                         <div class="relay-handoff-score" style="color:var(--${team.color})">${total}</div>
                     </div>`;
             }).join('');
-            document.getElementById('relay-handoff-slot').innerText   = `GAME ${relayCurrentSlot} COMPLETE`;
+            document.getElementById('relay-handoff-slot').innerText   = `ROUND ${relayCurrentSlot} COMPLETE`;
             document.getElementById('relay-handoff-scores').innerHTML = scoresHTML;
             document.getElementById('relay-handoff').classList.remove('hidden');
             let t = RELAY_HANDOFF;
@@ -3751,7 +3871,7 @@
                 </div>`;
             }).join('');
 
-            document.getElementById('duel-handoff-slot').innerText   = `GAME ${duelRelaySlot} COMPLETE`;
+            document.getElementById('duel-handoff-slot').innerText   = `ROUND ${duelRelaySlot} COMPLETE`;
             document.getElementById('duel-handoff-scores').innerHTML = scoresHTML;
             document.getElementById('duel-handoff').classList.remove('hidden');
 
