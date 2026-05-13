@@ -654,8 +654,8 @@
             50%       { box-shadow: 0 0 50px currentColor, 0 0 80px currentColor; }
         }
 
-        /* In relay mode, hide win dots and show match score instead */
-        .relay-mode .win-dots { display: none; }
+        /* Keep win dots visible in relay/director mode so the host can see which
+           team has been credited with the match win. */
         .match-score-display {
             font-size: clamp(0.8rem, 1.2vw, 1.1rem);
             font-weight: 900; letter-spacing: 3px;
