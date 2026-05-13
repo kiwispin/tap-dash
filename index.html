@@ -1906,6 +1906,7 @@
         teams.forEach(t => { currentScores[t.id] = 0; teamWins[t.id] = 0; });
         const relayRoundWins = {};
         let showRelayRoundDots = false;
+        let relayLiveLeaderId = null;
         teams.forEach(t => { relayRoundWins[t.id] = 0; });
 
         const winningScore   = 300;
@@ -2642,7 +2643,10 @@
         }
 
         function getVisibleWinDots(teamId) {
-            return showRelayRoundDots ? (relayRoundWins[teamId] || 0) : (teamWins[teamId] || 0);
+            if (!showRelayRoundDots) return teamWins[teamId] || 0;
+            const lockedWins = relayRoundWins[teamId] || 0;
+            const livePreview = relayLiveLeaderId === teamId ? 1 : 0;
+            return Math.min(RELAY_SLOTS, lockedWins + livePreview);
         }
 
         function updateDots(teamId) {
@@ -2668,6 +2672,28 @@
                 if (id === leaderId && maxScore > 0) bar.classList.add('leading');
                 else bar.classList.remove('leading');
             });
+            updateRelayLiveLeader(activeIds);
+        }
+
+        function updateRelayLiveLeader(activeIds = getActiveTeamIds()) {
+            const previousLeader = relayLiveLeaderId;
+            relayLiveLeaderId = null;
+            if (showRelayRoundDots && isRelayMode() && isSequenceRunning) {
+                let maxScore = -1;
+                let leaders = [];
+                activeIds.forEach(id => {
+                    const score = currentScores[id] || 0;
+                    if (score > maxScore) {
+                        maxScore = score;
+                        leaders = [id];
+                    } else if (score === maxScore) {
+                        leaders.push(id);
+                    }
+                });
+                if (maxScore > 0 && leaders.length === 1) relayLiveLeaderId = leaders[0];
+            }
+            const affected = new Set([...activeIds, previousLeader, relayLiveLeaderId].filter(Boolean));
+            affected.forEach(id => updateDots(id));
         }
 
         function showWinnerOverlay(teamId, isMatchWin) {
@@ -2907,6 +2933,7 @@
             relayCurrentSlot = 0;
             relaySlotScores  = {};
             showRelayRoundDots = true;
+            relayLiveLeaderId = null;
             teams.forEach(t => {
                 relayRoundWins[t.id] = 0;
                 updateDots(t.id);
@@ -2938,10 +2965,12 @@
 
         function startRelaySlotCountdown() {
             relayCurrentSlot++;
+            relayLiveLeaderId = null;
             updateRelayDots(relayCurrentSlot);
             const updates = {};
             teams.forEach(t => updates[`scores/${t.id}`] = 0);
             db.ref().update(updates);
+            teams.forEach(t => updateDots(t.id));
             const timerDisplay = document.getElementById('timer-display');
             setLights(0);
             musicFadeTo(MUSIC_VOL_COUNTDOWN, 1500); // build tension
@@ -2985,10 +3014,12 @@
 
         function startNextRelaySlotFromHandoff() {
             relayCurrentSlot++;
+            relayLiveLeaderId = null;
             updateRelayDots(relayCurrentSlot);
             const updates = {};
             teams.forEach(t => updates[`scores/${t.id}`] = 0);
             db.ref().update(updates);
+            teams.forEach(t => updateDots(t.id));
             startRelaySlotGameplay();
         }
 
@@ -3003,6 +3034,8 @@
                 relaySlotScores[id][relayCurrentSlot - 1] = slotScore;
             });
             recordRelayRoundWin(getRelayRoundWinner(activeIds));
+            relayLiveLeaderId = null;
+            activeIds.forEach(id => updateDots(id));
             updateRelayTotals();
 
             if (relayCurrentSlot >= RELAY_SLOTS) {
@@ -3127,6 +3160,7 @@
             isSequenceRunning = false;
             relayCurrentSlot  = 0;
             relaySlotScores   = {};
+            relayLiveLeaderId = null;
             document.getElementById('relay-handoff').classList.add('hidden');
             document.getElementById('match-intro-overlay').classList.add('hidden');
             document.getElementById('go-burst').classList.add('hidden');
@@ -3160,6 +3194,7 @@
             relayCurrentSlot  = 0;
             relaySlotScores   = {};
             showRelayRoundDots = false;
+            relayLiveLeaderId = null;
             document.getElementById('relay-handoff').classList.add('hidden');
             document.getElementById('match-intro-overlay').classList.add('hidden');
             document.getElementById('go-burst').classList.add('hidden');
