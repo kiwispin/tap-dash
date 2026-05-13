@@ -98,6 +98,9 @@
             text-shadow: 0 0 30px #fff, 0 0 80px rgba(0,243,255,0.65);
             animation: screenWipeTitle 1.05s ease-out both;
         }
+        .screen-transition.reverse { animation-direction: reverse; }
+        .screen-transition.reverse::before { animation-direction: reverse; }
+        .screen-transition.reverse .screen-transition-title { animation-direction: reverse; }
         @keyframes screenWipe {
             0% { opacity: 0; clip-path: inset(0 100% 0 0); }
             18% { opacity: 1; clip-path: inset(0 0 0 0); }
@@ -2001,20 +2004,24 @@
             }
             if (fromHost) playScreenTransition('TOURNAMENT BRACKET');
         }
-        function playScreenTransition(titleText, onCovered) {
+        function playScreenTransition(titleText, onCovered, options = {}) {
             const overlay = document.getElementById('screen-transition');
             const title = document.getElementById('screen-transition-title');
             if (!overlay || !title) return;
             if (screenTransitionTimer) clearTimeout(screenTransitionTimer);
+            overlay.classList.toggle('reverse', options.reverse === true);
             title.innerText = titleText || '';
             title.style.display = titleText ? '' : 'none';
             overlay.classList.remove('hidden');
             overlay.style.animation = 'none';
+            title.style.animation = 'none';
             void overlay.offsetWidth;
             overlay.style.animation = '';
-            if (onCovered) setTimeout(onCovered, 190);
+            title.style.animation = '';
+            if (onCovered) setTimeout(onCovered, options.reverse === true ? 310 : 190);
             screenTransitionTimer = setTimeout(() => {
                 overlay.classList.add('hidden');
+                overlay.classList.remove('reverse');
                 title.style.display = '';
                 screenTransitionTimer = null;
             }, 1120);
@@ -2022,8 +2029,10 @@
         function goToSetup() {
             const returningToHost = bracketReturnScreen === 'host' && isHost;
             if (returningToHost) {
-                document.getElementById('bracket-screen').classList.add('hidden');
-                document.getElementById('host').classList.remove('hidden');
+                playScreenTransition('', () => {
+                    document.getElementById('bracket-screen').classList.add('hidden');
+                    document.getElementById('host').classList.remove('hidden');
+                }, { reverse: true });
             } else {
                 document.getElementById('bracket-screen').classList.add('hidden');
                 document.getElementById('setup').classList.remove('hidden');
