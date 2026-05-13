@@ -2476,6 +2476,7 @@
                 if (e.code === 'Space') startSequence();
                 if (e.code === 'KeyR') resetScores();
                 if (e.code === 'KeyS') toggleSplashScreen();
+                if (e.code === 'KeyB' && !document.getElementById('host').classList.contains('hidden')) showBracket();
                 if (e.code === 'Escape') hideSplashScreen();
             });
 
