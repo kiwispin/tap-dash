@@ -2197,6 +2197,21 @@
             if (slider) slider.value = nextVol.toFixed(2);
         }
 
+        function stopMusic() {
+            if (musicFadeRAF) {
+                cancelAnimationFrame(musicFadeRAF);
+                musicFadeRAF = null;
+            }
+            if (musicAudio) {
+                musicAudio.pause();
+                musicAudio.currentTime = 0;
+                musicAudio.volume = 0;
+            }
+            musicEnabled = false;
+            const btn = document.getElementById('btn-music-mute');
+            if (btn) btn.innerText = musicMuted ? '🔇 MUTED' : '🔊 MUSIC';
+        }
+
         function musicFadeTo(targetVol, durationMs) {
             if (!musicAudio) return;
             currentMusicTarget = targetVol;
@@ -3392,6 +3407,7 @@
         function closeConfirm(){ document.getElementById('confirm-modal').classList.add('hidden'); }
         function confirmExit() {
             closeConfirm(); isHost = false;
+            stopMusic();
             showSetup();
             clearInterval(gameInterval); clearInterval(countdownInterval);
         }
