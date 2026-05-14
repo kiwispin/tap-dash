@@ -287,6 +287,22 @@
             box-shadow: 0 0 24px rgba(0,0,0,0.62), inset 0 0 26px rgba(0,243,255,0.035);
         }
         .match:hover { border-color: var(--cyan); box-shadow: 0 0 25px rgba(0,243,255,0.12); background: rgba(0,20,40,0.8); }
+        .match.match-complete {
+            opacity: 0.62;
+            border-color: rgba(255,255,255,0.13);
+            border-left-color: rgba(0,243,255,0.45);
+            box-shadow: 0 0 12px rgba(0,0,0,0.56);
+        }
+        .match.match-complete .bracket-input {
+            color: rgba(255,255,255,0.35);
+            text-shadow: none;
+            border-bottom-color: rgba(255,255,255,0.08);
+        }
+        .match.match-complete .bracket-input.match-winner {
+            color: rgba(255,255,255,0.92);
+            text-shadow: 0 0 14px rgba(255,255,255,0.22);
+            border-bottom-color: rgba(0,243,255,0.35);
+        }
         .bracket-input {
             background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,0.16);
             color: #f5f7ff; font-family: 'Orbitron'; font-size: clamp(1.05rem, 1.35vw, 1.65rem);
@@ -2051,6 +2067,31 @@
             const { data: source } = getBracketDataForEvent(data);
             document.querySelectorAll('.bracket-input').forEach(input => {
                 input.value = source[input.id] || '';
+                input.classList.remove('match-winner');
+            });
+            document.querySelectorAll('.match').forEach(match => match.classList.remove('match-complete'));
+            markCompletedBracketMatches(source);
+        }
+
+        function markCompletedBracketMatches(source) {
+            bracketMatches.forEach(matchData => {
+                const valA = (source[matchData.inputs[0]] || '').trim();
+                const valB = (source[matchData.inputs[1]] || '').trim();
+                const winner = (source[matchData.target] || '').trim();
+                if (!valA || !valB || !winner) return;
+                const inputA = document.getElementById(matchData.inputs[0]);
+                const inputB = document.getElementById(matchData.inputs[1]);
+                const matchEl = inputA?.closest('.match');
+                if (!matchEl) return;
+                matchEl.classList.add('match-complete');
+                [inputA, inputB].forEach(input => {
+                    const inputValue = (input?.value || '').trim().toLowerCase();
+                    const winnerValue = winner.toLowerCase();
+                    const isStaffAdvance = winnerValue === 'staff' && inputValue.startsWith('staff');
+                    if (inputValue === winnerValue || isStaffAdvance) {
+                        input.classList.add('match-winner');
+                    }
+                });
             });
         }
 
