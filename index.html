@@ -2608,9 +2608,10 @@
         }
 
         function toggleSplashScreen(forceShow) {
-            if (!isHost || document.getElementById('host').classList.contains('hidden')) return;
+            if (!isHost) return;
             const splash = document.getElementById('splash-overlay');
             if (!splash) return;
+            if (splash.parentElement !== document.body) document.body.appendChild(splash);
             const shouldShow = forceShow ?? splash.classList.contains('hidden');
             splash.classList.toggle('hidden', !shouldShow);
         }
