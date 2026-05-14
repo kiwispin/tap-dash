@@ -247,17 +247,23 @@
         /* ===== BRACKET ===== */
         #bracket-screen {
             background: radial-gradient(circle at center, #0a0a15 0%, #000 100%);
-            padding: 20px; overflow: hidden;
+            padding: clamp(10px, 1.4vh, 18px) clamp(18px, 1.8vw, 34px) 10px;
+            overflow: hidden;
+            justify-content: flex-start;
         }
         .bracket-header {
-            font-size: clamp(1.5rem, 4vw, 3rem);
-            letter-spacing: 10px; color: var(--cyan);
-            text-shadow: 0 0 20px var(--cyan);
-            text-align: center; width: 100%; margin-top: 20px; margin-bottom: 10px;
+            font-size: clamp(2rem, 4.4vw, 5rem);
+            letter-spacing: clamp(10px, 1.9vw, 30px); color: var(--cyan);
+            text-shadow: 0 0 22px var(--cyan), 0 0 70px rgba(0,243,255,0.4);
+            text-align: center; width: 100%;
+            margin: 0 0 clamp(4px, 0.8vh, 12px);
+            line-height: 0.95;
+            flex-shrink: 0;
         }
         .bracket-wrapper {
             display: flex; justify-content: space-around; align-items: stretch;
-            width: 100%; max-width: 1500px; height: 68vh; margin: 10px auto 0 auto;
+            width: min(98vw, 1880px); max-width: none;
+            height: min(78vh, 820px); margin: 0 auto;
         }
         /* Mobile bracket scroll container */
         .bracket-scroll-outer {
@@ -266,41 +272,48 @@
             -webkit-overflow-scrolling: touch;
             flex: 1;
             display: flex;
-            align-items: stretch;
+            align-items: center;
+            justify-content: center;
         }
-        .round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; padding: 0 15px; }
+        .round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; padding: 0 clamp(8px, 1vw, 18px); }
         .round-final { justify-content: center; }
-        .match-group { display: flex; flex-direction: column; justify-content: center; position: relative; margin: 8px 0; padding: 8px 0; }
+        .match-group { display: flex; flex-direction: column; justify-content: center; position: relative; margin: clamp(6px, 0.9vh, 12px) 0; padding: clamp(6px, 0.9vh, 12px) 0; }
         .match {
-            background: rgba(0,10,20,0.8); border: 1px solid #333;
-            border-left: 3px solid var(--cyan); padding: 12px;
-            clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
-            display: flex; flex-direction: column; gap: 5px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            background: rgba(0,12,24,0.9); border: 1px solid rgba(0,243,255,0.28);
+            border-left: clamp(4px, 0.45vw, 8px) solid var(--cyan);
+            padding: clamp(14px, 1.25vw, 24px);
+            clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%, 0 16px);
+            display: flex; flex-direction: column; gap: clamp(8px, 1vh, 15px);
+            box-shadow: 0 0 24px rgba(0,0,0,0.62), inset 0 0 26px rgba(0,243,255,0.035);
         }
         .match:hover { border-color: var(--cyan); box-shadow: 0 0 25px rgba(0,243,255,0.12); background: rgba(0,20,40,0.8); }
         .bracket-input {
-            background: transparent; border: none; border-bottom: 1px solid #333;
-            color: #fff; font-family: 'Orbitron'; font-size: 0.85rem;
-            text-align: center; width: 100%; padding: 5px 0; outline: none;
-            transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+            background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,0.16);
+            color: #f5f7ff; font-family: 'Orbitron'; font-size: clamp(1.05rem, 1.35vw, 1.65rem);
+            font-weight: 800;
+            text-align: center; width: 100%; padding: clamp(8px, 0.9vh, 14px) 0; outline: none;
+            transition: 0.3s; text-transform: uppercase; letter-spacing: clamp(1px, 0.18vw, 4px);
+            line-height: 1.12;
+            text-shadow: 0 0 15px rgba(255,255,255,0.16);
         }
         .bracket-input:focus { border-bottom-color: var(--cyan); text-shadow: 0 0 5px var(--cyan); }
-        .bracket-input::placeholder { color: #444; font-size: 0.65rem; letter-spacing: 2px; }
-        .connector-right { position: absolute; right: -16px; top: 50%; width: 16px; height: 2px; background: var(--cyan); box-shadow: 0 0 5px var(--cyan); z-index: 10; }
-        .connector-left  { position: absolute; left: -16px; top: 50%; width: 16px; height: 2px; background: var(--cyan); box-shadow: 0 0 5px var(--cyan); z-index: 10; }
+        .bracket-input::placeholder { color: rgba(255,255,255,0.32); font-size: clamp(0.75rem, 1vw, 1.15rem); letter-spacing: 3px; }
+        .connector-right { position: absolute; right: -24px; top: 50%; width: 24px; height: 4px; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); z-index: 10; }
+        .connector-left  { position: absolute; left: -24px; top: 50%; width: 24px; height: 4px; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); z-index: 10; }
         .two-into-one { display: flex; align-items: center; justify-content: center; }
         .round-semi .match-group::before, .round-finals .match-group::before {
-            content: ''; position: absolute; left: -16px; top: 25%; bottom: 25%;
-            width: 2px; background: var(--cyan); box-shadow: 0 0 5px var(--cyan);
+            content: ''; position: absolute; left: -24px; top: 25%; bottom: 25%;
+            width: 4px; background: var(--cyan); box-shadow: 0 0 12px var(--cyan);
         }
-        .match.final-match { border: 2px solid var(--gold); padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.15); transform: scale(1.05); }
-        .final-label { color: var(--gold); font-size: 0.7rem; letter-spacing: 4px; text-align: center; margin-bottom: 5px; opacity: 0.8; }
-        .bracket-input.champion { font-size: 1.3rem; color: var(--gold); text-shadow: 0 0 10px var(--gold); border-bottom: none; }
+        .match.final-match { border: 3px solid var(--gold); padding: clamp(20px, 1.8vw, 34px); box-shadow: 0 0 44px rgba(255,215,0,0.26); transform: scale(1.03); }
+        .final-label { color: var(--gold); font-size: clamp(0.9rem, 1.1vw, 1.3rem); letter-spacing: 7px; text-align: center; margin-bottom: 8px; opacity: 0.95; }
+        .bracket-input.champion { font-size: clamp(1.25rem, 2vw, 2.3rem); color: var(--gold); text-shadow: 0 0 16px var(--gold); border-bottom: none; }
         .bracket-controls {
-            margin-top: auto; margin-bottom: 16px; padding: 0 20px;
+            position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+            margin: 0; padding: 0 20px;
             display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
-            opacity: 0.38; transition: opacity 0.2s ease-out;
+            opacity: 0.12; transition: opacity 0.2s ease-out;
+            z-index: 80;
         }
         .bracket-controls:hover, .bracket-controls:focus-within { opacity: 1; }
         #bracket-advance-banner {
@@ -1448,7 +1461,7 @@
                 flex-shrink: 0;
                 margin: 0;
             }
-            .bracket-controls { padding: 0 12px; flex-shrink: 0; margin-bottom: 8px; gap: 8px; opacity: 0.55; }
+            .bracket-controls { position: static; transform: none; padding: 0 12px; flex-shrink: 0; margin-bottom: 8px; gap: 8px; opacity: 0.55; }
             .bracket-controls .control-btn { min-width: 92px; height: 30px; padding: 0 10px; font-size: 0.48rem; letter-spacing: 1px; }
             .bracket-controls #btn-populate { min-width: 168px; }
             .bracket-controls #btn-save-bracket,
