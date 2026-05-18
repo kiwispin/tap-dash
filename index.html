@@ -4677,6 +4677,7 @@
         const TAPOFF_RELAY_ROUNDS   = 3;
         const TAPOFF_ROUND_DURATION = 20;
         const TAPOFF_HANDOFF        = 10;
+        const TAPOFF_START_COUNTDOWN = 3;
         const TAPOFF_BAR_MAX        = 700;
         const TAPOFF_COLORS = [
             { css: 'var(--purple)', glow: 'rgba(157,0,255,', bar: 'linear-gradient(90deg, rgba(157,0,255,0.35), var(--purple))' },
@@ -4698,6 +4699,7 @@
         let tapOffPendingTaps = 0;
         let tapOffFlushInterval = null;
         let tapOffGameInterval = null;
+        let tapOffCountdownInterval = null;
         let tapOffHandoffInterval = null;
         let tapOffGameplayStartTimeout = null;
         let tapOffRoundScoreTimeout = null;
@@ -4714,12 +4716,14 @@
         function clearTapOffTimers() {
             clearInterval(tapOffFlushInterval);
             clearInterval(tapOffGameInterval);
+            clearInterval(tapOffCountdownInterval);
             clearInterval(tapOffHandoffInterval);
             clearTimeout(tapOffGameplayStartTimeout);
             clearTimeout(tapOffRoundScoreTimeout);
             clearTimeout(tapOffHandoffNextTimeout);
             tapOffFlushInterval = null;
             tapOffGameInterval = null;
+            tapOffCountdownInterval = null;
             tapOffHandoffInterval = null;
             tapOffGameplayStartTimeout = null;
             tapOffRoundScoreTimeout = null;
@@ -5052,21 +5056,51 @@
 
         function runTapOffRound(roundToken) {
             if (roundToken !== tapOffRoundToken) return;
-            tapOffState = 'playing';
+            tapOffState = 'countdown';
             updateTapOffRoundDots(tapOffRelayRound);
             const timerEl = document.getElementById('tapoff-timer');
-            timerEl.className = 'duel-timer go';
-            timerEl.innerText = 'GO!';
-            playBeep('go');
-            musicFadeTo(MUSIC_VOL_PLAYING, 800);
+            musicFadeTo(MUSIC_VOL_COUNTDOWN, 600);
             tapOffPendingTaps = 0;
-            clearInterval(tapOffFlushInterval);
-            tapOffFlushInterval = setInterval(flushTapOffTaps, 250);
+            document.getElementById('tapoff-tap-container').style.pointerEvents = 'none';
 
             if (tapOffIsController) {
                 const scoreUpdates = {};
                 tapOffPlayerNames.forEach(n => scoreUpdates[n] = 0);
                 db.ref(`tapOffRooms/${tapOffRoomCode}/scores`).set(scoreUpdates);
+                db.ref(`tapOffRooms/${tapOffRoomCode}/status`).set('starting');
+            }
+
+            let count = TAPOFF_START_COUNTDOWN;
+            timerEl.className = 'duel-timer countdown';
+            timerEl.innerText = count;
+            playBeep('count', count);
+            clearInterval(tapOffCountdownInterval);
+            tapOffCountdownInterval = setInterval(() => {
+                if (roundToken !== tapOffRoundToken) { clearInterval(tapOffCountdownInterval); return; }
+                count--;
+                if (count > 0) {
+                    timerEl.innerText = count;
+                    playBeep('count', count);
+                    return;
+                }
+                clearInterval(tapOffCountdownInterval);
+                startTapOffGameplay(roundToken);
+            }, 1000);
+        }
+
+        function startTapOffGameplay(roundToken) {
+            if (roundToken !== tapOffRoundToken) return;
+            tapOffState = 'playing';
+            const timerEl = document.getElementById('tapoff-timer');
+            timerEl.className = 'duel-timer go';
+            timerEl.innerText = 'GO!';
+            playBeep('go');
+            musicFadeTo(MUSIC_VOL_PLAYING, 800);
+            document.getElementById('tapoff-tap-container').style.pointerEvents = '';
+            clearInterval(tapOffFlushInterval);
+            tapOffFlushInterval = setInterval(flushTapOffTaps, 250);
+
+            if (tapOffIsController) {
                 db.ref(`tapOffRooms/${tapOffRoomCode}/status`).set('playing');
             }
 
