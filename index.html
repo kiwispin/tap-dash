@@ -36,6 +36,20 @@
             touch-action: manipulation;
         }
 
+        #client,
+        #solo-practice,
+        #duel-arena,
+        #tapoff-arena,
+        #tap-btn,
+        #practice-btn,
+        #solo-tap-btn,
+        #duel-tap-btn,
+        #tapoff-tap-btn {
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
         .grid-bg {
             position: fixed;
             top: 0; left: 0;
@@ -2263,6 +2277,51 @@
         updateConnectionIndicators(false);
         db.ref('.info/connected').on('value', snap => {
             updateConnectionIndicators(snap.val() === true);
+        });
+
+        // ─── TAP-SCREEN SAFETY ──────────────────────────────────────────────────
+        // iPad Safari can zoom on double-tap/pinch gestures. Keep those gestures
+        // disabled only while a live tapping surface is visible.
+        let lastTapSurfaceTouchEnd = 0;
+
+        function isVisible(id) {
+            const el = document.getElementById(id);
+            return !!el && !el.classList.contains('hidden') && getComputedStyle(el).display !== 'none';
+        }
+
+        function isTapSurfaceActive() {
+            return isVisible('client') ||
+                   isVisible('solo-practice') ||
+                   (isVisible('duel-screen') && isVisible('duel-arena')) ||
+                   (isVisible('tapoff-screen') && isVisible('tapoff-arena'));
+        }
+
+        function isFormControl(target) {
+            return !!target && !!target.closest && !!target.closest('input, textarea, select');
+        }
+
+        function preventTapSurfaceZoom(e) {
+            if (!isTapSurfaceActive() || isFormControl(e.target)) return;
+            e.preventDefault();
+        }
+
+        document.addEventListener('touchstart', e => {
+            if (isTapSurfaceActive() && e.touches && e.touches.length > 1) e.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('touchmove', e => {
+            if (isTapSurfaceActive() && e.touches && e.touches.length > 1) e.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('touchend', e => {
+            if (!isTapSurfaceActive() || isFormControl(e.target)) return;
+            const now = Date.now();
+            if (now - lastTapSurfaceTouchEnd < 320) e.preventDefault();
+            lastTapSurfaceTouchEnd = now;
+        }, { passive: false });
+
+        ['gesturestart', 'gesturechange', 'gestureend'].forEach(eventName => {
+            document.addEventListener(eventName, preventTapSurfaceZoom, { passive: false });
         });
 
         // ─── GLOBAL STATE ─────────────────────────────────────────────────────────
