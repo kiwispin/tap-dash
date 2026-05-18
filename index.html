@@ -859,6 +859,9 @@
         #duel-screen .connection-indicator {
             top: auto; right: 20px; bottom: 20px;
         }
+        #tapoff-screen .connection-indicator {
+            top: auto; right: 20px; bottom: 20px;
+        }
 
         @keyframes pulse { 0%,100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.02); opacity: 0.8; } }
 
@@ -1111,6 +1114,127 @@
             background: rgba(0,243,255,0.08); border: 1px solid rgba(0,243,255,0.4);
             color: var(--cyan); font-family: 'Orbitron'; font-size: 0.65rem;
             letter-spacing: 4px; animation: duelPulse 2s infinite; z-index: 100;
+        }
+
+        /* ===== TEAM TAP-OFF PRACTICE ===== */
+        #tapoff-screen {
+            background:
+                radial-gradient(circle at 50% 20%, rgba(0,243,255,0.12), transparent 34%),
+                radial-gradient(circle at 50% 85%, rgba(255,0,204,0.12), transparent 38%),
+                #020208;
+            padding: 20px;
+            position: relative;
+        }
+        #tapoff-arena {
+            position: absolute !important;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 20px;
+        }
+        .tapoff-lanes {
+            width: min(1120px, 94vw);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: clamp(10px, 1.4vw, 18px);
+            margin: 8px 0 12px;
+        }
+        .tapoff-lane {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 14px;
+            background: rgba(0,0,0,0.42);
+            border: 1px solid rgba(255,255,255,0.14);
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+            overflow: hidden;
+        }
+        .tapoff-lane.is-me {
+            border-color: currentColor;
+            box-shadow: 0 0 24px rgba(255,255,255,0.12), inset 0 0 26px rgba(255,255,255,0.04);
+        }
+        .tapoff-lane-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+        }
+        .tapoff-lane-name {
+            min-width: 0;
+            font-size: clamp(0.9rem, 1.5vw, 1.35rem);
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .tapoff-lane-score {
+            font-size: clamp(1.35rem, 2.4vw, 2.3rem);
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+        .tapoff-total {
+            display: flex;
+            justify-content: space-between;
+            color: #555;
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+        }
+        .tapoff-total strong {
+            color: #fff;
+            font-size: 1rem;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 10px currentColor;
+        }
+        .tapoff-track {
+            width: 100%;
+            height: clamp(20px, 3vh, 34px);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .tapoff-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 3px;
+            transition: width 0.18s ease-out;
+            box-shadow: 0 0 18px currentColor, inset 0 0 12px rgba(255,255,255,0.14);
+        }
+        .tapoff-tap-zone {
+            width: clamp(150px, 18vw, 230px);
+            height: clamp(150px, 18vw, 230px);
+            border-radius: 50%;
+            border: 4px solid currentColor;
+            background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.78) 70%);
+            color: var(--cyan);
+            font-size: clamp(1.2rem, 2.6vw, 2rem);
+            font-weight: 900;
+            letter-spacing: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            box-shadow: 0 0 38px currentColor, inset 0 0 42px rgba(0,0,0,0.55);
+            transition: transform 0.06s, box-shadow 0.06s;
+        }
+        .tapoff-tap-zone:active {
+            transform: scale(0.9);
+            box-shadow: 0 0 80px currentColor, inset 0 0 40px rgba(255,255,255,0.2);
+        }
+        .tapoff-limit {
+            color: #555;
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            text-align: center;
         }
 
         @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-6px); } 100% { transform: translateX(0); } }
@@ -1436,6 +1560,19 @@
                 font-size: clamp(1.3rem, 5vw, 2rem) !important;
                 margin-top: 16px;
             }
+
+            /* Team Tap-Off arena */
+            #tapoff-arena { padding: 58px 18px 18px; justify-content: center; }
+            .tapoff-lanes { width: 100%; grid-template-columns: 1fr; gap: 8px; margin: 4px 0 8px; }
+            .tapoff-lane { padding: 10px; gap: 5px; }
+            .tapoff-lane-name { font-size: clamp(0.82rem, 3.3vw, 1.2rem); letter-spacing: 2px; }
+            .tapoff-lane-score { font-size: clamp(1.1rem, 3.8vw, 1.6rem); }
+            .tapoff-track { height: clamp(16px, 3vw, 24px); }
+            .tapoff-tap-zone {
+                width: clamp(150px, 48vw, 280px) !important;
+                height: clamp(150px, 48vw, 280px) !important;
+                font-size: clamp(1.2rem, 4.5vw, 1.8rem) !important;
+            }
         }
 
         /* ── Phone portrait (iPhone-sized: narrow + shorter than iPad) ───────────
@@ -1528,6 +1665,19 @@
                 border-width: 3px;
             }
             .duel-tap-zone::after { top: -6px; left: -6px; right: -6px; bottom: -6px; }
+
+            /* Team Tap-Off phone view */
+            .tapoff-lanes { gap: 6px; }
+            .tapoff-lane { padding: 8px; }
+            .tapoff-lane-name { font-size: 0.78rem; letter-spacing: 1px; }
+            .tapoff-lane-score { font-size: 1rem; }
+            .tapoff-total { font-size: 0.55rem; letter-spacing: 2px; }
+            .tapoff-track { height: 14px; }
+            .tapoff-tap-zone {
+                width: clamp(125px, 42vw, 190px) !important;
+                height: clamp(125px, 42vw, 190px) !important;
+                font-size: 1.15rem !important;
+            }
         }
     </style>
 </head>
@@ -1576,6 +1726,14 @@
                     letter-spacing:4px;cursor:pointer;transition:all 0.2s;
                     clip-path:polygon(0 0,100% 0,100% 80%,95% 100%,0 100%);">
                     ⚡ VS SOMEONE
+                </button>
+                <button onclick="showTapOffLobby()" style="
+                    width:100%;height:clamp(70px,10vh,100px);
+                    background:rgba(255,215,0,0.08);border:2px solid var(--gold);color:var(--gold);
+                    font-family:'Orbitron';font-size:clamp(1rem,2vw,1.4rem);font-weight:900;
+                    letter-spacing:4px;cursor:pointer;transition:all 0.2s;
+                    clip-path:polygon(0 0,100% 0,100% 80%,95% 100%,0 100%);">
+                    🏁 TEAM TAP-OFF
                 </button>
             </div>
         </div>
@@ -1878,6 +2036,73 @@
                 <div class="duel-btn-row" style="margin-top:30px;width:clamp(260px,35vw,460px);justify-content:center;">
                     <button class="duel-action-btn" onclick="rematchDuel()">REMATCH</button>
                     <button class="duel-action-btn pink" onclick="exitDuel()">EXIT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEAM TAP-OFF PRACTICE SCREEN -->
+    <div id="tapoff-screen" class="screen hidden">
+        <button class="duel-back-btn" id="tapoff-exit-btn" onclick="exitTapOff()">← EXIT</button>
+        <div class="connection-indicator reconnecting">CONNECTING</div>
+
+        <div id="tapoff-lobby" class="duel-lobby">
+            <h2 style="background:linear-gradient(135deg,var(--gold),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;">TEAM TAP-OFF</h2>
+            <div class="tapoff-limit">PRACTICE ONLY · 2-5 TEAMS · 3 × 20s RELAY</div>
+            <input class="duel-input" id="tapoff-name-input" type="text" placeholder="CLASS / TEAM NAME" maxlength="14">
+            <div class="duel-btn-row">
+                <button class="duel-action-btn watch" onclick="createTapOffRoom()">CREATE ROOM</button>
+                <button class="duel-action-btn pink" onclick="showTapOffJoinInput()">JOIN ROOM</button>
+            </div>
+            <div id="tapoff-join-row" class="hidden" style="width:100%;display:flex;gap:10px;">
+                <input class="duel-input" id="tapoff-code-input" type="text" placeholder="ROOM CODE" maxlength="4" style="flex:1;text-transform:uppercase;">
+                <button class="duel-action-btn pink" style="flex:0 0 auto;padding:12px 20px;" onclick="joinTapOffRoom()">GO</button>
+            </div>
+            <div id="tapoff-watch-row" class="hidden" style="width:100%;display:flex;gap:10px;">
+                <input class="duel-input" id="tapoff-watch-code-input" type="text" placeholder="ROOM CODE" maxlength="4" style="flex:1;text-transform:uppercase;">
+                <button class="duel-action-btn watch" style="flex:0 0 auto;padding:12px 20px;" onclick="watchTapOffRoom()">GO</button>
+            </div>
+            <div id="tapoff-error" style="color:var(--pink);font-size:0.8rem;letter-spacing:2px;min-height:1.2em;"></div>
+            <button onclick="showTapOffWatchInput()" style="background:none;border:none;color:#444;font-family:'Orbitron';font-size:0.65rem;letter-spacing:3px;cursor:pointer;margin-top:4px;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='#444'">👁 SPECTATE A ROOM</button>
+        </div>
+
+        <div id="tapoff-waiting" class="duel-lobby hidden">
+            <h2 style="background:linear-gradient(135deg,var(--gold),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;">ROOM READY</h2>
+            <div class="duel-room-display" style="border-color:var(--gold);box-shadow:0 0 25px rgba(255,215,0,0.12);">
+                <div class="duel-room-label">SHARE THIS CODE</div>
+                <div class="duel-room-code" id="tapoff-my-code" style="color:var(--gold);text-shadow:0 0 20px var(--gold);">----</div>
+            </div>
+            <div class="duel-players" id="tapoff-players-list"></div>
+            <div class="duel-waiting-text" id="tapoff-status-text">WAITING FOR TEAMS...</div>
+            <button class="duel-action-btn watch" id="tapoff-start-btn" onclick="startTapOff()" style="display:none;">START TAP-OFF</button>
+        </div>
+
+        <div id="tapoff-arena" class="hidden">
+            <div id="tapoff-spectator-badge" class="duel-spectator-badge hidden">SPECTATING</div>
+            <div id="tapoff-slot-header" class="relay-header" style="margin-bottom:0;">
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="tapoff-dot-1"></div><div class="relay-slot-label" id="tapoff-slot-lbl-1">ROUND 1</div></div>
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="tapoff-dot-2"></div><div class="relay-slot-label" id="tapoff-slot-lbl-2">ROUND 2</div></div>
+                <div class="relay-slot-pip"><div class="relay-slot-dot" id="tapoff-dot-3"></div><div class="relay-slot-label" id="tapoff-slot-lbl-3">ROUND 3</div></div>
+            </div>
+            <div class="duel-timer" id="tapoff-timer">20</div>
+            <div class="tapoff-lanes" id="tapoff-lanes"></div>
+            <div id="tapoff-tap-container" style="display:flex;justify-content:center;">
+                <div class="tapoff-tap-zone" id="tapoff-tap-btn">TAP</div>
+            </div>
+
+            <div id="tapoff-handoff" class="duel-round-flash hidden" style="gap:16px;">
+                <div class="relay-handoff-slot" id="tapoff-handoff-slot">ROUND 1 COMPLETE</div>
+                <div class="relay-handoff-msg" style="font-size:clamp(1.5rem,4vw,3rem);">SWAP PLAYERS!</div>
+                <div class="relay-handoff-scores" id="tapoff-handoff-scores"></div>
+                <div class="relay-handoff-timer" id="tapoff-handoff-timer">10</div>
+            </div>
+
+            <div id="tapoff-result" class="duel-result hidden">
+                <div class="duel-result-title">TEAM TAP-OFF WINNER</div>
+                <div class="duel-result-name" id="tapoff-winner-name">---</div>
+                <div class="duel-btn-row" style="margin-top:30px;width:clamp(300px,42vw,560px);justify-content:center;">
+                    <button class="duel-action-btn watch" id="tapoff-rematch-btn" onclick="rematchTapOff()">RUN AGAIN</button>
+                    <button class="duel-action-btn pink" onclick="exitTapOff()">EXIT</button>
                 </div>
             </div>
         </div>
@@ -2412,7 +2637,7 @@
 
         function showSetup() {
             document.getElementById('setup').classList.remove('hidden');
-            ['host','client','bracket-screen','solo-practice'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['host','client','bracket-screen','solo-practice','tapoff-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
         }
         function exitClient() { myTeam = null; showSetup(); }
 
@@ -4316,6 +4541,646 @@
         window.startNextRound = startNextRound;
         window.rematchDuel    = rematchDuel;
         window.exitDuel       = exitDuel;
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // TEAM TAP-OFF PRACTICE — standalone 2-5 team relay room
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        const TAPOFF_MAX_TEAMS      = 5;
+        const TAPOFF_RELAY_ROUNDS   = 3;
+        const TAPOFF_ROUND_DURATION = 20;
+        const TAPOFF_HANDOFF        = 10;
+        const TAPOFF_BAR_MAX        = 700;
+        const TAPOFF_COLORS = [
+            { css: 'var(--purple)', glow: 'rgba(157,0,255,', bar: 'linear-gradient(90deg, rgba(157,0,255,0.35), var(--purple))' },
+            { css: 'var(--pink)',   glow: 'rgba(255,0,204,', bar: 'linear-gradient(90deg, rgba(255,0,204,0.35), var(--pink))' },
+            { css: 'var(--cyan)',   glow: 'rgba(0,243,255,', bar: 'linear-gradient(90deg, rgba(0,243,255,0.35), var(--cyan))' },
+            { css: 'var(--gold)',   glow: 'rgba(255,215,0,', bar: 'linear-gradient(90deg, rgba(255,215,0,0.35), var(--gold))' },
+            { css: 'var(--green)',  glow: 'rgba(57,255,20,', bar: 'linear-gradient(90deg, rgba(57,255,20,0.35), var(--green))' }
+        ];
+
+        let tapOffRoomCode = null;
+        let tapOffMyName = null;
+        let tapOffIsController = false;
+        let tapOffIsSpectator = false;
+        let tapOffListeners = [];
+        let tapOffPlayerNames = [];
+        let tapOffRelayRound = 1;
+        let tapOffRelayScores = {};
+        let tapOffState = 'idle';
+        let tapOffPendingTaps = 0;
+        let tapOffFlushInterval = null;
+        let tapOffGameInterval = null;
+        let tapOffHandoffInterval = null;
+        let tapOffGameplayStartTimeout = null;
+        let tapOffRoundScoreTimeout = null;
+        let tapOffHandoffNextTimeout = null;
+        let tapOffRoundToken = 0;
+        let tapOffLastRoundCounter = 0;
+        let tapOffMatchResultShown = false;
+        let tapOffStartInProgress = false;
+
+        function tapOffColor(i) {
+            return TAPOFF_COLORS[i % TAPOFF_COLORS.length];
+        }
+
+        function clearTapOffTimers() {
+            clearInterval(tapOffFlushInterval);
+            clearInterval(tapOffGameInterval);
+            clearInterval(tapOffHandoffInterval);
+            clearTimeout(tapOffGameplayStartTimeout);
+            clearTimeout(tapOffRoundScoreTimeout);
+            clearTimeout(tapOffHandoffNextTimeout);
+            tapOffFlushInterval = null;
+            tapOffGameInterval = null;
+            tapOffHandoffInterval = null;
+            tapOffGameplayStartTimeout = null;
+            tapOffRoundScoreTimeout = null;
+            tapOffHandoffNextTimeout = null;
+        }
+
+        function showTapOffLobby() {
+            clearTapOffTimers();
+            document.getElementById('setup').classList.add('hidden');
+            document.getElementById('tapoff-screen').classList.remove('hidden');
+            document.getElementById('tapoff-lobby').classList.remove('hidden');
+            document.getElementById('tapoff-waiting').classList.add('hidden');
+            document.getElementById('tapoff-arena').classList.add('hidden');
+            document.getElementById('tapoff-join-row').classList.add('hidden');
+            document.getElementById('tapoff-watch-row').classList.add('hidden');
+            document.getElementById('tapoff-error').innerText = '';
+            tapOffIsController = false;
+            tapOffIsSpectator = false;
+            tapOffState = 'idle';
+            tapOffMatchResultShown = false;
+        }
+
+        function showTapOffJoinInput() {
+            document.getElementById('tapoff-watch-row').classList.add('hidden');
+            const row = document.getElementById('tapoff-join-row');
+            row.classList.remove('hidden');
+            row.style.display = 'flex';
+            document.getElementById('tapoff-code-input').focus();
+        }
+
+        function showTapOffWatchInput() {
+            document.getElementById('tapoff-join-row').classList.add('hidden');
+            const row = document.getElementById('tapoff-watch-row');
+            row.classList.remove('hidden');
+            row.style.display = 'flex';
+            document.getElementById('tapoff-watch-code-input').focus();
+        }
+
+        function createTapOffRoom() {
+            tapOffRoomCode = generateRoomCode();
+            tapOffMyName = null;
+            tapOffIsController = true;
+            tapOffIsSpectator = false;
+            db.ref(`tapOffRooms/${tapOffRoomCode}`).set({
+                players: {},
+                scores: {},
+                relayScores: {},
+                currentRound: 1,
+                roundCounter: 0,
+                matchId: null,
+                status: 'waiting',
+                winner: null,
+                created: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                showTapOffWaiting();
+                listenToTapOffRoom();
+            });
+        }
+
+        function joinTapOffRoom() {
+            const name = document.getElementById('tapoff-name-input').value.trim().toUpperCase();
+            if (!name) { document.getElementById('tapoff-error').innerText = 'ENTER CLASS / TEAM NAME'; return; }
+            const code = document.getElementById('tapoff-code-input').value.trim().toUpperCase();
+            if (!code || code.length !== 4) { document.getElementById('tapoff-error').innerText = 'ENTER 4-CHAR CODE'; return; }
+            tapOffMyName = name;
+            tapOffRoomCode = code;
+            tapOffIsController = false;
+            tapOffIsSpectator = false;
+            db.ref(`tapOffRooms/${code}`).once('value').then(snap => {
+                const data = snap.val();
+                if (!data) { document.getElementById('tapoff-error').innerText = 'ROOM NOT FOUND'; tapOffRoomCode = null; return; }
+                if (data.status && data.status !== 'waiting') {
+                    document.getElementById('tapoff-error').innerText = 'ROOM ALREADY RUNNING';
+                    tapOffRoomCode = null;
+                    return;
+                }
+                const players = data.players || {};
+                if (Object.keys(players).length >= TAPOFF_MAX_TEAMS) { document.getElementById('tapoff-error').innerText = 'ROOM IS FULL'; tapOffRoomCode = null; return; }
+                if (players[name]) { document.getElementById('tapoff-error').innerText = 'NAME TAKEN'; tapOffRoomCode = null; return; }
+                const updates = {};
+                updates[`tapOffRooms/${code}/players/${name}`] = true;
+                updates[`tapOffRooms/${code}/scores/${name}`] = 0;
+                updates[`tapOffRooms/${code}/relayScores/${name}`] = [];
+                db.ref().update(updates).then(() => {
+                    showTapOffWaiting();
+                    listenToTapOffRoom();
+                });
+            });
+        }
+
+        function watchTapOffRoom() {
+            const code = document.getElementById('tapoff-watch-code-input').value.trim().toUpperCase();
+            if (!code || code.length !== 4) { document.getElementById('tapoff-error').innerText = 'ENTER 4-CHAR CODE'; return; }
+            db.ref(`tapOffRooms/${code}`).once('value').then(snap => {
+                if (!snap.val()) { document.getElementById('tapoff-error').innerText = 'ROOM NOT FOUND'; return; }
+                tapOffRoomCode = code;
+                tapOffMyName = null;
+                tapOffIsController = false;
+                tapOffIsSpectator = true;
+                showTapOffWaiting();
+                listenToTapOffRoom();
+            });
+        }
+
+        function showTapOffWaiting() {
+            document.getElementById('tapoff-lobby').classList.add('hidden');
+            document.getElementById('tapoff-waiting').classList.remove('hidden');
+            document.getElementById('tapoff-my-code').innerText = tapOffRoomCode;
+            tapOffState = 'waiting';
+        }
+
+        function listenToTapOffRoom() {
+            tapOffListeners.forEach(l => l.ref.off(l.event, l.fn));
+            tapOffListeners = [];
+
+            const playersRef = db.ref(`tapOffRooms/${tapOffRoomCode}/players`);
+            const playersListener = playersRef.on('value', snap => {
+                const players = snap.val() || {};
+                const names = Object.keys(players);
+                tapOffPlayerNames = names;
+                const listEl = document.getElementById('tapoff-players-list');
+                if (listEl) {
+                    listEl.innerHTML = '';
+                    names.forEach((n, i) => {
+                        const tag = document.createElement('div');
+                        const color = tapOffColor(i).css;
+                        tag.className = 'duel-player-tag';
+                        tag.style.color = color;
+                        tag.style.borderColor = color;
+                        tag.style.background = 'rgba(255,255,255,0.04)';
+                        tag.innerText = n + (n === tapOffMyName ? ' (YOU)' : '');
+                        listEl.appendChild(tag);
+                    });
+                }
+                const statusText = document.getElementById('tapoff-status-text');
+                const startBtn = document.getElementById('tapoff-start-btn');
+                if (!statusText) return;
+                statusText.innerText = `${names.length} / ${TAPOFF_MAX_TEAMS} TEAMS READY`;
+                statusText.style.color = names.length >= 2 ? 'var(--green)' : '#444';
+                if (startBtn) startBtn.style.display = tapOffIsController && names.length >= 2 ? 'block' : 'none';
+            });
+            tapOffListeners.push({ ref: playersRef, event: 'value', fn: playersListener });
+
+            let lastMatchId = null;
+            const matchIdRef = db.ref(`tapOffRooms/${tapOffRoomCode}/matchId`);
+            const matchIdListener = matchIdRef.on('value', snap => {
+                const id = snap.val();
+                if (!id || id === lastMatchId) return;
+                lastMatchId = id;
+                tapOffLastRoundCounter = 0;
+                enterTapOffArena();
+            });
+            tapOffListeners.push({ ref: matchIdRef, event: 'value', fn: matchIdListener });
+
+            const roundCounterRef = db.ref(`tapOffRooms/${tapOffRoomCode}/roundCounter`);
+            const roundCounterListener = roundCounterRef.on('value', snap => {
+                const counter = snap.val();
+                if (counter === null || counter === 0) {
+                    tapOffLastRoundCounter = 0;
+                    return;
+                }
+                if (counter <= tapOffLastRoundCounter) return;
+                tapOffLastRoundCounter = counter;
+                enterTapOffArena();
+            });
+            tapOffListeners.push({ ref: roundCounterRef, event: 'value', fn: roundCounterListener });
+
+            const statusRef = db.ref(`tapOffRooms/${tapOffRoomCode}/status`);
+            const statusListener = statusRef.on('value', snap => {
+                if (snap.val() !== 'finished' || tapOffMatchResultShown) return;
+                db.ref(`tapOffRooms/${tapOffRoomCode}`).once('value').then(roomSnap => {
+                    const room = roomSnap.val() || {};
+                    tapOffRelayScores = room.relayScores || tapOffRelayScores;
+                    tapOffPlayerNames = Object.keys(room.players || {});
+                    showTapOffResult(room.winner);
+                });
+            });
+            tapOffListeners.push({ ref: statusRef, event: 'value', fn: statusListener });
+        }
+
+        function startTapOff() {
+            if (!tapOffRoomCode || !tapOffIsController || tapOffStartInProgress) return;
+            tapOffStartInProgress = true;
+            const startBtn = document.getElementById('tapoff-start-btn');
+            if (startBtn) startBtn.disabled = true;
+            db.ref(`tapOffRooms/${tapOffRoomCode}`).transaction(room => {
+                if (!room || !room.players) return room;
+                const players = Object.keys(room.players || {});
+                if (players.length < 2) return;
+                const scores = {};
+                const relayScores = {};
+                players.forEach(n => {
+                    scores[n] = 0;
+                    relayScores[n] = [];
+                });
+                room.scores = scores;
+                room.relayScores = relayScores;
+                room.currentRound = 1;
+                room.roundCounter = 0;
+                room.matchId = Date.now();
+                room.status = 'starting';
+                room.winner = null;
+                return room;
+            }, (error, committed, snap) => {
+                tapOffStartInProgress = false;
+                if (startBtn) startBtn.disabled = false;
+                if (error || !committed) return;
+                const room = snap.val() || {};
+                tapOffPlayerNames = Object.keys(room.players || {});
+                tapOffRelayScores = room.relayScores || {};
+                tapOffRelayRound = 1;
+                tapOffMatchResultShown = false;
+            });
+        }
+
+        function enterTapOffArena() {
+            clearTapOffTimers();
+            const roundToken = ++tapOffRoundToken;
+            tapOffMatchResultShown = false;
+            tapOffState = 'countdown';
+            tapOffListeners = tapOffListeners.filter(l => {
+                if (l.arena) { l.ref.off(l.event, l.fn); return false; }
+                return true;
+            });
+
+            document.getElementById('tapoff-waiting').classList.add('hidden');
+            document.getElementById('tapoff-lobby').classList.add('hidden');
+            document.getElementById('tapoff-arena').classList.remove('hidden');
+            document.getElementById('tapoff-result').classList.add('hidden');
+            document.getElementById('tapoff-handoff').classList.add('hidden');
+            const timerEl = document.getElementById('tapoff-timer');
+            timerEl.className = 'duel-timer';
+            timerEl.style.color = '';
+            timerEl.innerText = TAPOFF_ROUND_DURATION;
+
+            const badge = document.getElementById('tapoff-spectator-badge');
+            if (tapOffIsController) {
+                badge.innerText = 'CONTROLLER';
+                badge.classList.remove('hidden');
+            } else if (tapOffIsSpectator) {
+                badge.innerText = 'SPECTATING';
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            initAudio();
+
+            db.ref(`tapOffRooms/${tapOffRoomCode}`).once('value').then(snap => {
+                if (roundToken !== tapOffRoundToken) return;
+                const data = snap.val() || {};
+                const players = Object.keys(data.players || {});
+                tapOffPlayerNames = players;
+                tapOffRelayRound = data.currentRound || 1;
+                tapOffRelayScores = data.relayScores || {};
+                players.forEach(n => {
+                    if (!tapOffRelayScores[n]) tapOffRelayScores[n] = [];
+                });
+                updateTapOffRoundDots(tapOffRelayRound);
+                buildTapOffLanes(players);
+                bindTapOffScoresListener(players);
+                bindTapOffTapButton(players);
+                runTapOffRound(roundToken);
+            });
+        }
+
+        function buildTapOffLanes(players) {
+            const lanesEl = document.getElementById('tapoff-lanes');
+            lanesEl.innerHTML = '';
+            players.forEach((name, i) => {
+                const color = tapOffColor(i);
+                const lane = document.createElement('div');
+                lane.className = 'tapoff-lane' + (name === tapOffMyName ? ' is-me' : '');
+                lane.style.color = color.css;
+                lane.innerHTML = `
+                    <div class="tapoff-lane-header">
+                        <span class="tapoff-lane-name" style="color:${color.css}">${name}${name === tapOffMyName ? ' ★' : ''}</span>
+                        <span class="tapoff-lane-score" id="tapoff-score-${i}" style="color:${color.css}">0</span>
+                    </div>
+                    <div class="tapoff-total">
+                        <span>TOTAL</span>
+                        <strong id="tapoff-total-${i}" style="color:${color.css}">0</strong>
+                    </div>
+                    <div class="tapoff-track">
+                        <div class="tapoff-bar" id="tapoff-bar-${i}" style="background:${color.bar};color:${color.css};"></div>
+                    </div>`;
+                lanesEl.appendChild(lane);
+            });
+            updateTapOffTotals();
+        }
+
+        function bindTapOffScoresListener(players) {
+            const scoresRef = db.ref(`tapOffRooms/${tapOffRoomCode}/scores`);
+            const scoresListener = scoresRef.on('value', snap => {
+                const scores = snap.val() || {};
+                players.forEach((name, i) => {
+                    const score = scores[name] || 0;
+                    const scoreEl = document.getElementById(`tapoff-score-${i}`);
+                    const barEl = document.getElementById(`tapoff-bar-${i}`);
+                    if (scoreEl) scoreEl.innerText = score;
+                    if (barEl) barEl.style.width = Math.min((score / TAPOFF_BAR_MAX) * 100, 100) + '%';
+                });
+            });
+            tapOffListeners.push({ ref: scoresRef, event: 'value', fn: scoresListener, arena: true });
+        }
+
+        function bindTapOffTapButton(players) {
+            const tapContainer = document.getElementById('tapoff-tap-container');
+            const myIndex = players.indexOf(tapOffMyName);
+            if (myIndex < 0 || tapOffIsController || tapOffIsSpectator) {
+                tapContainer.style.display = 'none';
+                return;
+            }
+            const color = tapOffColor(myIndex);
+            tapContainer.style.display = 'flex';
+            tapContainer.style.justifyContent = 'center';
+            const oldBtn = document.getElementById('tapoff-tap-btn');
+            const newBtn = oldBtn.cloneNode(true);
+            oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+            newBtn.style.color = color.css;
+            newBtn.style.borderColor = color.css;
+            newBtn.style.background = `radial-gradient(circle, ${color.glow}0.16) 0%, rgba(0,0,0,0.78) 70%)`;
+            const ev = 'ontouchstart' in window ? 'touchstart' : 'click';
+            newBtn.addEventListener(ev, e => {
+                e.preventDefault();
+                handleTapOffTap();
+            });
+        }
+
+        function runTapOffRound(roundToken) {
+            if (roundToken !== tapOffRoundToken) return;
+            tapOffState = 'playing';
+            updateTapOffRoundDots(tapOffRelayRound);
+            const timerEl = document.getElementById('tapoff-timer');
+            timerEl.className = 'duel-timer go';
+            timerEl.innerText = 'GO!';
+            playBeep('go');
+            musicFadeTo(MUSIC_VOL_PLAYING, 800);
+            tapOffPendingTaps = 0;
+            clearInterval(tapOffFlushInterval);
+            tapOffFlushInterval = setInterval(flushTapOffTaps, 250);
+
+            if (tapOffIsController) {
+                const scoreUpdates = {};
+                tapOffPlayerNames.forEach(n => scoreUpdates[n] = 0);
+                db.ref(`tapOffRooms/${tapOffRoomCode}/scores`).set(scoreUpdates);
+                db.ref(`tapOffRooms/${tapOffRoomCode}/status`).set('playing');
+            }
+
+            let timeLeft = TAPOFF_ROUND_DURATION;
+            clearTimeout(tapOffGameplayStartTimeout);
+            tapOffGameplayStartTimeout = setTimeout(() => {
+                if (roundToken !== tapOffRoundToken) return;
+                timerEl.className = 'duel-timer';
+                timerEl.innerText = timeLeft;
+                clearInterval(tapOffGameInterval);
+                tapOffGameInterval = setInterval(() => {
+                    if (roundToken !== tapOffRoundToken) { clearInterval(tapOffGameInterval); return; }
+                    timeLeft--;
+                    timerEl.innerText = timeLeft;
+                    if (timeLeft <= 3) timerEl.className = 'duel-timer countdown';
+                    if (timeLeft <= 0) {
+                        clearInterval(tapOffGameInterval);
+                        endTapOffRound(roundToken);
+                    }
+                }, 1000);
+            }, 800);
+        }
+
+        function handleTapOffTap() {
+            if (tapOffState !== 'playing') return;
+            tapOffPendingTaps++;
+            const btn = document.getElementById('tapoff-tap-btn');
+            btn.style.transform = 'scale(0.9)';
+            setTimeout(() => btn.style.transform = 'scale(1)', 50);
+        }
+
+        function flushTapOffTaps() {
+            if (tapOffPendingTaps > 0 && tapOffRoomCode && tapOffMyName) {
+                const c = tapOffPendingTaps;
+                tapOffPendingTaps = 0;
+                db.ref(`tapOffRooms/${tapOffRoomCode}/scores/${tapOffMyName}`).transaction(cur => (cur || 0) + c);
+            }
+        }
+
+        function endTapOffRound(roundToken) {
+            if (roundToken !== tapOffRoundToken || tapOffState !== 'playing') return;
+            tapOffState = 'finished';
+            clearInterval(tapOffFlushInterval);
+            clearInterval(tapOffGameInterval);
+            flushTapOffTaps();
+            const timerEl = document.getElementById('tapoff-timer');
+            timerEl.className = 'duel-timer';
+            timerEl.innerText = '0';
+            timerEl.style.color = '#555';
+            document.getElementById('tapoff-tap-container').style.display = 'none';
+
+            clearTimeout(tapOffRoundScoreTimeout);
+            tapOffRoundScoreTimeout = setTimeout(() => {
+                if (roundToken !== tapOffRoundToken) return;
+                db.ref(`tapOffRooms/${tapOffRoomCode}/scores`).once('value').then(snap => {
+                    if (roundToken !== tapOffRoundToken) return;
+                    const scores = snap.val() || {};
+                    tapOffPlayerNames.forEach(name => {
+                        if (!tapOffRelayScores[name]) tapOffRelayScores[name] = [];
+                        tapOffRelayScores[name][tapOffRelayRound - 1] = scores[name] || 0;
+                    });
+                    updateTapOffTotals();
+                    if (tapOffIsController) {
+                        const relayScoresUpdate = {};
+                        tapOffPlayerNames.forEach(n => { relayScoresUpdate[n] = tapOffRelayScores[n] || []; });
+                        db.ref(`tapOffRooms/${tapOffRoomCode}/relayScores`).set(relayScoresUpdate);
+                    }
+                    if (tapOffRelayRound >= TAPOFF_RELAY_ROUNDS) {
+                        endTapOffMatch(roundToken);
+                    } else {
+                        showTapOffHandoff(roundToken);
+                    }
+                });
+            }, 450);
+        }
+
+        function showTapOffHandoff(roundToken) {
+            if (roundToken !== tapOffRoundToken) return;
+            musicFadeTo(MUSIC_VOL_HANDOFF, 1000);
+            if (tapOffIsController) db.ref(`tapOffRooms/${tapOffRoomCode}/status`).set('handoff');
+            const scoresHTML = tapOffPlayerNames.map((name, i) => {
+                const color = tapOffColor(i).css;
+                const total = (tapOffRelayScores[name] || []).reduce((a, b) => a + b, 0);
+                return `<div class="relay-handoff-team">
+                    <div class="relay-handoff-name" style="color:${color}">${name}</div>
+                    <div class="relay-handoff-score" style="color:${color}">${total}</div>
+                </div>`;
+            }).join('');
+            document.getElementById('tapoff-handoff-slot').innerText = `ROUND ${tapOffRelayRound} COMPLETE`;
+            document.getElementById('tapoff-handoff-scores').innerHTML = scoresHTML;
+            document.getElementById('tapoff-handoff').classList.remove('hidden');
+
+            let t = TAPOFF_HANDOFF;
+            const timerEl = document.getElementById('tapoff-timer');
+            const handoffEl = document.getElementById('tapoff-handoff-timer');
+            timerEl.style.color = 'var(--orange)';
+            timerEl.innerText = t;
+            handoffEl.innerText = t;
+            playBeep('count', 5);
+
+            clearInterval(tapOffHandoffInterval);
+            tapOffHandoffInterval = setInterval(() => {
+                if (roundToken !== tapOffRoundToken) { clearInterval(tapOffHandoffInterval); return; }
+                t--;
+                timerEl.innerText = t;
+                handoffEl.innerText = t;
+                if (t <= 3 && t > 0) {
+                    playBeep('count', t);
+                    timerEl.className = 'duel-timer countdown';
+                }
+                if (t <= 0) {
+                    clearInterval(tapOffHandoffInterval);
+                    document.getElementById('tapoff-handoff').classList.add('hidden');
+                    timerEl.style.color = '';
+                    timerEl.className = 'duel-timer go';
+                    timerEl.innerText = 'GO!';
+                    playBeep('go');
+                    musicFadeTo(MUSIC_VOL_PLAYING, 800);
+                    clearTimeout(tapOffHandoffNextTimeout);
+                    tapOffHandoffNextTimeout = setTimeout(() => {
+                        if (roundToken !== tapOffRoundToken || !tapOffIsController) return;
+                        const nextRound = tapOffRelayRound + 1;
+                        db.ref(`tapOffRooms/${tapOffRoomCode}`).update({
+                            currentRound: nextRound,
+                            status: 'starting'
+                        }).then(() => {
+                            db.ref(`tapOffRooms/${tapOffRoomCode}/roundCounter`).transaction(c => (c || 0) + 1);
+                        });
+                    }, 800);
+                }
+            }, 1000);
+        }
+
+        function endTapOffMatch(roundToken) {
+            if (roundToken !== tapOffRoundToken || tapOffMatchResultShown) return;
+            let maxTotal = -1;
+            let winner = null;
+            tapOffPlayerNames.forEach(name => {
+                const total = (tapOffRelayScores[name] || []).reduce((a, b) => a + b, 0);
+                if (total > maxTotal) {
+                    maxTotal = total;
+                    winner = name;
+                }
+            });
+            updateTapOffRoundDots(TAPOFF_RELAY_ROUNDS + 1);
+            showTapOffResult(winner);
+        }
+
+        function showTapOffResult(winner) {
+            if (tapOffMatchResultShown) return;
+            tapOffMatchResultShown = true;
+            clearTapOffTimers();
+            document.getElementById('tapoff-handoff').classList.add('hidden');
+            document.getElementById('tapoff-result').classList.remove('hidden');
+            document.getElementById('tapoff-tap-container').style.display = 'none';
+            const winnerNameEl = document.getElementById('tapoff-winner-name');
+            winnerNameEl.innerText = winner || 'DRAW';
+            const idx = tapOffPlayerNames.indexOf(winner);
+            winnerNameEl.style.color = idx >= 0 ? tapOffColor(idx).css : 'var(--yellow)';
+            const rematchBtn = document.getElementById('tapoff-rematch-btn');
+            if (rematchBtn) rematchBtn.style.display = tapOffIsController ? 'block' : 'none';
+            playBeep('win');
+            musicFadeTo(MUSIC_VOL_WINNER, 2000);
+            if (tapOffIsController) {
+                db.ref(`tapOffRooms/${tapOffRoomCode}`).update({
+                    status: 'finished',
+                    winner: winner || null
+                });
+            }
+        }
+
+        function updateTapOffRoundDots(activeRound) {
+            for (let i = 1; i <= TAPOFF_RELAY_ROUNDS; i++) {
+                const dot = document.getElementById(`tapoff-dot-${i}`);
+                const lbl = document.getElementById(`tapoff-slot-lbl-${i}`);
+                if (!dot || !lbl) continue;
+                dot.className = 'relay-slot-dot' + (i < activeRound ? ' done' : i === activeRound ? ' active' : '');
+                lbl.className = 'relay-slot-label' + (i === activeRound ? ' active' : '');
+            }
+        }
+
+        function updateTapOffTotals() {
+            tapOffPlayerNames.forEach((name, i) => {
+                const total = (tapOffRelayScores[name] || []).reduce((a, b) => a + b, 0);
+                const totalEl = document.getElementById(`tapoff-total-${i}`);
+                if (totalEl) totalEl.innerText = total;
+            });
+        }
+
+        function rematchTapOff() {
+            if (!tapOffRoomCode || !tapOffIsController) return;
+            clearTapOffTimers();
+            tapOffRoundToken++;
+            tapOffRelayRound = 1;
+            tapOffLastRoundCounter = 0;
+            tapOffRelayScores = {};
+            tapOffMatchResultShown = false;
+            document.getElementById('tapoff-result').classList.add('hidden');
+            document.getElementById('tapoff-handoff').classList.add('hidden');
+            startTapOff();
+        }
+
+        function exitTapOff() {
+            tapOffRoundToken++;
+            tapOffListeners.forEach(l => l.ref.off(l.event, l.fn));
+            tapOffListeners = [];
+            clearTapOffTimers();
+            if (tapOffRoomCode) {
+                if (tapOffIsController) {
+                    db.ref(`tapOffRooms/${tapOffRoomCode}`).remove();
+                } else if (!tapOffIsSpectator && tapOffMyName) {
+                    db.ref(`tapOffRooms/${tapOffRoomCode}/players/${tapOffMyName}`).remove();
+                    db.ref(`tapOffRooms/${tapOffRoomCode}/scores/${tapOffMyName}`).remove();
+                    db.ref(`tapOffRooms/${tapOffRoomCode}/relayScores/${tapOffMyName}`).remove();
+                }
+            }
+            tapOffRoomCode = null;
+            tapOffMyName = null;
+            tapOffIsController = false;
+            tapOffIsSpectator = false;
+            tapOffPlayerNames = [];
+            tapOffRelayScores = {};
+            tapOffRelayRound = 1;
+            tapOffState = 'idle';
+            tapOffPendingTaps = 0;
+            tapOffLastRoundCounter = 0;
+            tapOffMatchResultShown = false;
+            tapOffStartInProgress = false;
+            musicFadeTo(MUSIC_VOL_IDLE, 2000);
+            document.getElementById('tapoff-screen').classList.add('hidden');
+            document.getElementById('setup').classList.remove('hidden');
+        }
+
+        window.showTapOffLobby      = showTapOffLobby;
+        window.createTapOffRoom     = createTapOffRoom;
+        window.showTapOffJoinInput  = showTapOffJoinInput;
+        window.joinTapOffRoom       = joinTapOffRoom;
+        window.showTapOffWatchInput = showTapOffWatchInput;
+        window.watchTapOffRoom      = watchTapOffRoom;
+        window.startTapOff          = startTapOff;
+        window.rematchTapOff        = rematchTapOff;
+        window.exitTapOff           = exitTapOff;
     </script>
 </body>
 </html>
